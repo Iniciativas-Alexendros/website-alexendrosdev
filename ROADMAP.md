@@ -81,7 +81,7 @@
 
 | #   | Tarea                                                             | Estado    | Bloquea | Desbloquea |
 | --- | ----------------------------------------------------------------- | --------- | ------- | ---------- |
-| 6.1 | Valoradores en verde (tsc, lint, format, Vitest, Playwright, axe) | hecho | F5      | 6.3        |
+| 6.1 | Valoradores en verde (tsc, lint, format, Vitest, Playwright, axe) | hecho     | F5      | 6.3        |
 | 6.2 | CI GitHub Actions (lint/test/e2e/build) + runner propio           | pendiente | 0.6     | merge main |
 | 6.3 | `claude-deploy.sh verify` + `consolidate --level=L2`              | pendiente | 0.7,6.1 | release    |
 | 6.4 | Deploy (diferido): Vercel o Hostinger VPS                         | pendiente | 6.3     | —          |

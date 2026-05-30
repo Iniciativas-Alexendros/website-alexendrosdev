@@ -29,13 +29,13 @@ Sin `DATABASE_URL` ni `RESEND_API_KEY` el sitio funciona: los formularios respon
 
 ## Scripts
 
-| Script | Acción |
-| --- | --- |
-| `pnpm dev` / `pnpm build` / `pnpm start` | desarrollo / build / producción |
-| `pnpm lint` · `pnpm typecheck` · `pnpm format:check` | valoradores estáticos |
-| `pnpm test` | tests unitarios (Vitest) |
-| `pnpm e2e` | tests end-to-end (Playwright + axe) |
-| `pnpm db:migrate` / `pnpm db:deploy` | migraciones Prisma (requieren `DATABASE_URL`) |
+| Script                                               | Acción                                        |
+| ---------------------------------------------------- | --------------------------------------------- |
+| `pnpm dev` / `pnpm build` / `pnpm start`             | desarrollo / build / producción               |
+| `pnpm lint` · `pnpm typecheck` · `pnpm format:check` | valoradores estáticos                         |
+| `pnpm test`                                          | tests unitarios (Vitest)                      |
+| `pnpm e2e`                                           | tests end-to-end (Playwright + axe)           |
+| `pnpm db:migrate` / `pnpm db:deploy`                 | migraciones Prisma (requieren `DATABASE_URL`) |
 
 ## Variables de entorno
 
