@@ -73,7 +73,7 @@
 
 | # | Tarea | Estado | Bloquea | Desbloquea |
 |---|---|---|---|---|
-| 5.1 | `metadata`/OG por ruta, `sitemap.ts`, `robots.ts`, RSS `feed.xml` | pendiente | F2,F3 | — |
+| 5.1 | `metadata`/OG por ruta, `sitemap.ts`, `robots.ts`, RSS `feed.xml` | hecho | F2,F3 | — |
 | 5.2 | Auditoría a11y (axe) sin críticos | pendiente | F2,F3 | F6 |
 | 5.3 | Presupuesto CWV / Lighthouse; `prefers-reduced-motion` | pendiente | F2,F3 | F6 |
 

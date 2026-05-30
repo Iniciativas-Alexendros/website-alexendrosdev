@@ -4,6 +4,7 @@ export const SITE = {
   name: "Alejandro Vargas",
   role: "Platform Engineer & Fullstack Developer",
   domain: "alexendros.dev",
+  url: "https://alexendros.dev",
   email: "hola@alexendros.dev",
   socials: {
     github: "https://github.com/alejandrovargas",
