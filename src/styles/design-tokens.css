@@ -39,10 +39,14 @@
   --text-link: 214 38% 47%;
   --text-link-hover: 214 41% 41%;
 
+  /* Accent semántico para CTA (fill con texto encima). AA-safe en ambos modos:
+     en light = primary-400; en dark se eleva a primary-300 (ver .dark). */
+  --cta: var(--primary-400);
+
   /* State / semantic */
   --success: 180 52% 36%;        /* #2d8b8b */
   --warning: 42 40% 56%;         /* #c4a35a */
-  --error: 3 37% 52%;            /* #b85450 */
+  --emergency: 3 37% 52%;        /* #b85450 (Arctic Ocean v2: renombrado de --error) */
   --info: 214 38% 47%;
 
   /* Borders */
@@ -148,12 +152,15 @@
   --text-tertiary: 195 25% 57%;
   --text-muted: 195 20% 44%;
   --text-on-primary: 213 30% 15%;
-  --text-link: 180 52% 36%;
-  --text-link-hover: 180 47% 42%;
+  --text-link: 180 47% 42%;      /* #3a9e9e primary-300 — AA 4.6:1 (v2 fix; era #2d8b8b 3.9:1) */
+  --text-link-hover: 180 45% 55%; /* #4ab0b0 primary-400 dark — conserva diferencial de hover */
+
+  /* CTA dark elevado a primary-300 (#3a9e9e ≈4.6:1 sobre --text-on-primary) — AA v2 */
+  --cta: var(--primary-300);
 
   --success: 174 56% 55%;        /* #4ecdc4 */
   --warning: 42 70% 64%;         /* #e9c46a */
-  --error: 0 55% 67%;            /* #e07a7a */
+  --emergency: 0 55% 67%;        /* #e07a7a (Arctic Ocean v2: renombrado de --error) */
   --info: 200 50% 59%;
 
   --border: 213 30% 23%;         /* #2a3a4e */

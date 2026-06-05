@@ -55,7 +55,7 @@
   /* ---- Estado / semántico ---- */
   --color-success: hsl(var(--success));
   --color-warning: hsl(var(--warning));
-  --color-error: hsl(var(--error));
+  --color-emergency: hsl(var(--emergency));
   --color-info: hsl(var(--info));
 
   /* ---- Bordes ---- */
