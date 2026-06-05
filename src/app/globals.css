@@ -2,20 +2,88 @@
 @import "../styles/design-tokens.css";
 @import "../styles/site.css";
 
-/* Puente de tokens Arctic Ocean → utilidades Tailwind v4.
-   Permite usar p. ej. `font-sans`, `text-primary`, `bg-base` desde código nuevo
-   sin perder el sistema de tokens HSL del diseño portado. */
+/* ============================================================
+   Puente Arctic Ocean → utilidades Tailwind v4
+   ------------------------------------------------------------
+   Expone TODOS los tokens del design system (definidos en HSL en
+   design-tokens.css, conmutados por `.dark`) como utilidades Tailwind
+   para código nuevo en JSX, sin duplicar valores. `@theme inline`
+   inserta el `hsl(var(--token))` directamente en cada utilidad, de modo
+   que el override de `.dark` se sigue resolviendo en tiempo de ejecución.
+
+   El estilado existente vive en clases `ak-*` (site.css) que consumen los
+   tokens HSL directamente; este puente es la vía idiomática para añadir UI
+   nueva. Nombres de utilidad trazables al token del DS (spec §8.1):
+   p. ej. `bg-background`, `text-foreground`, `text-text-secondary`,
+   `bg-primary-400`, `border-border-focus`, `rounded-2xl`, `shadow-lg`,
+   `animate-pulse-ring`. */
 @theme inline {
+  /* ---- Familias tipográficas ---- */
   --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
 
-  --color-primary: hsl(var(--primary-400));
-  --color-bg-base: hsl(var(--bg-base));
-  --color-bg-elevated: hsl(var(--bg-elevated));
-  --color-text-primary: hsl(var(--text-primary));
+  /* ---- Escala primaria (Acero ↔ Teal) ---- */
+  --color-primary-50: hsl(var(--primary-50));
+  --color-primary-100: hsl(var(--primary-100));
+  --color-primary-200: hsl(var(--primary-200));
+  --color-primary-300: hsl(var(--primary-300));
+  --color-primary-400: hsl(var(--primary-400));
+  --color-primary-500: hsl(var(--primary-500));
+  --color-primary-600: hsl(var(--primary-600));
+  --color-primary-700: hsl(var(--primary-700));
+  --color-primary-800: hsl(var(--primary-800));
+  --color-primary-900: hsl(var(--primary-900));
+  --color-primary-950: hsl(var(--primary-950));
+  --color-primary: hsl(var(--primary-400)); /* DEFAULT → `bg-primary` */
+
+  /* ---- Superficies (fondos) ---- */
+  --color-background: hsl(var(--bg-base));
+  --color-elevated: hsl(var(--bg-elevated));
+  --color-sunken: hsl(var(--bg-sunken));
+  --color-highlight: hsl(var(--bg-highlight));
+  --color-inset: hsl(var(--bg-inset));
+
+  /* ---- Texto ---- */
+  --color-foreground: hsl(var(--text-primary));
   --color-text-secondary: hsl(var(--text-secondary));
-  --color-border: hsl(var(--border));
+  --color-text-tertiary: hsl(var(--text-tertiary));
+  --color-muted: hsl(var(--text-muted));
+  --color-on-primary: hsl(var(--text-on-primary));
+  --color-link: hsl(var(--text-link));
+  --color-link-hover: hsl(var(--text-link-hover));
+
+  /* ---- Estado / semántico ---- */
   --color-success: hsl(var(--success));
   --color-warning: hsl(var(--warning));
   --color-error: hsl(var(--error));
+  --color-info: hsl(var(--info));
+
+  /* ---- Bordes ---- */
+  --color-border: hsl(var(--border));
+  --color-border-subtle: hsl(var(--border-subtle));
+  --color-border-focus: hsl(var(--border-focus));
+
+  /* ---- Radios (override de los defaults de Tailwind v4) ---- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+
+  /* ---- Sombras (compuestas en design-tokens.css como --elev-*) ---- */
+  --shadow-sm: var(--elev-sm);
+  --shadow-md: var(--elev-md);
+  --shadow-lg: var(--elev-lg);
+  --shadow-xl: var(--elev-xl);
+  --shadow-focus: var(--elev-focus);
+
+  /* ---- Easing ---- */
+  --ease-bounce: var(--ease-bounce);
+  --ease-in-out: var(--ease-in-out);
+
+  /* ---- Animaciones (keyframes en design-tokens.css) ---- */
+  --animate-blink: blink 1s step-end infinite;
+  --animate-marquee: marquee 28s linear infinite;
+  --animate-reveal: reveal 0.5s var(--ease-default) forwards;
+  --animate-pulse-ring: pulse-ring 2s ease-in-out infinite;
 }
