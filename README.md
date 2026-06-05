@@ -47,5 +47,4 @@ GitHub Actions (`.github/workflows/ci.yml`): `quality` (lint, typecheck, test, b
 
 ## Notas
 
-- El contenido ("Alejandro Vargas" y datos de ejemplo) es **seed/marcador**; se personalizará en una iteración posterior. Edita los módulos en `src/lib/content/` y los posts en `content/blog/`.
-- El panel de _Tweaks_ del prototipo (artefacto del diseñador) se ha descartado en producción.
+- Editar los módulos en `src/lib/content/` y los posts en `content/blog/`.
