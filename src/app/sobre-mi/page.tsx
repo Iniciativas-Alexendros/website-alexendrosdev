@@ -8,7 +8,7 @@ import { Eyebrow, SectionHead } from "@/components/ui/SectionHead";
 export const metadata: Metadata = {
   title: "Sobre mí",
   description:
-    "Platform engineer y fullstack developer con 9 años construyendo infraestructura cloud-native, Kubernetes y plataformas internas.",
+    "Software & Platform Engineer en Valencia. Construyo herramientas de seguridad, gateways de credenciales y aplicaciones fullstack en Rust, Python y TypeScript.",
 };
 
 function AboutIntro() {
@@ -17,13 +17,14 @@ function AboutIntro() {
       <span className="ak-avatar" data-reveal />
       <Eyebrow>sobre mí</Eyebrow>
       <h1 className="ak-page-title" data-reveal data-reveal-delay="1">
-        Nueve años construyendo plataformas que los equipos quieren usar
+        Construyo sistemas que se pueden auditar
       </h1>
       <p className="ak-page-lead" data-reveal data-reveal-delay="2">
-        Soy Alejandro Vargas, platform engineer y fullstack developer con 9 años de experiencia. Me
-        especializo en infraestructura cloud-native, Kubernetes y plataformas internas que
-        multiplican la productividad de los equipos de ingeniería. Creo que la mejor infraestructura
-        es la que el equipo de producto no tiene que pensar.
+        Soy Alejandro Domingo Agustí (Alexendros), Software &amp; Platform Engineer en Valencia. Me
+        muevo entre la seguridad y el tooling: gateways de credenciales en Rust, clústeres de
+        verificación check-only, plantillas para Claude Code y aplicaciones fullstack en Next.js.
+        Creo en verificar antes de modificar, en la custodia de secretos por diseño y en la
+        transparencia: enseñar el trabajo en abierto.
       </p>
       <div className="ak-about-cta" data-reveal data-reveal-delay="2">
         <Button variant="primary" href="#">
@@ -140,7 +141,7 @@ export default function AboutPage() {
           center
           eyebrow="trayectoria"
           title="Línea de carrera"
-          sub="De junior a platform engineer: cada etapa construida sobre la anterior."
+          sub="Del trabajo en abierto a la ingeniería de seguridad y plataforma."
         />
         <TimelineAlt />
       </section>

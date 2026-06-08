@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 
 test("la home renderiza y navega a proyectos", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/Alejandro Vargas/);
+  await expect(page).toHaveTitle(/Alejandro Domingo Agustí/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.getByRole("link", { name: "Proyectos", exact: true }).first().click();
   await expect(page).toHaveURL(/\/proyectos$/);

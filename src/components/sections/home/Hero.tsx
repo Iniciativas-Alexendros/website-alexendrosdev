@@ -7,15 +7,15 @@ export function Hero() {
     <section className="ak-hero-c" data-screen-label="hero">
       <span className="ak-note" data-reveal>
         <span className="ak-status-dot" />
-        Disponible para proyectos · Q3 2026
+        Disponible para proyectos
       </span>
       <h1 className="ak-display" data-reveal data-reveal-delay="1">
-        Plataformas que escalan. <em>Software</em> que los equipos quieren usar.
+        Seguridad, <em>tooling</em> e infraestructura que puedes auditar.
       </h1>
       <p className="ak-hero-c-lead" data-reveal data-reveal-delay="2">
-        Construyo plataformas internas, infraestructura cloud-native y aplicaciones fullstack que
-        resuelven problemas reales de ingeniería. 9 años convirtiendo complejidad en sistemas que
-        funcionan solos.
+        Construyo herramientas de seguridad, gateways de credenciales y aplicaciones fullstack en
+        Rust, Python y TypeScript. Sistemas que verifican antes de modificar y que dejan registro de
+        todo lo que hacen.
       </p>
       <div className="ak-hero-c-cta" data-reveal data-reveal-delay="2">
         <Button variant="primary" href="/proyectos">

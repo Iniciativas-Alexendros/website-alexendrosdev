@@ -14,4 +14,4 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? "";
 
 // URL base absoluta para las success/cancel URLs de Checkout. Se prefiere el
 // origin de la petición; este valor es el fallback en entornos sin cabecera.
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://alexendros.dev";
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://alexendros.pro";

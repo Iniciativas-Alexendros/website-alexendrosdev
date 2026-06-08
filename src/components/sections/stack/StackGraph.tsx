@@ -70,7 +70,7 @@ function detailFor(name: string): StackDetail {
   return {
     level,
     years: `${years} años`,
-    projects: ["Platform Engineering", "Cloud-Native", "Fullstack"],
+    projects: ["TrenchPass", "XEK", "plantillas"],
     note: "Herramienta activa en el stack actual.",
   };
 }
@@ -80,7 +80,7 @@ export function StackGraph() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [sel, setSel] = useState("PostgreSQL");
+  const [sel, setSel] = useState("Rust");
   const [hot, setHot] = useState<string | null>(null);
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
 

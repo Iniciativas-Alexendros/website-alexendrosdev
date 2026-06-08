@@ -27,7 +27,7 @@ export function Header() {
     <header className={`ak-header ${scrolled ? "ak-header-scrolled" : ""}`.trim()}>
       <div className="ak-header-inner">
         <Link className="ak-logo" href="/">
-          ~/<b>dev</b>
+          alex<b>endros</b>
         </Link>
         <nav className="ak-nav">
           {NAV.map((l) => (

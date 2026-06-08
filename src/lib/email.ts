@@ -8,4 +8,4 @@ const apiKey = process.env.RESEND_API_KEY;
 export const resend: Resend | null = apiKey ? new Resend(apiKey) : null;
 
 export const EMAIL_FROM = process.env.EMAIL_FROM ?? "Portfolio <onboarding@resend.dev>";
-export const CONTACT_TO = process.env.CONTACT_TO_EMAIL ?? "hola@alexendros.dev";
+export const CONTACT_TO = process.env.CONTACT_TO_EMAIL ?? "contacto@alexendros.pro";

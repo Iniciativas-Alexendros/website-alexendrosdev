@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { BLOG_TAGS, POSTS } from "@/lib/content";
+import { BLOG_TAGS, POSTS, SITE } from "@/lib/content";
 import type { Post } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -33,8 +33,8 @@ function Featured({ p }: { p: Post }) {
         <div className="ak-byline">
           <span className="ak-avatar" />
           <span>
-            <div className="ak-byline-name">Alejandro Vargas</div>
-            <div className="ak-byline-sub">Platform Engineer &amp; Fullstack Dev</div>
+            <div className="ak-byline-name">{SITE.name}</div>
+            <div className="ak-byline-sub">{SITE.role}</div>
           </span>
           <Button variant="secondary" style={{ marginLeft: "auto" }}>
             Leer <Icon name="arrow-right" size={15} style={{ marginLeft: 5 }} />
@@ -91,8 +91,8 @@ export function BlogView() {
             <Eyebrow>blog · escrito en MDX</Eyebrow>
             <h1 className="ak-page-title">Notas de ingeniería</h1>
             <p className="ak-page-lead">
-              Apuntes sobre platform engineering, infraestructura cloud-native y desarrollo backend.
-              Sin relleno: solo lo que aprendí en producción.
+              Apuntes sobre seguridad, tooling, MCP y desarrollo. Sin relleno: lo que aprendo
+              construyendo mis propios proyectos.
             </p>
           </div>
           <div className="ak-search" style={{ minWidth: 240 }}>

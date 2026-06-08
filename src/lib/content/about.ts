@@ -1,83 +1,61 @@
 import type { Principle, Stat, TimelineEntry } from "./types";
 
+// Stats: factuales donde se puede deducir de los repos públicos; las inciertas
+// (años de experiencia, nº de clientes) quedan como TODO para el usuario.
 export const HERO_STATS: Stat[] = [
-  ["9+", "años"],
-  ["60+", "proyectos"],
-  ["18", "clientes"],
-  ["3", "OSS"],
+  ["5", "proyectos OSS"], // TODO: ajustar si se cuentan privados/otros
+  ["4", "lenguajes"], // Rust · Python · TypeScript · Bash
+  ["3", "licencias OSS"], // AGPL-3.0 · MIT · CC BY 4.0
+  ["1", "objetivo: tu sistema"], // TODO: reemplplazar por años de experiencia / clientes reales
 ];
 
-export const ABOUT_STATS: Stat[] = [
-  ["9+", "años"],
-  ["60+", "proyectos"],
-  ["18", "clientes"],
-  ["3", "open source"],
-];
+export const ABOUT_STATS: Stat[] = HERO_STATS;
 
 export const TIMELINE: TimelineEntry[] = [
   {
-    year: "2023 — Hoy",
-    role: "Platform Engineer",
-    org: "Fintech Scale-up · remoto",
+    year: "2026 — Hoy",
+    role: "Contratista independiente · Software & Platform Engineer",
+    org: "Iniciativas Alexendros · Valencia, España",
     now: true,
     bullets: [
-      "Construí la IDP interna usada por 40+ equipos: pipelines self-service, registro de servicios y gestión de secretos.",
-      "Lideré adopción de GitOps con ArgoCD, reduciendo el tiempo de deployment en un 70%.",
+      "Diseño y construyo herramientas de seguridad e infraestructura: TrenchPass (gateway MCP de credenciales en Rust) y XEK (40+ skills de verificación check-only).",
+      "Tooling para desarrolladores y automatización: ecosistema de plantillas `claude-init`-ready para Claude Code y portales web fullstack en Next.js.",
     ],
-    tags: ["Go", "Kubernetes", "Terraform", "ArgoCD", "AWS"],
+    tags: ["Rust", "Python", "TypeScript", "MCP", "Seguridad"],
   },
+  // TODO: añadir el historial laboral previo real (rol, empresa, periodo, logros).
   {
-    year: "2020 — 2023",
-    role: "Senior Fullstack Engineer",
-    org: "SaaS Startup · remoto",
+    year: "TODO — TODO",
+    role: "TODO: rol anterior",
+    org: "TODO: empresa · ubicación",
     bullets: [
-      "Lideré un equipo de 6 ingenieros para escalar el producto de 0 a 2M usuarios activos.",
-      "Diseñé la arquitectura de microservicios y las pipelines CI/CD que soportaron el crecimiento.",
+      "TODO: principal logro o responsabilidad de esta etapa.",
+      "TODO: segundo logro medible (impacto, escala, tecnología).",
     ],
-    tags: ["React", "Node.js", "PostgreSQL", "Docker", "AWS"],
-  },
-  {
-    year: "2017 — 2020",
-    role: "Software Engineer",
-    org: "Agencia Digital",
-    bullets: [
-      "Entregué 20+ proyectos de cliente, de MVPs a aplicaciones de producción.",
-      "Introduje Docker y AWS en los proyectos del equipo, mejorando la reproducibilidad y los despliegues.",
-    ],
-    tags: ["TypeScript", "React", "Node.js", "AWS", "Docker"],
-  },
-  {
-    year: "2015 — 2017",
-    role: "Junior Developer",
-    org: "Consultoría IT",
-    bullets: [
-      "Desarrollo fullstack en aplicaciones empresariales con integración de sistemas legacy.",
-      "Primeros pasos en automatización de tests y entrega continua.",
-    ],
-    tags: ["JavaScript", "Java", "SQL Server"],
+    tags: ["TODO"],
   },
 ];
 
 export const PRINCIPLES: Principle[] = [
   {
-    icon: "git-branch",
-    title: "Infraestructura como código",
-    body: "Todo en Git: infraestructura, configuración, pipelines. Si no está en un repositorio, no existe. La reproducibilidad no es opcional.",
+    icon: "shield",
+    title: "Verificar antes de modificar",
+    body: "Primero medir y razonar, después actuar. Las herramientas auditan y proponen; la acción correctiva es una decisión consciente, nunca un efecto colateral. Es la filosofía de XEK aplicada a todo.",
   },
   {
-    icon: "activity",
-    title: "Observabilidad antes de optimizar",
-    body: "No se puede mejorar lo que no se mide. Instrumentar antes de hacer prod, SLOs antes que alertas, dashboards que cuentan una historia.",
+    icon: "lock",
+    title: "Custodia de secretos por diseño",
+    body: "Las credenciales no se esparcen por mil servicios: viven tras un único custodio con doble factor y auditoría append-only. Si no queda registro, no ha pasado.",
   },
   {
-    icon: "users",
-    title: "Developer Experience ante todo",
-    body: "La mejor plataforma es la que los equipos usan sin pensar. Si hay fricción, la solución es el producto, no la documentación.",
+    icon: "eye-off",
+    title: "Sin tracking, con transparencia",
+    body: "Lo personal sin analítica ni cookies de terceros; lo público, abierto y verificable (datos, licencias y registros como GV.ERRA). La confianza se construye enseñando el trabajo, no escondiéndolo.",
   },
 ];
 
 export const DAILY_STACK = [
-  "Go", "TypeScript", "React", "Next.js", "Kubernetes", "Terraform", "ArgoCD",
-  "Docker", "PostgreSQL", "Redis", "AWS", "OpenTelemetry", "Grafana",
-  "Prometheus", "Kafka", "Loki",
+  "Rust", "Python", "TypeScript", "Next.js", "React", "Bash",
+  "Docker", "HashiCorp Vault", "OpenTelemetry", "SigNoz", "PostgreSQL",
+  "MCP", "Claude Code", "GitHub Actions", "JSON Schema", "Tailwind", "Vercel",
 ];

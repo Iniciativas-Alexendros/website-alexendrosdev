@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
-import { POSTS, getPost } from "@/lib/content";
+import { POSTS, SITE, getPost } from "@/lib/content";
 import { extractToc, getPostSource } from "@/lib/blog";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHead } from "@/components/ui/SectionHead";
@@ -59,8 +59,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <div className="ak-byline">
           <span className="ak-avatar" />
           <span>
-            <div className="ak-byline-name">Alejandro Vargas</div>
-            <div className="ak-byline-sub">Platform Engineer &amp; Fullstack Senior</div>
+            <div className="ak-byline-name">{SITE.name}</div>
+            <div className="ak-byline-sub">{SITE.role}</div>
           </span>
         </div>
       </section>

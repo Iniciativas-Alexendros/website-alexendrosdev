@@ -9,10 +9,11 @@ export function Footer() {
       <div className="ak-footer-cols">
         <div>
           <div className="ak-logo" style={{ marginBottom: 10 }}>
-            ~/<b>dev</b>
+            alex<b>endros</b>
           </div>
           <p className="ak-footer-tag">
-            Platform Engineer &amp; Fullstack. Diseño, construyo y opero sistemas que escalan.
+            Software &amp; Platform Engineer. Seguridad, tooling e infraestructura que puedes
+            auditar.
           </p>
           <div className="ak-footer-social">
             <a aria-label="GitHub" href={SITE.socials.github}>
@@ -20,9 +21,6 @@ export function Footer() {
             </a>
             <a aria-label="LinkedIn" href={SITE.socials.linkedin}>
               <Icon name="linkedin" size={18} />
-            </a>
-            <a aria-label="X" href={SITE.socials.twitter}>
-              <Icon name="twitter" size={18} />
             </a>
             <a aria-label="Email" href={`mailto:${SITE.email}`}>
               <Icon name="mail" size={18} />
@@ -62,7 +60,7 @@ export function Footer() {
         <div>
           <div className="ak-footer-ct">Newsletter</div>
           <p className="ak-footer-tag" style={{ marginBottom: 10 }}>
-            Notas de platform engineering y cloud-native, sin spam.
+            Notas sobre seguridad, tooling e ingeniería, sin spam.
           </p>
           <NewsletterForm variant="footer" />
         </div>

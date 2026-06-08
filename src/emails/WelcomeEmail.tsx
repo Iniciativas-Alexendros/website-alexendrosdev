@@ -11,7 +11,7 @@ export function WelcomeEmail() {
             ¡Gracias por suscribirte!
           </Heading>
           <Text style={{ color: "#4a5568" }}>
-            Recibirás mis notas sobre platform engineering y cloud-native, sin spam. Puedes darte de
+            Recibirás mis notas sobre seguridad, tooling e ingeniería, sin spam. Puedes darte de
             baja en cualquier momento.
           </Text>
         </Container>

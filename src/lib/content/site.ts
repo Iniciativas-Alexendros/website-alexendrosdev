@@ -1,15 +1,15 @@
 import type { NavLink } from "./types";
 
 export const SITE = {
-  name: "Alejandro Vargas",
-  role: "Platform Engineer & Fullstack Developer",
-  domain: "alexendros.dev",
-  url: "https://alexendros.dev",
-  email: "hola@alexendros.dev",
+  name: "Alejandro Domingo Agustí",
+  role: "Software & Platform Engineer",
+  domain: "alexendros.pro",
+  url: "https://alexendros.pro",
+  email: "contacto@alexendros.pro",
   socials: {
-    github: "https://github.com/alejandrovargas",
-    linkedin: "https://linkedin.com/in/alejandrovargas-dev",
-    twitter: "https://twitter.com/alejandrovargas",
+    github: "https://github.com/Alexendros",
+    // TODO: confirmar la URL real de LinkedIn (placeholder).
+    linkedin: "https://www.linkedin.com/in/alexendros",
   },
 } as const;
 
@@ -24,6 +24,6 @@ export const NAV: NavLink[] = [
 ];
 
 export const TECH = [
-  "Go", "Kubernetes", "Terraform", "ArgoCD", "React", "Next.js",
-  "TypeScript", "AWS", "PostgreSQL", "OpenTelemetry", "Grafana", "Docker",
+  "Rust", "Python", "TypeScript", "Next.js", "React", "Bash",
+  "Docker", "Vault", "OpenTelemetry", "MCP", "GitHub Actions", "JSON Schema",
 ];

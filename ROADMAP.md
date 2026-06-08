@@ -111,7 +111,8 @@
 | 9.2 | Isla `PurchaseCard` extraída y reutilizada en `/servicios` y `/escaparate`  | hecho    | 9.1                   | —          |
 | 9.3 | Endurecer `ci.yml`: `concurrency` cancel-in-progress + `timeout-minutes`    | hecho    | 6.2                   | —          |
 | 9.4 | Provisionar Supabase (instancia libre) + `DATABASE_URL` + migración Prisma  | en curso | Supabase (MCP) + env  | 4.1        |
-| 9.5 | Deploy producción Vercel (MCP) + dominio `alexendros.dev` (9,99 $/año)      | en curso | proyecto Vercel + env | 8.2        |
+| 9.5 | Deploy producción Vercel (MCP) + dominio `alexendros.pro`                   | en curso | proyecto Vercel + env | 8.2        |
+| 9.6 | Personalización de contenido: datos reales + 5 proyectos OSS de GitHub      | hecho    | 9.1                   | —          |
 
 > Nota build (sandbox): `pnpm build` (static export) falla en el contenedor de trabajo con
 > `useContext` null en `/` y en `/_global-error` (página del framework), con Turbopack **y** webpack,
@@ -139,5 +140,5 @@ los ítems que dependen de credenciales o deploy:
 
 ## Notas
 
-- Contenido genérico "Alejandro Vargas" como **seed**; personalización posterior.
+- Contenido personalizado con los datos reales de **Alejandro Domingo Agustí** (Alexendros) y sus 5 proyectos OSS públicos (TrenchPass, plantillas, XEK, GV.ERRA, alexendros.me). El seed original ("Alejandro Vargas") queda archivado en la rama `base-seed-snapshot`. Pendientes marcados con `TODO:`: precios reales, historial laboral previo, testimonios, URL de LinkedIn.
 - Fidelidad pixel-perfect: comparar contra `screenshots/*.png` del bundle original.

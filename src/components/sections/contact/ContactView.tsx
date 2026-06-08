@@ -8,10 +8,13 @@ import { Eyebrow } from "@/components/ui/SectionHead";
 
 const PROJ_TYPES = ["Web App", "API & backend", "Consultoría", "Otro"];
 const STEPS = ["Datos", "Proyecto", "Enviar"];
+// Texto mostrable de una URL: sin protocolo ni "www." ni barra final.
+const display = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+
 const CHANNELS: { ic: IconName; t: string; href: string }[] = [
   { ic: "mail", t: SITE.email, href: `mailto:${SITE.email}` },
-  { ic: "linkedin", t: "linkedin.com/in/alejandrovargas-dev", href: SITE.socials.linkedin },
-  { ic: "github", t: "github.com/alejandrovargas", href: SITE.socials.github },
+  { ic: "linkedin", t: display(SITE.socials.linkedin), href: SITE.socials.linkedin },
+  { ic: "github", t: display(SITE.socials.github), href: SITE.socials.github },
 ];
 
 function validEmail(v: string) {

@@ -27,14 +27,14 @@ export interface CaseStudy {
   sections: CaseSection[];
 }
 
-// Estudio curado para el proyecto destacado (contenido seed completo).
+// Estudio curado para el proyecto destacado.
 const STUDIES: Record<string, CaseStudy> = {
-  "plataforma-idp": {
+  trenchpass: {
     summary:
-      "Diseñé y construí la plataforma interna de developers para una fintech en crecimiento: 40 equipos de producto, ciclos de deploy de 2 horas y una dependencia total del equipo de plataforma para cualquier cambio en producción. El resultado: de 3 días de onboarding a 4 horas, y €2.4M de ahorro anual en costes operativos.",
-    role: "Platform Engineer",
-    duration: "8 meses",
-    client: "Fintech (conf.)",
+      "Diseñé TrenchPass para resolver un problema propio que escala mal: ~20 secretos de proveedor (Notion, Stripe, GitHub, Vercel…) repartidos por servicios, sin un punto único de control ni auditoría. La solución: un gateway MCP en Rust que actúa como custodio único, con doble factor (Bearer + mTLS), log append-only y observabilidad con OpenTelemetry → SigNoz.",
+    role: "Software & Platform Engineer",
+    duration: "En desarrollo (2026)",
+    client: "Ecosistema Alexendros (proyecto propio)",
     sections: [
       {
         id: "contexto",
@@ -42,11 +42,11 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "Una fintech con 40 equipos de ingeniería y crecimiento acelerado llegó a un punto de inflexión: cada deploy requería intervención manual del equipo de plataforma, el onboarding de un nuevo servicio tardaba entre dos y tres días y los equipos de producto pasaban más tiempo esperando que construyendo.",
+            text: "Operar varios servicios y satélites implica integrar muchos proveedores externos. Cada uno con su token, su rotación y su lugar donde acaba guardado. El resultado natural es la dispersión: copias del mismo secreto en `.env`, en paneles de configuración y en la cabeza de quien lo configuró.",
           },
           {
             type: "p",
-            text: "El equipo de plataforma tenía cuatro personas para dar soporte a más de 200 ingenieros. La arquitectura de microservicios era correcta en papel, pero el andamiaje operacional no había escalado con ella.",
+            text: "Cada copia es una superficie de ataque y un punto ciego: sin un registro central, no hay forma de responder a «quién accedió a esta credencial y cuándo».",
           },
         ],
       },
@@ -56,11 +56,11 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "El problema no era técnico en el sentido clásico: la infraestructura funcionaba. El problema era de experiencia del desarrollador. Scaffolding manual, pipelines copiados de repositorio en repositorio, secretos gestionados con acceso directo a la consola de AWS y sin forma de conocer el estado real de un servicio en producción.",
+            text: "El objetivo no era otro almacén de secretos más, sino un custodio único con gobernanza real: autenticación fuerte, auditoría incontrovertible y observabilidad, sin convertirse en un cuello de botella ni en un único punto de fallo silencioso.",
           },
           {
             type: "callout",
-            text: "Decisión clave: no construir otra herramienta interna más. Adoptar Backstage como base y extenderlo con plugins propios para tener una IDP real, no un conjunto de scripts de bash bien organizados.",
+            text: "Decisión clave: exponer los secretos como tools del Model Context Protocol (MCP) tras un gateway en Rust, en lugar de repartir tokens. Los consumidores piden lo que necesitan; el gateway autentica, resuelve contra Vault y registra.",
           },
         ],
       },
@@ -70,43 +70,36 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "Diseñé la plataforma sobre tres pilares: Backstage como portal del desarrollador, ArgoCD como engine de GitOps y Terraform modules como la capa de infraestructura self-service. Los developers rellenan un formulario en Backstage y en 15 minutos tienen repositorio, pipeline CI/CD, namespace en el cluster y monitorización configurados.",
+            text: "TrenchPass se construye sobre axum y rmcp (Rust). El acceso exige doble factor simultáneo —certificado mTLS + Bearer token— con rate limiting y protección anti-replay. Los secretos viven en HashiCorp Vault (almacén caliente con caché de 60 s) y cada evento se escribe en una tabla append-only de PostgreSQL. La telemetría se exporta con OpenTelemetry a SigNoz.",
           },
           {
             type: "code",
-            file: "argocd/application.yaml",
-            code: `# ArgoCD Application generada por el scaffolding de Backstage
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: payments-service
-  namespace: argocd
-spec:
-  source:
-    repoURL: https://github.com/org/gitops-config
-    path: services/payments
-  destination:
-    namespace: payments-prod`,
+            file: "ejemplo de acceso (conceptual)",
+            code: `# El consumidor autentica con mTLS + Bearer y pide un secreto como tool MCP
+POST /mcp  (cert mutuo + Authorization: Bearer <token>)
+  tool: secrets.get
+  args: { namespace: "stripe", key: "api_key" }
+# → TrenchPass resuelve contra Vault, registra el acceso (append-only)
+#   y exporta la traza a SigNoz`,
           },
           {
             type: "figure",
-            label: "diagrama de arquitectura IDP",
-            caption: "Flujo: Backstage scaffolding → PR en repo gitops → ArgoCD sync → K8s",
+            label: "arquitectura TrenchPass",
+            caption: "Consumidor (mTLS+Bearer) → TrenchPass → Vault (hot path) + PostgreSQL (audit) + SigNoz (telemetría)",
           },
         ],
       },
       {
         id: "resultado",
-        title: "Resultado",
+        title: "Estado y resultado",
         blocks: [
           {
             type: "p",
-            text: "A los seis meses, el 80% de los deploys no requerían intervención del equipo de plataforma. El onboarding de un servicio nuevo pasó de tres días a cuatro horas. El tiempo de deploy medio bajó de 110 minutos a 18 minutos. El equipo de plataforma dejó de gestionar tickets y empezó a trabajar en producto.",
+            text: "El scaffold compila y el enrutado de tools se construye namespace a namespace (~20 namespaces de credenciales planificados). Más que una métrica de adopción, TrenchPass es una afirmación de principios: la custodia de secretos se diseña, no se improvisa. Es open source bajo AGPL-3.0.",
           },
           {
-            type: "quote",
-            text: "La IDP que construyó nos permitió pasar de 3 a 12 deploys al día sin añadir un solo ingeniero de infraestructura. ROI medible desde el primer sprint.",
-            author: "Laura Sanz, VP of Engineering",
+            type: "callout",
+            text: "TODO: añadir métricas de adopción/uso cuando el gateway entre en operación real.",
           },
         ],
       },
@@ -114,13 +107,13 @@ spec:
   },
 };
 
-// Plantilla genérica coherente para proyectos sin estudio curado (contenido seed).
+// Plantilla genérica coherente para proyectos sin estudio curado.
 function genericStudy(p: Project): CaseStudy {
   return {
     summary: p.desc,
-    role: "Senior Engineer",
-    duration: "—",
-    client: "Confidencial",
+    role: "Software & Platform Engineer",
+    duration: p.year,
+    client: "Proyecto propio (open source)",
     sections: [
       {
         id: "contexto",
@@ -129,7 +122,7 @@ function genericStudy(p: Project): CaseStudy {
           { type: "p", text: p.desc },
           {
             type: "p",
-            text: `Proyecto de la categoría ${p.category} (${p.year}). Esta es una ficha de caso de estudio con contenido marcador, lista para completar con el detalle real del proyecto.`,
+            text: `Proyecto de la categoría ${p.category} (${p.year}). TODO: ampliar con el detalle del problema, las decisiones de diseño y el impacto real.`,
           },
         ],
       },

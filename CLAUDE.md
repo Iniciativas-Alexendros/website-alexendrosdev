@@ -50,7 +50,7 @@ Portfolio fullstack en **Next.js 16 (App Router, Turbopack) · React 19 · TS es
 ## Notas
 
 - `ARCHITECTURE.md` describe en parte el **árbol objetivo**, no el real. Donde diverja, **manda el código**: p. ej. el tema usa `localStorage`/script (no cookie SSR `ao-theme`), `lib/db` y `lib/validation` son ficheros planos (no carpetas), `emails/` está en `src/emails/`, y el `Lead` real usa `type` (no `company`/`budget`).
-- El contenido ("Alejandro Vargas" y datos de ejemplo) es **seed/marcador** pendiente de personalizar; edítalo en `src/lib/content/` y `content/blog/`.
+- El contenido está **personalizado** con los datos reales de Alejandro Domingo Agustí (Alexendros): identidad en `src/lib/content/site.ts`, sus 5 proyectos OSS en `projects.ts`, y blog en `content/blog/`. El seed original ("Alejandro Vargas") queda archivado en la rama `base-seed-snapshot`. Quedan marcadores `TODO:` para datos no públicos (precios, historial laboral previo, testimonios, URL de LinkedIn); edita en `src/lib/content/` y `content/blog/`.
 - El panel de _Tweaks_ del prototipo se descartó en producción.
 - `ROADMAP.md` es la fuente de verdad del avance: consúltalo antes de retomar trabajo y actualízalo en cada PR.
 - Las variables de entorno (`DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_TO_EMAIL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_BASE_URL`) van en `.env.local`; nunca versionar `.env*` con valores reales. Plantilla documentada en `.env.example` (única `.env*` versionada).
