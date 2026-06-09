@@ -17,21 +17,21 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const SITE_URL = "https://alexendros.dev";
+const SITE_URL = "https://alexendros.pro";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Alejandro Vargas · Platform Engineer & Fullstack Developer",
-    template: "%s · Alejandro Vargas",
+    default: "Alejandro Domingo Agustí · Software & Platform Engineer",
+    template: "%s · Alexendros",
   },
   description:
-    "Platform Engineer y Fullstack Developer con 9 años de experiencia en Kubernetes, Terraform, Go y React. Disponible para proyectos freelance.",
-  authors: [{ name: "Alejandro Vargas" }],
+    "Software & Platform Engineer en Valencia. Seguridad, tooling e infraestructura auditable en Rust, Python y TypeScript. Disponible para proyectos freelance.",
+  authors: [{ name: "Alejandro Domingo Agustí" }],
   openGraph: {
-    title: "Alejandro Vargas · Platform Engineer & Fullstack Dev",
+    title: "Alejandro Domingo Agustí · Software & Platform Engineer",
     description:
-      "Platform Engineer y Fullstack Developer con 9 años de experiencia en Kubernetes, Terraform, Go y React.",
+      "Seguridad, tooling e infraestructura auditable en Rust, Python y TypeScript. Gateways de credenciales, verificación check-only y fullstack.",
     type: "website",
     locale: "es_ES",
     url: SITE_URL,

@@ -4,26 +4,27 @@ import type { PurchasableItem } from "./types";
 // viven aquí, en el servidor: el route handler nunca confía en un precio
 // enviado por el cliente — solo recibe el `id` y resuelve el resto aquí.
 // Importes en céntimos de euro. Se corresponden con los `ADDONS` de servicios.
+// Precios base orientativos. TODO: verificar antes de cobrar.
 export const PURCHASABLES: PurchasableItem[] = [
   {
-    id: "auditoria-tecnica",
-    name: "Auditoría técnica",
-    desc: "Revisión de arquitectura, infraestructura y CI/CD. Informe priorizado con plan de acción.",
+    id: "auditoria-seguridad",
+    name: "Auditoría de seguridad",
+    desc: "Verificación check-only (XEK) de repo, app o host: SAST/SCA/DAST, IaC y compliance. Informe priorizado con propuesta.",
     amount: 150_000,
     currency: "eur",
   },
   {
     id: "sesion-mentoria",
     name: "Sesión de mentoría (1 h)",
-    desc: "Acompañamiento a equipo de ingeniería en decisiones de stack, GitOps o cloud-native.",
-    amount: 18_000,
+    desc: "Acompañamiento técnico en seguridad, MCP/Claude Code, Rust o arquitectura web.",
+    amount: 9_000,
     currency: "eur",
   },
   {
-    id: "sprint-performance",
-    name: "Sprint de performance",
-    desc: "1-2 semanas de análisis y optimización: TTFB, Core Web Vitals, costes de infra.",
-    amount: 320_000,
+    id: "sprint-hardening",
+    name: "Sprint de hardening",
+    desc: "1-2 semanas asegurando secretos, mTLS, observabilidad y CI: de configuración frágil a sistema auditable.",
+    amount: 250_000,
     currency: "eur",
   },
 ];

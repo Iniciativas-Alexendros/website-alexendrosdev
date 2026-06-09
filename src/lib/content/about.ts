@@ -1,83 +1,60 @@
 import type { Principle, Stat, TimelineEntry } from "./types";
 
+// Stats orientadas a valor/output (no a años): la huella pública es reciente.
 export const HERO_STATS: Stat[] = [
-  ["9+", "años"],
-  ["60+", "proyectos"],
-  ["18", "clientes"],
-  ["3", "OSS"],
+  ["5", "proyectos OSS"],
+  ["4", "lenguajes"], // Rust · Python · TypeScript · Bash
+  ["3", "licencias OSS"], // AGPL-3.0 · MIT · CC BY 4.0
+  ["100%", "código auditable"],
 ];
 
-export const ABOUT_STATS: Stat[] = [
-  ["9+", "años"],
-  ["60+", "proyectos"],
-  ["18", "clientes"],
-  ["3", "open source"],
-];
+export const ABOUT_STATS: Stat[] = HERO_STATS;
 
 export const TIMELINE: TimelineEntry[] = [
   {
-    year: "2023 — Hoy",
-    role: "Platform Engineer",
-    org: "Fintech Scale-up · remoto",
+    year: "2026 — Hoy",
+    role: "Contratista independiente · Software & Platform Engineer",
+    org: "Iniciativas Alexendros · Valencia, España",
     now: true,
     bullets: [
-      "Construí la IDP interna usada por 40+ equipos: pipelines self-service, registro de servicios y gestión de secretos.",
-      "Lideré adopción de GitOps con ArgoCD, reduciendo el tiempo de deployment en un 70%.",
+      "Diseño y construyo herramientas de seguridad e infraestructura: TrenchPass (gateway MCP de credenciales en Rust) y XEK (40+ skills de verificación check-only).",
+      "Tooling para desarrolladores y web fullstack: ecosistema de plantillas para Claude Code y portales en Next.js con backend propio.",
     ],
-    tags: ["Go", "Kubernetes", "Terraform", "ArgoCD", "AWS"],
+    tags: ["Rust", "Python", "TypeScript", "Seguridad", "MCP"],
   },
   {
-    year: "2020 — 2023",
-    role: "Senior Fullstack Engineer",
-    org: "SaaS Startup · remoto",
+    year: "Hasta 2026",
+    role: "Desarrollo, seguridad y autoformación",
+    org: "Proyectos propios y aprendizaje continuo",
     bullets: [
-      "Lideré un equipo de 6 ingenieros para escalar el producto de 0 a 2M usuarios activos.",
-      "Diseñé la arquitectura de microservicios y las pipelines CI/CD que soportaron el crecimiento.",
+      "Base técnica en seguridad, sistemas (Rust) y automatización (Python), volcada en proyectos open source públicos.",
+      "Detalle de experiencia, referencias y CV disponibles bajo petición.",
     ],
-    tags: ["React", "Node.js", "PostgreSQL", "Docker", "AWS"],
+    tags: ["Seguridad", "Rust", "Python", "Open Source"],
   },
-  {
-    year: "2017 — 2020",
-    role: "Software Engineer",
-    org: "Agencia Digital",
-    bullets: [
-      "Entregué 20+ proyectos de cliente, de MVPs a aplicaciones de producción.",
-      "Introduje Docker y AWS en los proyectos del equipo, mejorando la reproducibilidad y los despliegues.",
-    ],
-    tags: ["TypeScript", "React", "Node.js", "AWS", "Docker"],
-  },
-  {
-    year: "2015 — 2017",
-    role: "Junior Developer",
-    org: "Consultoría IT",
-    bullets: [
-      "Desarrollo fullstack en aplicaciones empresariales con integración de sistemas legacy.",
-      "Primeros pasos en automatización de tests y entrega continua.",
-    ],
-    tags: ["JavaScript", "Java", "SQL Server"],
-  },
+  // TODO: si procede, detallar empleos/clientes anteriores con rol, empresa, fechas y logros reales.
 ];
 
 export const PRINCIPLES: Principle[] = [
   {
+    icon: "shield",
+    title: "Honestidad y precio cerrado",
+    body: "Alcance claro y precio cerrado antes de empezar. Los cambios pequeños van incluidos; los grandes se hablan y se acuerdan. Sin sorpresas en la factura final.",
+  },
+  {
+    icon: "check",
+    title: "Calidad y verificación",
+    body: "Nada se entrega sin verde: CI, tests y validadores en modo estricto. Verificar antes de modificar — la filosofía check-only de XEK aplicada a todo lo que construyo.",
+  },
+  {
     icon: "git-branch",
-    title: "Infraestructura como código",
-    body: "Todo en Git: infraestructura, configuración, pipelines. Si no está en un repositorio, no existe. La reproducibilidad no es opcional.",
-  },
-  {
-    icon: "activity",
-    title: "Observabilidad antes de optimizar",
-    body: "No se puede mejorar lo que no se mide. Instrumentar antes de hacer prod, SLOs antes que alertas, dashboards que cuentan una historia.",
-  },
-  {
-    icon: "users",
-    title: "Developer Experience ante todo",
-    body: "La mejor plataforma es la que los equipos usan sin pensar. Si hay fricción, la solución es el producto, no la documentación.",
+    title: "Open source y tuyo",
+    body: "Trabajo con software libre siempre que puedo y el cliente es dueño de su código e infraestructura: sin lock-in, documentado y reproducible para que tu equipo lo mantenga.",
   },
 ];
 
 export const DAILY_STACK = [
-  "Go", "TypeScript", "React", "Next.js", "Kubernetes", "Terraform", "ArgoCD",
-  "Docker", "PostgreSQL", "Redis", "AWS", "OpenTelemetry", "Grafana",
-  "Prometheus", "Kafka", "Loki",
+  "Rust", "Python", "TypeScript", "Next.js", "React", "Bash",
+  "Docker", "HashiCorp Vault", "OpenTelemetry", "SigNoz", "PostgreSQL",
+  "MCP", "Claude Code", "GitHub Actions", "JSON Schema", "Tailwind", "Vercel",
 ];

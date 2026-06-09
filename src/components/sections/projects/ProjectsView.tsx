@@ -85,8 +85,8 @@ export function ProjectsView() {
         <Eyebrow>portafolio · {PROJECTS.length}+ proyectos</Eyebrow>
         <h1 className="ak-page-title">Proyectos</h1>
         <p className="ak-page-lead">
-          Una selección de lo que he construido: plataformas internas, infraestructura cloud-native,
-          APIs de alta disponibilidad y proyectos open source.
+          Una selección de lo que he construido: herramientas de seguridad, gateways de
+          credenciales, tooling para desarrolladores y proyectos open source.
         </p>
       </section>
       <section className="ak-section" style={{ paddingTop: 14 }}>

@@ -135,8 +135,8 @@ export function ServicesView() {
         <Eyebrow>servicios</Eyebrow>
         <h1 className="ak-page-title">Planes claros, sin sorpresas</h1>
         <p className="ak-page-lead">
-          Servicios de consultoría en platform engineering, cloud-native y desarrollo fullstack.
-          Precios fijos, sin sorpresas.
+          Servicios de seguridad, tooling/MCP y desarrollo fullstack. Precios cerrados, sin
+          sorpresas.
         </p>
         <div style={{ marginTop: 8 }}>
           <PricingToggle mode={mode} setMode={setMode} />

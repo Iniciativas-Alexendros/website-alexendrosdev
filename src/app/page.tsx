@@ -1,3 +1,4 @@
+import { TESTIMONIALS } from "@/lib/content";
 import { Terminal } from "@/components/sections/Terminal";
 import { Marquee } from "@/components/sections/Marquee";
 import { Icon } from "@/components/ui/Icon";
@@ -30,7 +31,7 @@ export default function HomePage() {
       <div className="ak-container">
         <HomeBlog />
       </div>
-      <Testimonials />
+      {TESTIMONIALS.length > 0 && <Testimonials />}
       <HomeCTA />
     </>
   );

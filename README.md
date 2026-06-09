@@ -1,6 +1,8 @@
 # portfolio-alexendros
 
-Portfolio fullstack (Platform Engineer & Fullstack Developer) construido con **Next.js 16** sobre el sistema de diseño **Arctic Ocean**. Migración fiel del prototipo HTML/CSS/JS de Claude Design a una aplicación real con backend propio.
+Portfolio profesional de **Alejandro Domingo Agustí** (Alexendros), Software & Platform Engineer en Valencia — sitio de **alexendros.pro**. Construido con **Next.js 16** sobre el sistema de diseño **Arctic Ocean**. Migración fiel del prototipo HTML/CSS/JS de Claude Design a una aplicación real con backend propio.
+
+El contenido (proyectos, stack, servicios, blog) refleja el trabajo real: seguridad, tooling/MCP e infraestructura auditable en Rust, Python y TypeScript. Quedan marcadores `TODO:` para datos aún no públicos (precios, historial laboral previo, testimonios, URL de LinkedIn).
 
 ## Stack
 

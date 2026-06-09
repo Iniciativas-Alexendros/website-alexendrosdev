@@ -4,7 +4,7 @@ import { ServicesView } from "@/components/sections/services/ServicesView";
 export const metadata: Metadata = {
   title: "Servicios",
   description:
-    "Consultoría en platform engineering, cloud-native y desarrollo fullstack. Planes por proyecto o retainer, precios fijos y sin sorpresas.",
+    "Servicios de seguridad, tooling/MCP y desarrollo fullstack. Planes por proyecto o retainer, precios cerrados y sin sorpresas.",
 };
 
 export default function ServicesPage() {
