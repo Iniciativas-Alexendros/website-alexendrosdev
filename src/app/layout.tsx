@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/sections/Header";
 import { Footer } from "@/components/sections/Footer";
 import { RevealController } from "@/components/providers/RevealController";
+import { isComingSoon } from "@/lib/flags";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,6 +48,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // En modo "próximamente" (producción por defecto) ocultamos la cabecera y el
+  // pie: la landing de holding es full-screen, sin navegación al sitio completo.
+  const holding = isComingSoon();
+
   return (
     <html
       lang="es"
@@ -58,9 +63,9 @@ export default function RootLayout({
       </head>
       <body>
         <div className="ak-app">
-          <Header />
+          {!holding && <Header />}
           <main>{children}</main>
-          <Footer />
+          {!holding && <Footer />}
         </div>
         <RevealController />
       </body>

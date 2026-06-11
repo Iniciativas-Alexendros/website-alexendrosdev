@@ -6,7 +6,7 @@ import { Icon } from "@/components/ui/Icon";
 
 type Status = "idle" | "loading" | "ok" | "error";
 
-export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "cta" }) {
+export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "cta" | "coming" }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [msg, setMsg] = useState("");
@@ -36,7 +36,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
     }
   }
 
-  if (variant === "cta") {
+  if (variant === "cta" || variant === "coming") {
     return (
       <form className="ak-cta-form" onSubmit={onSubmit}>
         <input
@@ -48,7 +48,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
           onChange={(e) => setEmail(e.target.value)}
         />
         <Button variant="primary" type="submit">
-          {status === "loading" ? "Enviando…" : "Hablemos"}
+          {status === "loading" ? "Enviando…" : variant === "coming" ? "Avísame" : "Hablemos"}
           <Icon name="arrow-right" size={16} style={{ marginLeft: 6 }} />
         </Button>
         {status === "ok" || status === "error" ? (

@@ -57,17 +57,20 @@
 
 ## F4 · Backend (Init)
 
-| #   | Tarea                                                                | Estado    | Bloquea                     | Desbloquea      |
-| --- | -------------------------------------------------------------------- | --------- | --------------------------- | --------------- |
-| 4.0 | `/init` en Claude Code → `CLAUDE.md` repo                            | hecho     | 0.6                         | 4.x consolidate |
-| 4.1 | Prisma + Supabase: `schema.prisma` (`Lead`, `Subscriber`), migración | bloqueado | `DATABASE_URL` (operador)   | 4.3             |
-| 4.2 | `POST /api/contact` + `/api/newsletter`: zod, rate-limit, honeypot   | hecho     | F2                          | 4.4             |
-| 4.3 | Resend + React Email (notif. lead, bienvenida)                       | parcial   | `RESEND_API_KEY` (operador) | 4.4             |
-| 4.4 | Conectar formularios reales (contacto multi-step, newsletter)        | hecho     | 4.2                         | —               |
+| #   | Tarea                                                                | Estado  | Bloquea                     | Desbloquea      |
+| --- | -------------------------------------------------------------------- | ------- | --------------------------- | --------------- |
+| 4.0 | `/init` en Claude Code → `CLAUDE.md` repo                            | hecho   | 0.6                         | 4.x consolidate |
+| 4.1 | Prisma + Supabase: `schema.prisma` (`Lead`, `Subscriber`), migración | hecho   | DB provisionada (→9.4)      | 4.3             |
+| 4.2 | `POST /api/contact` + `/api/newsletter`: zod, rate-limit, honeypot   | hecho   | F2                          | 4.4             |
+| 4.3 | Resend + React Email (notif. lead, bienvenida)                       | parcial | `RESEND_API_KEY` (operador) | 4.4             |
+| 4.4 | Conectar formularios reales (contacto multi-step, newsletter)        | hecho   | 4.2                         | —               |
 
 > 4.3 parcial: plantillas React Email y envío vía Resend implementados; el envío real
 > se activa al definir `RESEND_API_KEY`. Sin clave, degrada (log) y la API responde 200.
-> 4.1 bloqueado: cliente Prisma + adapter listos; falta `DATABASE_URL` para migrar/persistir.
+> 4.1 hecho: esquema migrado a Supabase (proyecto `hjshdsohotcsfrivsyml`, migración
+> `20260605000000_init` aplicada y verificada por checksum vía MCP). RLS habilitada en
+> todas las tablas públicas (`20260609000000_enable_rls`). Resta inyectar `DATABASE_URL`
+> en el runtime (Vercel/`.env.local`) para activar la persistencia en producción.
 
 ## F5 · SEO, a11y, performance
 
@@ -110,9 +113,14 @@
 | 9.1 | `/escaparate`: proyectos featured + items comprables (Stripe) + nav/sitemap | hecho    | F3,7.4                | —          |
 | 9.2 | Isla `PurchaseCard` extraída y reutilizada en `/servicios` y `/escaparate`  | hecho    | 9.1                   | —          |
 | 9.3 | Endurecer `ci.yml`: `concurrency` cancel-in-progress + `timeout-minutes`    | hecho    | 6.2                   | —          |
-| 9.4 | Provisionar Supabase (instancia libre) + `DATABASE_URL` + migración Prisma  | en curso | Supabase (MCP) + env  | 4.1        |
+| 9.4 | Provisionar Supabase (instancia libre) + `DATABASE_URL` + migración Prisma  | hecho    | Supabase (MCP) + env  | 4.1        |
 | 9.5 | Deploy producción Vercel (MCP) + dominio `alexendros.dev`                   | en curso | proyecto Vercel + env | 8.2        |
 | 9.6 | Personalización de contenido: datos reales + 5 proyectos OSS de GitHub      | hecho    | 9.1                   | —          |
+| 9.7 | Landing "en construcción" `/proximamente` + split preview/prod              | hecho    | 9.1                   | 9.5        |
+
+> Holding page: producción muestra `/proximamente` por defecto (`VERCEL_ENV=production`, vía
+> `src/middleware.ts` + `isComingSoon` en `src/lib/flags.ts`); el portfolio completo vive en los
+> deploys de preview. Override con `COMING_SOON=0|1`. La cabecera/pie se ocultan en ese modo.
 
 > Nota build (sandbox): `pnpm build` (static export) falla en el contenedor de trabajo con
 > `useContext` null en `/` y en `/_global-error` (página del framework), con Turbopack **y** webpack,
@@ -124,7 +132,8 @@
 
 ## Bloqueos activos
 
-- **F4.1 / F4.3**: requieren credenciales del operador (`DATABASE_URL` Supabase, `RESEND_API_KEY`). No bloquean F0–F3 ni la lógica de validación/route handlers (se desarrollan con mocks/tests). Se solicitarán al llegar a F4.
+- **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real (sin clave degrada y responde 200). No bloquea F0–F3 ni la lógica de validación/route handlers (se desarrollan con mocks/tests).
+- **F4.1**: DB Supabase provisionada y migrada (ver F9.4); resta inyectar `DATABASE_URL` en el runtime (Vercel/`.env.local`) para activar la persistencia.
 
 ## Estado de cierre (2026-06-01)
 
@@ -137,6 +146,27 @@ los ítems que dependen de credenciales o deploy:
   `RESEND_API_KEY` para activarlos (sin ellos, degrada y responde 200).
 - **F6.3** verificación `.claude/` L2 — **hecho** (settings.json, overlay, .gitignore).
 - **F6.4** deploy (Vercel) — pendiente.
+
+## Estado de cierre (2026-06-09)
+
+Provisionada la base de datos Supabase (proyecto `hjshdsohotcsfrivsyml`) y aplicada la
+migración inicial:
+
+- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al proyecto Supabase y
+  verificada por checksum (`list_migrations` vía MCP). Tablas `Lead`, `Subscriber` y `Order`
+  creadas con sus índices.
+- **Hardening RLS** — Row Level Security habilitada en las 4 tablas públicas (`Lead`,
+  `Subscriber`, `Order`, `_prisma_migrations`). Sin políticas: el rol owner que usa Prisma
+  ignora RLS, así que la app sigue operando, mientras la Data API (PostgREST) deniega
+  `anon`/`authenticated`. Esto despeja el aviso **ERROR** `rls_disabled_in_public` sobre
+  `_prisma_migrations`; los 3 avisos **INFO** `rls_enabled_no_policy` restantes son el
+  estado deseado para un backend que usa Prisma (no la Data API).
+- **Reproducibilidad** — el hardening queda versionado en `20260609000000_enable_rls`
+  (sentencias idempotentes), de modo que un `prisma migrate deploy` limpio reproduce la
+  postura de seguridad. Producción ya está endurecida; esa migración se registrará en el
+  próximo `deploy`.
+- **Pendiente (operador)** — inyectar `DATABASE_URL` (y la variante pooler) en Vercel y
+  `.env.local` para activar la persistencia real; plantilla en `.env.example`.
 
 ## Notas
 
