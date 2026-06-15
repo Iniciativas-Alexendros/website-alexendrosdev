@@ -101,10 +101,15 @@
 
 ## F8 · Deploy automatizado (Vercel)
 
-| #   | Tarea                                                                | Estado    | Bloquea                    | Desbloquea |
-| --- | -------------------------------------------------------------------- | --------- | -------------------------- | ---------- |
-| 8.1 | `deploy.yml` (workflow_run tras CI) + `vercel.json` + `.env.example` | hecho     | 6.2                        | 8.2        |
-| 8.2 | Activar despliegue real (secretos `VERCEL_TOKEN`/`ORG`/`PROJECT`)    | bloqueado | proyecto Vercel + secretos | —          |
+| #   | Tarea                                                                | Estado     | Bloquea | Desbloquea |
+| --- | -------------------------------------------------------------------- | ---------- | ------- | ---------- |
+| 8.1 | `deploy.yml` (workflow_run tras CI) + `vercel.json` + `.env.example` | descartado | 6.2     | 8.2        |
+| 8.2 | Despliegue real a producción                                         | hecho      | —       | —          |
+
+> Deploy resuelto vía **integración Git nativa de Vercel** (2026-06-15): push a `main`
+> → producción; ramas/PR → preview. El workflow `deploy.yml` por CLI se eliminó por
+> redundante (fallaba en `vercel pull` con "Project not found" por `VERCEL_PROJECT_ID`
+> inválido). La CI (`ci.yml`) sigue siendo la verificación de calidad bloqueante.
 
 ## F9 · Escaparate (página showcase) + deploy en vivo
 

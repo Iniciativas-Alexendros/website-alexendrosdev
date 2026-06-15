@@ -54,4 +54,4 @@ Portfolio fullstack en **Next.js 16 (App Router, Turbopack) · React 19 · TS es
 - El panel de _Tweaks_ del prototipo se descartó en producción.
 - `ROADMAP.md` es la fuente de verdad del avance: consúltalo antes de retomar trabajo y actualízalo en cada PR.
 - Las variables de entorno (`DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_TO_EMAIL`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_BASE_URL`) van en `.env.local`; nunca versionar `.env*` con valores reales. Plantilla documentada en `.env.example` (única `.env*` versionada).
-- **Deploy**: `.github/workflows/deploy.yml` despliega a Vercel vía CLI encadenado al workflow `CI` (`workflow_run`): solo corre si CI quedó en verde; `main` → producción, otras ramas → preview. Requiere secretos `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+- **Deploy**: lo gestiona la **integración Git nativa de Vercel** (push a `main` → producción; ramas/PR → preview). El workflow `deploy.yml` por CLI se eliminó por redundante (fallaba en `vercel pull` con "Project not found"). La CI (`.github/workflows/ci.yml`) sigue siendo la fuente de verdad de calidad; Vercel despliega por su cuenta.
