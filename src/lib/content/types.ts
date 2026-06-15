@@ -14,6 +14,7 @@ export interface Project {
   year: string;
   h: number; // alto relativo para el masonry
   featured?: boolean;
+  image?: string; // captura en /public (ratio 4:3); sin ella se muestra el placeholder
   tags: string[];
   desc: string;
   metrics: Metric[];
