@@ -14,19 +14,19 @@ export const POSTS: Post[] = [
   },
   {
     id: "trenchpass-mcp-gateway",
-    title: "Un único punto de acceso a tus servicios: TrenchPass en Rust",
+    title: "Un único custodio para todas tus credenciales: TrenchPass en Rust",
     tag: "Plataforma",
     date: "28 May 2026",
     read: "9 min",
-    desc: "Por qué reuní el acceso a ~20 servicios externos detrás de una sola puerta de entrada, con registro de cada acceso y monitorización. La historia de TrenchPass.",
+    desc: "Por qué reuní las credenciales de ~20 servicios externos detrás de una sola puerta de entrada, con registro de cada acceso y monitorización. La historia de TrenchPass.",
   },
   {
     id: "xek-verificacion-componible",
-    title: "Comprobar la calidad de forma automática: el enfoque de XEK",
+    title: "Verificar sin modificar: el enfoque de XEK",
     tag: "Calidad",
     date: "14 May 2026",
     read: "8 min",
-    desc: "Más de 40 comprobaciones que revisan e informan, sin modificar nada. Ejecución por fases (de la prueba en seco a la real) sobre proyectos, aplicaciones y servidores.",
+    desc: "Más de 40 comprobaciones automáticas que revisan calidad y seguridad e informan, sin modificar nada. De la prueba en seco a la real, sobre proyectos, aplicaciones y servidores.",
   },
 ];
 

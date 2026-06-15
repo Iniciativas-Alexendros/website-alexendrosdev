@@ -5,6 +5,22 @@ import type { Project } from "./types";
 // con `TODO:` necesitan datos que aún no son públicos (stars, usuarios, adopción).
 export const PROJECTS: Project[] = [
   {
+    id: "alexendros-me",
+    title: "alexendros.me — Sitio personal",
+    category: "Web",
+    kind: "Web App",
+    year: "2026",
+    h: 185,
+    featured: true,
+    tags: ["Next.js", "React", "TypeScript", "Tailwind", "Vercel"],
+    desc: "Sitio web para publicar ideas, rápido y respetuoso con la privacidad: sin rastreo ni cookies de terceros. Construido con Next.js y React, con tipografía propia y servido desde la red global de Vercel para que cargue al instante.",
+    metrics: [
+      { v: "0", l: "rastreadores / cookies", acc: true },
+      { v: "Next.js", l: "React + Tailwind" },
+      { v: "100%", l: "carga instantánea" },
+    ],
+  },
+  {
     id: "trenchpass",
     title: "TrenchPass — Plataforma de acceso centralizado",
     category: "Plataforma / Backend",
@@ -64,22 +80,6 @@ export const PROJECTS: Project[] = [
       { v: "CC BY 4.0", l: "contenido abierto", acc: true },
       { v: "JSON Schema", l: "validación automática" },
       { v: "draft-07", l: "esquema" },
-    ],
-  },
-  {
-    id: "alexendros-me",
-    title: "alexendros.me — Sitio personal",
-    category: "Web",
-    kind: "Web App",
-    year: "2026",
-    h: 185,
-    featured: true,
-    tags: ["Next.js", "React", "TypeScript", "Tailwind", "Vercel"],
-    desc: "Sitio web para publicar ideas, rápido y respetuoso con la privacidad: sin rastreo ni cookies de terceros. Construido con Next.js y React, con tipografía propia y servido desde la red global de Vercel para que cargue al instante.",
-    metrics: [
-      { v: "0", l: "rastreadores / cookies", acc: true },
-      { v: "Next.js", l: "React + Tailwind" },
-      { v: "100%", l: "carga instantánea" },
     ],
   },
 ];

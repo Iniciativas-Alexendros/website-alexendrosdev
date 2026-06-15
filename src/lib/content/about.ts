@@ -5,7 +5,7 @@ export const HERO_STATS: Stat[] = [
   ["5", "proyectos publicados"],
   ["4", "lenguajes"], // TypeScript · Python · Rust · Bash
   ["100%", "código tuyo"],
-  ["0", "lock-in"],
+  ["0", "ataduras"],
 ];
 
 export const ABOUT_STATS: Stat[] = HERO_STATS;

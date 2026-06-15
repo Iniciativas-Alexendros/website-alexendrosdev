@@ -31,8 +31,8 @@ export interface CaseStudy {
 const STUDIES: Record<string, CaseStudy> = {
   trenchpass: {
     summary:
-      "Diseñé TrenchPass para resolver un problema propio que escala mal: ~20 secretos de proveedor (Notion, Stripe, GitHub, Vercel…) repartidos por servicios, sin un punto único de control ni auditoría. La solución: un gateway MCP en Rust que actúa como custodio único, con doble factor (Bearer + mTLS), log append-only y observabilidad con OpenTelemetry → SigNoz.",
-    role: "Software & Platform Engineer",
+      "TrenchPass centraliza, tras una única puerta de entrada, el acceso a los ~20 servicios externos que utilizo a diario (Notion, Stripe, GitHub, Vercel…). En vez de repartir credenciales por todas partes, cada acceso pasa por un solo lugar que lo autoriza, lo registra y lo vigila. Está construida en Rust para ser rápida y fiable, y es código abierto.",
+    role: "Diseño y desarrollo de plataforma",
     duration: "En desarrollo (2026)",
     client: "Ecosistema Alexendros (proyecto propio)",
     sections: [
@@ -111,7 +111,7 @@ POST /mcp  (cert mutuo + Authorization: Bearer <token>)
 function genericStudy(p: Project): CaseStudy {
   return {
     summary: p.desc,
-    role: "Software & Platform Engineer",
+    role: "Diseño y desarrollo",
     duration: p.year,
     client: "Proyecto propio (open source)",
     sections: [
