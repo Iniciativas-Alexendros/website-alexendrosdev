@@ -65,15 +65,10 @@ export function makeProfessionalServiceJsonLd(): WithContext<ProfessionalService
     url: `${SITE_URL}/servicios`,
     description:
       "Desarrollo de webs, aplicaciones y plataformas a medida en Valencia. Planes por proyecto o cuota mensual, precios cerrados pensados para empresas nuevas y pequeñas.",
-    areaServed: {
-      "@type": "Place",
-      name: "España",
-    },
-    serviceType: "Desarrollo de software a medida",
-    provider: {
-      "@type": "Person",
-      name: SITE_NAME,
-      url: SITE_URL,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Valencia",
+      addressCountry: "ES",
     },
   };
 }

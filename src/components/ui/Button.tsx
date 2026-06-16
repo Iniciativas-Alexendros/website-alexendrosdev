@@ -13,6 +13,8 @@ interface ButtonProps {
   disabled?: boolean;
   className?: string;
   "aria-label"?: string;
+  target?: string;
+  rel?: string;
 }
 
 export function Button({
