@@ -13,6 +13,8 @@ interface ButtonProps {
   disabled?: boolean;
   className?: string;
   "aria-label"?: string;
+  target?: string;
+  rel?: string;
 }
 
 export function Button({
@@ -49,7 +51,7 @@ export function Button({
       className={cls}
       onClick={onClick}
       style={style}
-      type={type}
+      type={type ?? "button"}
       disabled={disabled}
       {...rest}
     >

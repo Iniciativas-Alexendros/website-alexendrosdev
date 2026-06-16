@@ -8,6 +8,8 @@ import { extractToc, getPostSource } from "@/lib/blog";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { PostToc } from "@/components/sections/blog/PostToc";
+import { JsonLd } from "@/components/JsonLd";
+import { makeBlogPostingJsonLd } from "@/lib/seo/jsonld";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.id }));
@@ -21,7 +23,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = getPost(slug);
   if (!p) return {};
-  const description = p.desc ?? `${p.title} — nota de ingeniería.`;
+  const description = p.metaDescription ?? p.desc?.slice(0, 155) ?? `${p.title} — nota de ingeniería.`;
   return {
     title: p.title,
     description,
@@ -44,6 +46,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="ak-container">
+      <JsonLd data={makeBlogPostingJsonLd(p)} />
       <Link className="ak-back" href="/blog">
         <Icon name="arrow-left" size={15} />
         Blog
@@ -58,10 +61,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <h1 className="ak-detail-title">{p.title}</h1>
         <div className="ak-byline">
           <span className="ak-avatar" />
-          <span>
+          <div>
             <div className="ak-byline-name">{SITE.name}</div>
             <div className="ak-byline-sub">{SITE.role}</div>
-          </span>
+          </div>
         </div>
       </section>
 

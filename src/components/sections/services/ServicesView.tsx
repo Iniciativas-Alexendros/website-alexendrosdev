@@ -26,10 +26,22 @@ function AddonsSection() {
 function PricingToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
   return (
     <div className="ak-toggle" role="tablist">
-      <button className={mode === "proyecto" ? "on" : ""} onClick={() => setMode("proyecto")}>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={mode === "proyecto"}
+        className={mode === "proyecto" ? "on" : ""}
+        onClick={() => setMode("proyecto")}
+      >
         Por proyecto
       </button>
-      <button className={mode === "retainer" ? "on" : ""} onClick={() => setMode("retainer")}>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={mode === "retainer"}
+        className={mode === "retainer" ? "on" : ""}
+        onClick={() => setMode("retainer")}
+      >
         Retainer mensual
       </button>
     </div>
@@ -108,6 +120,7 @@ function FaqSection() {
         {FAQ.map((f, i) => (
           <div key={i} className={`ak-faq-item ${open === i ? "open" : ""}`.trim()}>
             <button
+              type="button"
               className="ak-faq-q"
               onClick={() => setOpen(open === i ? -1 : i)}
               aria-expanded={open === i}

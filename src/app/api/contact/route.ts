@@ -29,11 +29,25 @@ export async function POST(req: Request) {
     );
   }
 
-  const { name, email, type, message } = parsed.data;
+  const { name, email, type, message, utmSource, utmMedium, utmCampaign, utmTerm, utmContent } =
+    parsed.data;
 
   if (prisma) {
     try {
-      await prisma.lead.create({ data: { name, email, type, message, source: "web" } });
+      await prisma.lead.create({
+        data: {
+          name,
+          email,
+          type,
+          message,
+          source: "web",
+          utmSource,
+          utmMedium,
+          utmCampaign,
+          utmTerm,
+          utmContent,
+        },
+      });
     } catch (err) {
       console.error("[contact] error al persistir lead:", err);
     }

@@ -3,6 +3,12 @@ import { z } from "zod";
 // Honeypot: el campo `website` debe llegar vacío (los bots lo rellenan).
 const honeypot = z.string().max(0).optional();
 
+const utmField = z
+  .string()
+  .regex(/^[\w-]*$/, "Valor UTM no válido.")
+  .max(120)
+  .optional();
+
 export const contactSchema = z.object({
   name: z.string().trim().min(1, "Indica tu nombre.").max(120),
   email: z.email("Email no válido.").max(200),
@@ -10,6 +16,11 @@ export const contactSchema = z.object({
   message: z.string().trim().min(1, "Cuéntame algo del proyecto.").max(5000),
   consent: z.literal(true, { error: "Debes aceptar la política." }),
   website: honeypot,
+  utmSource: utmField,
+  utmMedium: utmField,
+  utmCampaign: utmField,
+  utmTerm: utmField,
+  utmContent: utmField,
 });
 
 export type ContactInput = z.infer<typeof contactSchema>;

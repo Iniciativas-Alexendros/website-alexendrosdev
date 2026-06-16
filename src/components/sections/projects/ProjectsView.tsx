@@ -104,6 +104,7 @@ export function ProjectsView() {
             {PROJ_CATS.map((c) => (
               <button
                 key={c}
+                type="button"
                 className={`ak-chip ${c === cat ? "on" : ""}`.trim()}
                 onClick={() => setCat(c)}
               >

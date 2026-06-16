@@ -47,12 +47,8 @@ export function Footer() {
           <Link className="ak-footer-lk" href="/servicios">
             Servicios
           </Link>
-          <a className="ak-footer-lk" href="#">
-            CV (PDF)
-          </a>
-          <a className="ak-footer-lk" href="#">
-            Uses / setup
-          </a>
+          {/* CV PDF — próximamente */}
+          {/* Uses / setup — próximamente */}
           <a className="ak-footer-lk" href="/feed.xml">
             RSS
           </a>
@@ -70,12 +66,12 @@ export function Footer() {
           © 2026 {SITE.name} · {SITE.domain} · Construido con Next.js
         </span>
         <span className="ak-footer-legal">
-          <a className="ak-footer-lk" style={{ display: "inline", margin: 0 }} href="#">
+          <span className="ak-footer-lk opacity-50 cursor-not-allowed" style={{ display: "inline", margin: 0 }}>
             Privacidad
-          </a>
-          <a className="ak-footer-lk" style={{ display: "inline", margin: 0 }} href="#">
+          </span>
+          <span className="ak-footer-lk opacity-50 cursor-not-allowed" style={{ display: "inline", margin: 0 }}>
             Aviso legal
-          </a>
+          </span>
         </span>
       </div>
     </footer>

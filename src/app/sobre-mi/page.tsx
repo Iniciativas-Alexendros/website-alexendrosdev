@@ -26,10 +26,7 @@ function AboutIntro() {
         factura, con código que es tuyo y construido de forma segura desde el primer día.
       </p>
       <div className="ak-about-cta" data-reveal data-reveal-delay="2">
-        <Button variant="primary" href="#">
-          <Icon name="download" size={16} style={{ marginRight: 8 }} />
-          Descargar CV
-        </Button>
+        {/* CV próximamente */}
         <Button variant="secondary" href="/contacto">
           Contacto
         </Button>

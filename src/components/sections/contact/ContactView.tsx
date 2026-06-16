@@ -1,6 +1,8 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { SITE } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/ui/Icon";
@@ -51,6 +53,14 @@ function Field({ label, value, onChange, type = "text", placeholder, error }: Fi
   );
 }
 
+interface UtmParams {
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+}
+
 interface FormData {
   name: string;
   email: string;
@@ -60,7 +70,7 @@ interface FormData {
   website: string; // honeypot
 }
 
-function MultiStepForm() {
+function MultiStepForm({ utms }: { utms: UtmParams }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>({
     name: "",
@@ -104,10 +114,11 @@ function MultiStepForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, ...utms }),
       });
       if (res.ok) {
         setSent(true);
+        track("lead_submitted", { utm_source: utms.utmSource ?? "direct" });
       } else {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
         setErrors({ submit: body?.error ?? "No se pudo enviar el mensaje. Inténtalo de nuevo." });
@@ -369,7 +380,16 @@ function Calendar() {
   );
 }
 
-export function ContactView() {
+function ContactViewInner() {
+  const searchParams = useSearchParams();
+  const utms: UtmParams = {
+    utmSource: searchParams.get("utm_source") ?? undefined,
+    utmMedium: searchParams.get("utm_medium") ?? undefined,
+    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
+    utmTerm: searchParams.get("utm_term") ?? undefined,
+    utmContent: searchParams.get("utm_content") ?? undefined,
+  };
+
   return (
     <div className="ak-container">
       <section className="ak-contact-hero" data-screen-label="header">
@@ -383,7 +403,7 @@ export function ContactView() {
       </section>
       <section className="ak-section" style={{ paddingTop: 24 }}>
         <div className="ak-contact-grid">
-          <MultiStepForm />
+          <MultiStepForm utms={utms} />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <Calendar />
             <div className="ak-panel">
@@ -403,5 +423,13 @@ export function ContactView() {
         </div>
       </section>
     </div>
+  );
+}
+
+export function ContactView() {
+  return (
+    <Suspense fallback={null}>
+      <ContactViewInner />
+    </Suspense>
   );
 }

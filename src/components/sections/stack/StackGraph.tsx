@@ -214,13 +214,13 @@ export function StackGraph() {
           })}
         </div>
         <div className="ak-graph-controls">
-          <button onClick={() => zoom(1.15)} aria-label="Acercar">
+          <button type="button" onClick={() => zoom(1.15)} aria-label="Acercar">
             <Icon name="plus" size={16} />
           </button>
-          <button onClick={() => zoom(0.87)} aria-label="Alejar">
+          <button type="button" onClick={() => zoom(0.87)} aria-label="Alejar">
             <Icon name="minus" size={16} />
           </button>
-          <button onClick={reset} aria-label="Centrar">
+          <button type="button" onClick={reset} aria-label="Centrar">
             <Icon name="locate-fixed" size={16} />
           </button>
         </div>
@@ -232,6 +232,7 @@ export function StackGraph() {
           {STACK_CATS.map((c) => (
             <button
               key={c.name}
+              type="button"
               className={`ak-legend-row ${active === c.name ? "on" : ""}`.trim()}
               onMouseEnter={() => setHot(c.name)}
               onMouseLeave={() => setHot(null)}

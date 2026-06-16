@@ -5,6 +5,8 @@ import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
 import type { CaseBlock } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
+import { JsonLd } from "@/components/JsonLd";
+import { makeCreativeWorkJsonLd, makeBreadcrumbJsonLd } from "@/lib/seo/jsonld";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.id }));
@@ -18,10 +20,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = getProject(slug);
   if (!p) return {};
+  const description = p.metaDescription ?? p.desc.slice(0, 155);
   return {
     title: p.title,
-    description: p.desc,
-    openGraph: { title: p.title, description: p.desc, type: "article" },
+    description,
+    openGraph: { title: p.title, description, type: "article" },
   };
 }
 
@@ -77,6 +80,14 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
 
   return (
     <div className="ak-container">
+      <JsonLd data={makeCreativeWorkJsonLd(p)} />
+      <JsonLd
+        data={makeBreadcrumbJsonLd([
+          { name: "Inicio", url: "https://alexendros.dev" },
+          { name: "Proyectos", url: "https://alexendros.dev/proyectos" },
+          { name: p.title, url: `https://alexendros.dev/proyectos/${p.id}` },
+        ])}
+      />
       <Link className="ak-back" href="/proyectos">
         <Icon name="arrow-left" size={15} />
         Proyectos
@@ -89,16 +100,22 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
         </div>
         <h1 className="ak-detail-title">{p.title}</h1>
         <p className="ak-detail-sum">{study.summary}</p>
-        <div className="ak-detail-actions">
-          <Button variant="primary" href="#">
-            <Icon name="external-link" size={15} style={{ marginRight: 7 }} />
-            Ver en vivo
-          </Button>
-          <Button variant="secondary" href="#">
-            <Icon name="github" size={15} style={{ marginRight: 7 }} />
-            Repositorio
-          </Button>
-        </div>
+        {(p.liveUrl ?? p.repoUrl) && (
+          <div className="ak-detail-actions">
+            {p.liveUrl && (
+              <Button variant="primary" href={p.liveUrl} target="_blank" rel="noopener noreferrer">
+                <Icon name="external-link" size={15} style={{ marginRight: 7 }} />
+                Ver en vivo
+              </Button>
+            )}
+            {p.repoUrl && (
+              <Button variant="secondary" href={p.repoUrl} target="_blank" rel="noopener noreferrer">
+                <Icon name="github" size={15} style={{ marginRight: 7 }} />
+                Repositorio
+              </Button>
+            )}
+          </div>
+        )}
       </section>
 
       <div className="ak-ph ak-ph-grad ak-hero-shot" data-reveal>

@@ -9,13 +9,18 @@ datasource db {
 }
 
 model Lead {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  type      String?
-  message   String
-  source    String   @default("web")
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  type        String?
+  message     String
+  source      String   @default("web")
+  createdAt   DateTime @default(now())
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
 
   @@index([email])
 }

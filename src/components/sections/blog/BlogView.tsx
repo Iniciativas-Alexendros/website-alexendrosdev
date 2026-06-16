@@ -32,10 +32,10 @@ function Featured({ p }: { p: Post }) {
         <p className="ak-featured-excerpt">{p.desc}</p>
         <div className="ak-byline">
           <span className="ak-avatar" />
-          <span>
+          <div>
             <div className="ak-byline-name">{SITE.name}</div>
             <div className="ak-byline-sub">{SITE.role}</div>
-          </span>
+          </div>
           <Button variant="secondary" style={{ marginLeft: "auto" }}>
             Leer <Icon name="arrow-right" size={15} style={{ marginLeft: 5 }} />
           </Button>
@@ -122,6 +122,7 @@ export function BlogView() {
             {BLOG_TAGS.map((t) => (
               <button
                 key={t}
+                type="button"
                 className={`ak-chip ${t === tag ? "on" : ""}`.trim()}
                 onClick={() => {
                   setTag(t);
@@ -147,6 +148,7 @@ export function BlogView() {
           {[1, 2, 3].map((n) => (
             <button
               key={n}
+              type="button"
               className={`ak-page-btn ${n === page ? "on" : ""}`.trim()}
               onClick={() => setPage(n)}
             >
@@ -154,6 +156,7 @@ export function BlogView() {
             </button>
           ))}
           <button
+            type="button"
             className="ak-page-btn"
             onClick={() => setPage((p) => Math.min(3, p + 1))}
             aria-label="Siguiente"

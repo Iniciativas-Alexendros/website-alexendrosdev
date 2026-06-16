@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { ServicesView } from "@/components/sections/services/ServicesView";
+import { JsonLd } from "@/components/JsonLd";
+import { makeProfessionalServiceJsonLd } from "@/lib/seo/jsonld";
 
 export const metadata: Metadata = {
   title: "Servicios",
@@ -8,5 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
-  return <ServicesView />;
+  return (
+    <>
+      <JsonLd data={makeProfessionalServiceJsonLd()} />
+      <ServicesView />
+    </>
+  );
 }

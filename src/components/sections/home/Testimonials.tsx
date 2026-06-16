@@ -39,6 +39,7 @@ export function Testimonials() {
           </div>
           <div className="ak-tcar-nav">
             <button
+              type="button"
               className="ak-tcar-btn"
               onClick={() => go(i - 1)}
               disabled={i === 0}
@@ -47,6 +48,7 @@ export function Testimonials() {
               <Icon name="chevron-left" size={18} />
             </button>
             <button
+              type="button"
               className="ak-tcar-btn"
               onClick={() => go(i + 1)}
               disabled={i === maxI}
@@ -85,6 +87,7 @@ export function Testimonials() {
             {Array.from({ length: maxI + 1 }).map((_, n) => (
               <button
                 key={n}
+                type="button"
                 className={`ak-tcar-dot ${n === i ? "on" : ""}`.trim()}
                 onClick={() => go(n)}
                 aria-label={`Ir a ${n + 1}`}

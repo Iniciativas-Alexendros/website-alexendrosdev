@@ -41,7 +41,7 @@ export function Header() {
           <Button variant="primary" href="/contacto" style={{ padding: "8px 16px", fontSize: 13 }}>
             Contacto
           </Button>
-          <button className="ak-burger" aria-label="Menú" onClick={() => setOpen((o) => !o)}>
+          <button type="button" className="ak-burger" aria-label="Menú" onClick={() => setOpen((o) => !o)}>
             <Icon name={open ? "x" : "menu"} size={20} />
           </button>
         </div>

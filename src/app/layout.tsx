@@ -5,6 +5,9 @@ import { Header } from "@/components/sections/Header";
 import { Footer } from "@/components/sections/Footer";
 import { RevealController } from "@/components/providers/RevealController";
 import { isComingSoon } from "@/lib/flags";
+import { JsonLd } from "@/components/JsonLd";
+import { makeWebSiteJsonLd, makePersonJsonLd } from "@/lib/seo/jsonld";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +32,9 @@ export const metadata: Metadata = {
   description:
     "Desarrollo plataformas, webs y aplicaciones a medida en Valencia. Tecnología moderna, código que es tuyo y precios pensados para empresas nuevas y pequeñas.",
   authors: [{ name: "Alejandro Domingo Agustí" }],
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     title: "Alejandro Domingo Agustí · Desarrollo de plataformas, webs y apps",
     description:
@@ -62,12 +68,15 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
+        <JsonLd data={makeWebSiteJsonLd()} />
+        <JsonLd data={makePersonJsonLd()} />
         <div className="ak-app">
           {!holding && <Header />}
           <main>{children}</main>
           {!holding && <Footer />}
         </div>
         <RevealController />
+        <Analytics />
       </body>
     </html>
   );
