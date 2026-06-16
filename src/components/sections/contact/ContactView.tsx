@@ -1,6 +1,8 @@
 "use client";
 
-import { Fragment, useId, useState } from "react";
+import { Fragment, Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import { SITE } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/ui/Icon";
@@ -31,32 +33,32 @@ interface FieldProps {
 }
 
 function Field({ label, value, onChange, type = "text", placeholder, error }: FieldProps) {
-  const id = useId();
-  const errorId = `${id}-error`;
   return (
     <div className="ak-field">
-      <label className="ak-label" htmlFor={id}>
-        {label}
-      </label>
+      <label className="ak-label">{label}</label>
       <input
-        id={id}
-        name={type === "email" ? "email" : label.toLowerCase()}
         className={`ak-input ${error ? "err" : ""}`.trim()}
         type={type}
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
       />
       {error && (
-        <span className="ak-err-msg" id={errorId}>
+        <span className="ak-err-msg">
           <Icon name="alert-circle" size={13} />
           {error}
         </span>
       )}
     </div>
   );
+}
+
+interface UtmParams {
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
 }
 
 interface FormData {
@@ -68,7 +70,7 @@ interface FormData {
   website: string; // honeypot
 }
 
-function MultiStepForm() {
+function MultiStepForm({ utms }: { utms: UtmParams }) {
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FormData>({
     name: "",
@@ -112,10 +114,11 @@ function MultiStepForm() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, ...utms }),
       });
       if (res.ok) {
         setSent(true);
+        track("lead_submitted", { utm_source: utms.utmSource ?? "direct" });
       } else {
         const body = (await res.json().catch(() => null)) as { error?: string } | null;
         setErrors({ submit: body?.error ?? "No se pudo enviar el mensaje. Inténtalo de nuevo." });
@@ -229,21 +232,15 @@ function MultiStepForm() {
               </div>
             </div>
             <div className="ak-field">
-              <label className="ak-label" htmlFor="contact-message">
-                Cuéntame del proyecto
-              </label>
+              <label className="ak-label">Cuéntame del proyecto</label>
               <textarea
-                id="contact-message"
-                name="message"
                 className={`ak-textarea ${errors.message ? "err" : ""}`.trim()}
                 value={data.message}
                 placeholder="Objetivo, alcance, plazos…"
                 onChange={(e) => set("message", e.target.value)}
-                aria-invalid={errors.message ? true : undefined}
-                aria-describedby={errors.message ? "contact-message-error" : undefined}
               />
               {errors.message && (
-                <span className="ak-err-msg" id="contact-message-error">
+                <span className="ak-err-msg">
                   <Icon name="alert-circle" size={13} />
                   {errors.message}
                 </span>
@@ -345,10 +342,10 @@ function Calendar() {
       <div className="ak-cal-head">
         <span className="ak-label">Agenda una llamada</span>
         <span className="ak-cal-nav">
-          <button type="button" aria-label="Mes anterior">
+          <button aria-label="Mes anterior">
             <Icon name="chevron-left" size={15} />
           </button>
-          <button type="button" aria-label="Mes siguiente">
+          <button aria-label="Mes siguiente">
             <Icon name="chevron-right" size={15} />
           </button>
         </span>
@@ -383,7 +380,16 @@ function Calendar() {
   );
 }
 
-export function ContactView() {
+function ContactViewInner() {
+  const searchParams = useSearchParams();
+  const utms: UtmParams = {
+    utmSource: searchParams.get("utm_source") ?? undefined,
+    utmMedium: searchParams.get("utm_medium") ?? undefined,
+    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
+    utmTerm: searchParams.get("utm_term") ?? undefined,
+    utmContent: searchParams.get("utm_content") ?? undefined,
+  };
+
   return (
     <div className="ak-container">
       <section className="ak-contact-hero" data-screen-label="header">
@@ -397,7 +403,7 @@ export function ContactView() {
       </section>
       <section className="ak-section" style={{ paddingTop: 24 }}>
         <div className="ak-contact-grid">
-          <MultiStepForm />
+          <MultiStepForm utms={utms} />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <Calendar />
             <div className="ak-panel">
@@ -417,5 +423,13 @@ export function ContactView() {
         </div>
       </section>
     </div>
+  );
+}
+
+export function ContactView() {
+  return (
+    <Suspense fallback={null}>
+      <ContactViewInner />
+    </Suspense>
   );
 }
