@@ -32,10 +32,10 @@ function Featured({ p }: { p: Post }) {
         <p className="ak-featured-excerpt">{p.desc}</p>
         <div className="ak-byline">
           <span className="ak-avatar" />
-          <span>
+          <div>
             <div className="ak-byline-name">{SITE.name}</div>
             <div className="ak-byline-sub">{SITE.role}</div>
-          </span>
+          </div>
           <Button variant="secondary" style={{ marginLeft: "auto" }}>
             Leer <Icon name="arrow-right" size={15} style={{ marginLeft: 5 }} />
           </Button>

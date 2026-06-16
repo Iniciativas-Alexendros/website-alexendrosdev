@@ -58,10 +58,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <h1 className="ak-detail-title">{p.title}</h1>
         <div className="ak-byline">
           <span className="ak-avatar" />
-          <span>
+          <div>
             <div className="ak-byline-name">{SITE.name}</div>
             <div className="ak-byline-sub">{SITE.role}</div>
-          </span>
+          </div>
         </div>
       </section>
 
