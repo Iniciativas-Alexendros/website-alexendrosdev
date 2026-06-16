@@ -20,10 +20,11 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = getProject(slug);
   if (!p) return {};
+  const description = p.metaDescription ?? p.desc.slice(0, 155);
   return {
     title: p.title,
-    description: p.desc,
-    openGraph: { title: p.title, description: p.desc, type: "article" },
+    description,
+    openGraph: { title: p.title, description, type: "article" },
   };
 }
 

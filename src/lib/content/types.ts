@@ -17,6 +17,9 @@ export interface Project {
   image?: string; // captura en /public (ratio 4:3); sin ella se muestra el placeholder
   tags: string[];
   desc: string;
+  metaDescription?: string; // ≤155 chars para <meta name="description">
+  liveUrl?: string; // URL de demo/producción si existe
+  repoUrl?: string; // URL del repositorio si es público
   metrics: Metric[];
 }
 
@@ -28,6 +31,7 @@ export interface Post {
   read: string;
   featured?: boolean;
   desc?: string;
+  metaDescription?: string; // ≤155 chars para <meta name="description">
 }
 
 export interface Testimonial {

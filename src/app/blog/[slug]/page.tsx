@@ -23,7 +23,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const p = getPost(slug);
   if (!p) return {};
-  const description = p.desc ?? `${p.title} — nota de ingeniería.`;
+  const description = p.metaDescription ?? p.desc?.slice(0, 155) ?? `${p.title} — nota de ingeniería.`;
   return {
     title: p.title,
     description,
