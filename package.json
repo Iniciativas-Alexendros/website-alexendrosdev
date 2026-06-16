@@ -17,7 +17,10 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "audit:lh": "node scripts/audit-lighthouse.mjs",
+    "audit:html": "node scripts/audit-html.mjs",
+    "audit:a11y": "node scripts/audit-axe.mjs"
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
