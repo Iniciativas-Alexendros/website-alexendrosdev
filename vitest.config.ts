@@ -48,13 +48,13 @@ export default defineConfig({
       // proyectos `component`/e2e, no por porcentaje. Ver `tests/README.md`.
       include: ["src/lib/**", "src/app/api/**"],
       exclude: ["src/lib/content/index.ts", "src/lib/content/types.ts", "**/*.d.ts"],
-      // Umbrales progresivos (ver tabla F10.6 en ROADMAP.md). Bloquean el merge.
-      // Medido actual ≈ 96/89/98/96; el gate se fija con margen y sube por fases.
+      // Umbrales (ver tabla F10.6 en ROADMAP.md). Bloquean el merge.
+      // Lock-in: medido ≈ 96/89/98/96; el gate se fija ~3 pts por debajo.
       thresholds: {
-        statements: 80,
-        branches: 75,
-        functions: 80,
-        lines: 80,
+        statements: 93,
+        branches: 86,
+        functions: 95,
+        lines: 92,
       },
     },
   },

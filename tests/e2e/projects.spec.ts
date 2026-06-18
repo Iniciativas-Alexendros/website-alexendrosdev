@@ -17,5 +17,14 @@ test("filtra y busca en la página de proyectos", async ({ page }) => {
 test("filtra proyectos por categoría", async ({ page }) => {
   await page.goto("/proyectos");
   await page.getByRole("button", { name: "Open Source" }).click();
-  await expect(page.getByText(/\d+ proyectos?$/)).toBeVisible();
+  // plantillas, xek y gv-erra son kind "Open Source".
+  await expect(page.getByText("3 proyectos", { exact: true })).toBeVisible();
+});
+
+test("ordena y navega al detalle de un proyecto", async ({ page }) => {
+  await page.goto("/proyectos");
+  await page.getByLabel("Orden").selectOption("antiguos");
+  await page.locator(".ak-tile").first().click();
+  await expect(page).toHaveURL(/\/proyectos\/[\w-]+$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 });

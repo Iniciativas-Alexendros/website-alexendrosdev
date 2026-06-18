@@ -146,18 +146,25 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 | 10.5 | E2E ampliado: newsletter, checkout (fallback 503), proyectos, blog, a11y multi-ruta                                           | hecho  | 10.4      | —          |
 | 10.6 | Gate de cobertura v8 progresivo + CI (`pnpm test` → `pnpm test:coverage`)                                                     | hecho  | 10.2,10.3 | —          |
 | 10.7 | Docs: `tests/README.md`, sección Testing en `ARCHITECTURE.md`, ROADMAP/CLAUDE                                                 | hecho  | 10.6      | —          |
+| 10.8 | Ampliar e2e (navegación, servicios, stack, detalle proyecto/blog) + subir gate (lock-in 93/86/95/92)                          | hecho  | 10.5,10.6 | —          |
 
-> Cobertura (v8) sobre `src/lib/**` + `src/app/api/**`, gate progresivo en `vitest.config.ts`:
+> Cobertura (v8) sobre `src/lib/**` + `src/app/api/**`, gate en `vitest.config.ts`:
 >
-> | Hito        | Statements | Branches | Functions | Lines |
-> | ----------- | ---------- | -------- | --------- | ----- |
-> | F10.2 base  | 60         | 55       | 60        | 60    |
-> | F10.3 +API  | 72         | 68       | 72        | 72    |
-> | F10.4 +comp | 80         | 75       | 80        | 80    |
+> | Hito          | Statements | Branches | Functions | Lines |
+> | ------------- | ---------- | -------- | --------- | ----- |
+> | F10.2 base    | 60         | 55       | 60        | 60    |
+> | F10.3 +API    | 72         | 68       | 72        | 72    |
+> | F10.4 +comp   | 80         | 75       | 80        | 80    |
+> | F10.8 lock-in | 93         | 86       | 95        | 92    |
 >
-> Medición actual ≈ **96/89/98/96** (101 tests verdes). Los componentes/páginas (Server
-> Components asíncronos incluidos) se cubren por comportamiento (proyecto `component` y e2e),
-> no por porcentaje. Regla RSC: async server components → e2e.
+> Medición actual ≈ **96/89/98/96** (101 tests verdes). El gate de F10.8 se fija ~3 pts por debajo
+> de lo medido (lock-in seguro). Los componentes/páginas (Server Components asíncronos incluidos) se
+> cubren por comportamiento (proyecto `component` y e2e), no por porcentaje. Regla RSC: async server
+> components → e2e.
+>
+> E2E (chromium): `smoke` + `navigation`, `projects`, `blog`, `services`, `stack`, `newsletter`,
+> `checkout` y `a11y` (axe sin críticos en 8 rutas, incluida `/stack`). Cubre flujos cliente y los
+> Server Components asíncronos de detalle (`/proyectos/[slug]`, `/blog/[slug]`).
 
 ---
 
