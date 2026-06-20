@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@11.5.2",
   "scripts": {
+    "prepare": "husky",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -44,6 +45,8 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
+    "@commitlint/cli": "^21.0.2",
+    "@commitlint/config-conventional": "^21.0.2",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
@@ -58,8 +61,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "html-validate": "^11.5.3",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lighthouse": "^13.4.0",
+    "lint-staged": "^17.0.7",
     "msw": "^2.14.6",
     "prettier": "^3.8.3",
     "prisma": "^7.8.0",
@@ -67,5 +72,14 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.9"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }
