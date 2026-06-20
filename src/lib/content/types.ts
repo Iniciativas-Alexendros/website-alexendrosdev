@@ -58,6 +58,7 @@ export interface TimelineEntry {
   org: string;
   now?: boolean;
   bullets: string[];
+  link?: { href: string; label: string };
   tags: string[];
 }
 

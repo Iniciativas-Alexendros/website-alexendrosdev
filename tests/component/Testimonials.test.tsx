@@ -15,7 +15,7 @@ vi.mock("@/lib/content", () => ({
 describe("Testimonials (carrusel)", () => {
   it("renderiza el encabezado y un dot por posición (maxI + 1)", () => {
     renderWithUser(<Testimonials />);
-    expect(screen.getByRole("heading", { name: "Testimonios" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Prueba en abierto" })).toBeInTheDocument();
     // 5 testimonios, 3 por vista → maxI = 2 → 3 dots.
     expect(screen.getByRole("button", { name: "Ir a 3" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ir a 4" })).not.toBeInTheDocument();

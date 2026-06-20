@@ -28,8 +28,12 @@ export const TIMELINE: TimelineEntry[] = [
     org: "Hack a Boss · A Coruña",
     bullets: [
       "Bootcamp Full Stack JavaScript (marzo 2024): 256 h lectivas + 6 semanas de proyecto tutelado.",
-      "Contenidos: HTML/CSS, JavaScript, React.js, Node.js y SQL. Certificado verificable bajo petición.",
+      "Contenidos: HTML/CSS, JavaScript, React.js, Node.js y SQL.",
     ],
+    link: {
+      href: "/certificados/hackaboss-full-stack-javascript.pdf",
+      label: "Ver certificado (PDF)",
+    },
     tags: ["JavaScript", "React.js", "Node.js", "SQL", "Certificación"],
   },
   {
