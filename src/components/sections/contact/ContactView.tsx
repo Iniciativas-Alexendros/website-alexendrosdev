@@ -17,6 +17,7 @@ const CHANNELS: { ic: IconName; t: string; href: string }[] = [
   { ic: "mail", t: SITE.email, href: `mailto:${SITE.email}` },
   { ic: "linkedin", t: display(SITE.socials.linkedin), href: SITE.socials.linkedin },
   { ic: "github", t: display(SITE.socials.github), href: SITE.socials.github },
+  { ic: "external-link", t: display(SITE.socials.web), href: SITE.socials.web },
 ];
 
 function validEmail(v: string) {

@@ -1,8 +1,9 @@
 import type { Project } from "./types";
 
-// Proyectos públicos reales (github.com/Alexendros). Las métricas factuales
-// (licencia, versión, nº de módulos/skills) salen de cada README; las marcadas
-// con `TODO:` necesitan datos que aún no son públicos (stars, usuarios, adopción).
+// Proyectos públicos reales (github.com/Alexendros). Cada entrada lidera con el
+// alcance técnico (lenguaje, arquitectura, qué resuelve). Las métricas son
+// factuales y verificables en cada README (licencia, versión, nº de módulos/skills);
+// no se incluyen métricas de adopción no públicas (stars, usuarios).
 export const PROJECTS: Project[] = [
   {
     id: "alexendros-me",
@@ -88,22 +89,6 @@ export const PROJECTS: Project[] = [
       { v: "40+", l: "comprobaciones", acc: true },
       { v: "3 fases", l: "ejecución guiada" },
       { v: "v0.7.0", l: "MIT" },
-    ],
-  },
-  {
-    id: "gv-erra",
-    title: "GV.ERRA — Registro de errores oficiales",
-    category: "Datos abiertos / Cívico",
-    kind: "Open Source",
-    year: "2026",
-    h: 195,
-    tags: ["Python", "JSON Schema", "Transparencia", "Datos abiertos"],
-    desc: "Registro público y verificable de errores detectados en documentos y sistemas oficiales de la Generalitat Valenciana y otros organismos. Cada entrada lleva metadatos estructurados, descripción técnica, solución aplicada y seguimiento de notificación a 30 días, con validación automática vía JSON Schema.",
-    metaDescription: "Registro público de errores en documentos oficiales de la Generalitat Valenciana. Metadatos estructurados y validación JSON Schema.",
-    metrics: [
-      { v: "CC BY 4.0", l: "contenido abierto", acc: true },
-      { v: "JSON Schema", l: "validación automática" },
-      { v: "draft-07", l: "esquema" },
     ],
   },
 ];

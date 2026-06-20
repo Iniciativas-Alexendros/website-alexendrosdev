@@ -23,16 +23,29 @@ export const TIMELINE: TimelineEntry[] = [
     tags: ["TypeScript", "Next.js", "React", "Plataformas", "Rust"],
   },
   {
+    year: "2024",
+    role: "Certificación: Bootcamp de Programación Web Full Stack JavaScript",
+    org: "Hack a Boss · A Coruña",
+    bullets: [
+      "Bootcamp Full Stack JavaScript (marzo 2024): 256 h lectivas + 6 semanas de proyecto tutelado.",
+      "Contenidos: HTML/CSS, JavaScript, React.js, Node.js y SQL.",
+    ],
+    link: {
+      href: "/certificados/hackaboss-full-stack-javascript.pdf",
+      label: "Ver certificado (PDF)",
+    },
+    tags: ["JavaScript", "React.js", "Node.js", "SQL", "Certificación"],
+  },
+  {
     year: "Hasta 2026",
     role: "Desarrollo y formación continua",
     org: "Proyectos propios y aprendizaje continuo",
     bullets: [
       "Base técnica sólida en desarrollo, sistemas (Rust) y automatización (Python), volcada en proyectos open source públicos.",
-      "Detalle de experiencia, referencias y CV disponibles bajo petición.",
+      "Detalle de experiencia, referencias, CV y certificado verificable disponibles bajo petición.",
     ],
     tags: ["Desarrollo", "Rust", "Python", "Open Source"],
   },
-  // TODO: si procede, detallar empleos/clientes anteriores con rol, empresa, fechas y logros reales.
 ];
 
 export const PRINCIPLES: Principle[] = [

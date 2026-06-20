@@ -31,10 +31,10 @@ export interface CaseStudy {
 const STUDIES: Record<string, CaseStudy> = {
   nasve: {
     summary:
-      "Gráficas Nasve es una imprenta familiar de Torrent con más de 40 años de oficio. Necesitaban una presencia digital a la altura: un sitio web donde enseñar su trabajo, una tienda y una forma sencilla de que sus clientes configuren un encargo y pidan presupuesto. Diseñé y desarrollé el sitio de principio a fin, con una identidad propia que transmite precisión y confianza.",
-    role: "Diseño y desarrollo web",
+      "Demo / plantilla de e-commerce para imprentas y copisterías: un sitio con catálogo, tienda y un configurador de encargos que termina en una solicitud de presupuesto. Es un ejemplo construido de principio a fin para mostrar cómo abordaría un proyecto de este tipo, no un despliegue de cliente en producción.",
+    role: "Diseño y desarrollo web (demo / plantilla)",
     duration: "2026",
-    client: "Gráficas Nasve · Torrent (Valencia)",
+    client: "Proyecto propio (demo / plantilla)",
     sections: [
       {
         id: "contexto",
@@ -42,7 +42,7 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "Un negocio con décadas de oficio y boca a boca, pero sin una web que estuviera a la altura. El reto: trasladar esa confianza al canal digital y, de paso, quitarles trabajo manual capturando los encargos de forma estructurada.",
+            text: "El sector de la impresión y la copistería tiene un patrón común: catálogo de productos, configuración de un encargo (formato, acabados, cantidad) y solicitud de presupuesto. Esta demo modela ese flujo como plantilla reutilizable.",
           },
         ],
       },
@@ -52,7 +52,7 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "Un sitio a medida con catálogo, tienda y un configurador de encargos que guía al cliente y termina en una solicitud de presupuesto clara. Diseño propio (no una plantilla), rápido y cuidado en cada detalle, desplegado para cargar al instante.",
+            text: "Un sitio a medida con catálogo, tienda y un configurador de encargos que guía al usuario y termina en una solicitud de presupuesto clara. Diseño propio (no una plantilla genérica de mercado), rápido y cuidado en cada detalle, desplegado para cargar al instante.",
           },
         ],
       },
@@ -62,7 +62,7 @@ const STUDIES: Record<string, CaseStudy> = {
         blocks: [
           {
             type: "p",
-            text: "Gráficas Nasve pasa de no tener presencia digital seria a un sitio que vende su oficio y recoge encargos sin fricción. TODO: añadir métricas reales (visitas, presupuestos recibidos) y enlace al sitio en producción cuando proceda.",
+            text: "Una base completa y reutilizable para una imprenta o copistería que quiera vender y recoger encargos online: del catálogo al presupuesto, lista para adaptar a un negocio concreto.",
           },
         ],
       },
@@ -70,7 +70,7 @@ const STUDIES: Record<string, CaseStudy> = {
   },
   trenchpass: {
     summary:
-      "TrenchPass centraliza, tras una única puerta de entrada, el acceso a los ~20 servicios externos que utilizo a diario (Notion, Stripe, GitHub, Vercel…). En vez de repartir credenciales por todas partes, cada acceso pasa por un solo lugar que lo autoriza, lo registra y lo vigila. Está construida en Rust para ser rápida y fiable, y es código abierto.",
+      "Gateway MCP en Rust: custodia de credenciales con doble factor Bearer+mTLS, auditoría append-only en Postgres y OTLP→SigNoz. Binario único, AGPL.",
     role: "Diseño y desarrollo de plataforma",
     duration: "En desarrollo (2026)",
     client: "Ecosistema Alexendros (proyecto propio)",
@@ -136,10 +136,6 @@ POST /mcp  (cert mutuo + Authorization: Bearer <token>)
             type: "p",
             text: "El scaffold compila y el enrutado de tools se construye namespace a namespace (~20 namespaces de credenciales planificados). Más que una métrica de adopción, TrenchPass es una afirmación de principios: la custodia de secretos se diseña, no se improvisa. Es open source bajo AGPL-3.0.",
           },
-          {
-            type: "callout",
-            text: "TODO: añadir métricas de adopción/uso cuando el gateway entre en operación real.",
-          },
         ],
       },
     ],
@@ -161,7 +157,7 @@ function genericStudy(p: Project): CaseStudy {
           { type: "p", text: p.desc },
           {
             type: "p",
-            text: `Proyecto de la categoría ${p.category} (${p.year}). TODO: ampliar con el detalle del problema, las decisiones de diseño y el impacto real.`,
+            text: `Proyecto de la categoría ${p.category} (${p.year}). Código y documentación públicos en el repositorio; el README detalla el problema, las decisiones de diseño y el alcance.`,
           },
         ],
       },

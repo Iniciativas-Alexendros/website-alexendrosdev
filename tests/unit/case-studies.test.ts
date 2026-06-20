@@ -4,9 +4,12 @@ import { getProject } from "@/lib/content/projects";
 import { proyectoSinRepo } from "../fixtures/content";
 
 describe("getCaseStudy", () => {
-  it("devuelve el estudio curado de nasve", () => {
+  it("devuelve el estudio curado de nasve (reframe demo / plantilla)", () => {
     const cs = getCaseStudy(getProject("nasve")!);
-    expect(cs.client).toContain("Nasve");
+    // El estudio se reformuló como proyecto propio (demo / plantilla),
+    // sin enmarcarlo como un cliente "Nasve" en producción.
+    expect(cs.client).toContain("demo / plantilla");
+    expect(cs.summary).toContain("Demo / plantilla");
     expect(cs.sections.length).toBeGreaterThanOrEqual(3);
     expect(cs.sections.map((s) => s.id)).toContain("contexto");
   });

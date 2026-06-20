@@ -34,8 +34,8 @@ export function Testimonials() {
           }}
         >
           <div>
-            <Eyebrow>confían en mí</Eyebrow>
-            <h2 className="ak-h2">Testimonios</h2>
+            <Eyebrow>código y proyectos verificables</Eyebrow>
+            <h2 className="ak-h2">Prueba en abierto</h2>
           </div>
           <div className="ak-tcar-nav">
             <button
@@ -68,19 +68,49 @@ export function Testimonials() {
               className="ak-tcar-track"
               style={{ transform: `translateX(calc(-${i} * (100% + 20px) / ${PER_VIEW}))` }}
             >
-              {data.map((t, n) => (
-                <figure key={n} className="ak-tcard">
-                  <span className="ak-tcard-mark">“</span>
-                  <blockquote className="ak-tcard-quote">{t.quote}</blockquote>
-                  <figcaption className="ak-tcard-author">
-                    <span className="ak-avatar" style={{ width: 40, height: 40 }} />
-                    <span>
-                      <div className="ak-tcard-name">{t.name}</div>
-                      <div className="ak-tcard-role">{t.role}</div>
-                    </span>
-                  </figcaption>
-                </figure>
-              ))}
+              {data.map((t, n) => {
+                const card = (
+                  <>
+                    <span className="ak-tcard-mark">{"</>"}</span>
+                    <blockquote className="ak-tcard-quote">{t.quote}</blockquote>
+                    <figcaption className="ak-tcard-author">
+                      <span
+                        className="ak-avatar"
+                        style={{
+                          width: 40,
+                          height: 40,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                        aria-hidden="true"
+                      >
+                        <Icon name="external-link" size={18} />
+                      </span>
+                      <span>
+                        <div className="ak-tcard-name">{t.name}</div>
+                        <div className="ak-tcard-role">{t.role}</div>
+                      </span>
+                    </figcaption>
+                  </>
+                );
+                return t.url ? (
+                  <a
+                    key={n}
+                    className="ak-tcard"
+                    href={t.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: "none" }}
+                  >
+                    {card}
+                  </a>
+                ) : (
+                  <figure key={n} className="ak-tcard">
+                    {card}
+                  </figure>
+                );
+              })}
             </div>
           </div>
           <div className="ak-tcar-dots">

@@ -66,10 +66,8 @@ function detailFor(name: string): StackDetail {
   let h = 0;
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) % 1000;
   const level = 0.62 + (h % 30) / 100;
-  const years = 2 + (h % 6);
   return {
     level,
-    years: `${years} años`,
     projects: ["TrenchPass", "XEK", "plantillas"],
     note: "Herramienta activa en el stack actual.",
   };
@@ -259,10 +257,6 @@ export function StackGraph() {
             <div className="ak-level">
               <span style={{ width: `${d.level * 100}%` }} />
             </div>
-          </div>
-          <div className="ak-detail-row" style={{ marginBottom: 12 }}>
-            <span className="lbl">Experiencia</span>
-            <span>{d.years}</span>
           </div>
           <div className="ak-side-group-t" style={{ marginBottom: 8 }}>
             Proyectos

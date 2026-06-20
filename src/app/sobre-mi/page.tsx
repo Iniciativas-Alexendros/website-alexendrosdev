@@ -59,6 +59,17 @@ function TimelineCard({ it }: { it: TimelineEntry }) {
           <li key={i}>{b}</li>
         ))}
       </ul>
+      {it.link && (
+        <a
+          className="ak-pcard-link"
+          href={it.link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginBottom: 12 }}
+        >
+          {it.link.label}
+        </a>
+      )}
       <div className="ak-tl2-tags">
         {it.tags.map((t) => (
           <span key={t} className="ak-tag">

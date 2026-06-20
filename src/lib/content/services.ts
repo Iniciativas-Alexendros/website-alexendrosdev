@@ -5,6 +5,11 @@ import type { Addon, ComparisonRow, FaqItem, HomeService, Tiers } from "./types"
 // formato «desde». TODO: revisar/ajustar a tu criterio antes de cerrar tarifas.
 export const HOME_SERVICES: HomeService[] = [
   {
+    name: "Landing de 1 página",
+    sub: "Una página bien hecha para presentar tu negocio o producto: diseño a medida, rápida y adaptada a móvil, con un formulario de contacto. El punto de entrada más sencillo.",
+    price: "desde €600",
+  },
+  {
     name: "Webs y aplicaciones a medida",
     sub: "Tu sitio o tu app, de la idea al lanzamiento: diseño, desarrollo y puesta en marcha con tecnología moderna que carga rápido y se ve bien en cualquier pantalla.",
     price: "desde €1.200",
