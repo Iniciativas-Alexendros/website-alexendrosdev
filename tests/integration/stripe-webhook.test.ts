@@ -103,4 +103,12 @@ describe("POST /api/stripe/webhook", () => {
     expect(res.status).toBe(200);
     expect(mocks.orderUpsert).not.toHaveBeenCalled();
   });
+
+  it("responde 500 si la persistencia falla (el pago ya se cobró → Stripe debe reintentar)", async () => {
+    mocks.constructEvent.mockReturnValue(completedEvent);
+    mocks.state.prisma = { order: { upsert: mocks.orderUpsert } };
+    mocks.orderUpsert.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
 });
