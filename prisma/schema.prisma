@@ -28,10 +28,15 @@ model Lead {
 }
 
 model Subscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  confirmed Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id        String  @id @default(cuid())
+  email     String  @unique
+  confirmed Boolean @default(false)
+  // Double opt-in: token de confirmación de un solo uso con caducidad. Mientras
+  // `confirmed` sea false el suscriptor está "pendiente" y no recibe envíos.
+  token          String?   @unique
+  tokenExpiresAt DateTime?
+  confirmedAt    DateTime?
+  createdAt      DateTime  @default(now())
 }
 
 model Order {
