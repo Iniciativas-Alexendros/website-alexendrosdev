@@ -28,6 +28,8 @@
 /.idea/
 /.junie/
 /.ruff_cache/
+# Worktrees efímeros de agentes Claude Code (envenenan knip/prettier si se escanean)
+/.claude/worktrees/
 
 # debug
 npm-debug.log*

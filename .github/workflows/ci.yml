@@ -27,6 +27,12 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Visibilidad de CVE en dependencias. No bloqueante de momento: las vulns
+      # vigentes son transitivas del tooling (Prisma Studio / Next), no del runtime
+      # del producto. Subir a bloqueante (quitar continue-on-error) en cuanto el
+      # árbol quede limpio en nivel `high`.
+      - run: pnpm audit --audit-level=high
+        continue-on-error: true
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
