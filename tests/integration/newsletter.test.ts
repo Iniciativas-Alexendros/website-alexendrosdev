@@ -81,6 +81,15 @@ describe("POST /api/newsletter", () => {
     expect(res.status).toBe(422);
   });
 
+  it("responde 502 cuando todos los canales configurados fallan", async () => {
+    mocks.state.prisma = { subscriber: { upsert: mocks.subscriberUpsert } };
+    mocks.state.resend = { emails: { send: mocks.emailSend } };
+    mocks.subscriberUpsert.mockRejectedValue(new Error("db down"));
+    mocks.emailSend.mockRejectedValue(new Error("resend down"));
+    const res = await post({ email: "a@b.com" }, "10.2.0.50");
+    expect(res.status).toBe(502);
+  });
+
   it("responde 429 al superar el límite por IP", async () => {
     const ip = "10.2.0.99";
     for (let i = 0; i < 5; i++) {

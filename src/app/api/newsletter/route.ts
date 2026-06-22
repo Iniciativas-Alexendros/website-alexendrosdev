@@ -31,7 +31,13 @@ export async function POST(req: Request) {
 
   const { email } = parsed.data;
 
+  // Mismo criterio que /api/contact: si todos los canales configurados fallan
+  // por excepción, la suscripción se perdió y devolvemos error honesto.
+  let configured = 0;
+  let failed = 0;
+
   if (prisma) {
+    configured++;
     try {
       await prisma.subscriber.upsert({
         where: { email },
@@ -39,11 +45,13 @@ export async function POST(req: Request) {
         create: { email },
       });
     } catch (err) {
+      failed++;
       console.error("[newsletter] error al persistir suscriptor:", err);
     }
   }
 
   if (resend) {
+    configured++;
     try {
       await resend.emails.send({
         from: EMAIL_FROM,
@@ -52,13 +60,23 @@ export async function POST(req: Request) {
         react: WelcomeEmail(),
       });
     } catch (err) {
+      failed++;
       console.error("[newsletter] error al enviar email de bienvenida:", err);
     }
   }
 
-  if (!prisma && !resend) {
+  // Degradación intencional sin credenciales.
+  if (configured === 0) {
     console.warn(
       "[newsletter] sin DATABASE_URL ni RESEND_API_KEY: suscripción recibida pero no persistida.",
+    );
+    return NextResponse.json({ ok: true });
+  }
+
+  if (failed === configured) {
+    return NextResponse.json(
+      { error: "No pudimos completar la suscripción. Inténtalo más tarde." },
+      { status: 502 },
     );
   }
 

@@ -46,9 +46,16 @@ export async function POST(req: Request) {
           },
         });
       } catch (err) {
+        // No tragamos el fallo: el pago YA se cobró. Devolvemos 500 para que
+        // Stripe reintente con su backoff; el upsert por stripeSessionId es
+        // idempotente, así que el reintento no duplica el pedido. Devolver 200
+        // aquí perdería el pedido en silencio (Stripe lo daría por procesado).
         console.error("[stripe-webhook] error al persistir el pedido:", err);
+        return NextResponse.json({ error: "No se pudo registrar el pedido." }, { status: 500 });
       }
     } else {
+      // Degradación intencional (sin DATABASE_URL): no hay dónde persistir, así
+      // que acusamos recibo. Esto NO es un fallo de runtime.
       console.warn("[stripe-webhook] sin DATABASE_URL: pago recibido pero no persistido.");
     }
   }

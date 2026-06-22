@@ -32,7 +32,14 @@ export async function POST(req: Request) {
   const { name, email, type, message, utmSource, utmMedium, utmCampaign, utmTerm, utmContent } =
     parsed.data;
 
+  // Contamos canales configurados y cuántos fallan por excepción (no por
+  // ausencia de credenciales). Si TODOS los canales configurados fallan, el
+  // mensaje se ha perdido: hay que devolver un error honesto, no un ok:true.
+  let configured = 0;
+  let failed = 0;
+
   if (prisma) {
+    configured++;
     try {
       await prisma.lead.create({
         data: {
@@ -49,11 +56,13 @@ export async function POST(req: Request) {
         },
       });
     } catch (err) {
+      failed++;
       console.error("[contact] error al persistir lead:", err);
     }
   }
 
   if (resend) {
+    configured++;
     try {
       await resend.emails.send({
         from: EMAIL_FROM,
@@ -63,13 +72,26 @@ export async function POST(req: Request) {
         react: LeadNotification({ name, email, type, message }),
       });
     } catch (err) {
+      failed++;
       console.error("[contact] error al enviar email:", err);
     }
   }
 
-  if (!prisma && !resend) {
+  // Degradación intencional: sin ningún canal configurado (dev sin credenciales)
+  // se acusa recibo. NO es un fallo de runtime.
+  if (configured === 0) {
     console.warn(
       "[contact] sin DATABASE_URL ni RESEND_API_KEY: mensaje recibido pero no persistido ni enviado.",
+    );
+    return NextResponse.json({ ok: true });
+  }
+
+  // Todos los canales configurados lanzaron: el mensaje se perdió. Error honesto
+  // para que la UI ofrezca un canal de contacto alternativo.
+  if (failed === configured) {
+    return NextResponse.json(
+      { error: "No pudimos registrar tu mensaje. Escríbeme directamente por email." },
+      { status: 502 },
     );
   }
 

@@ -31,13 +31,23 @@ describe("rateLimit", () => {
 });
 
 describe("clientIp", () => {
-  it("toma la primera IP de x-forwarded-for", () => {
-    const headers = new Headers({ "x-forwarded-for": "203.0.113.5, 70.41.3.18" });
-    expect(clientIp(headers)).toBe("203.0.113.5");
+  it("prefiere x-real-ip (lo fija el proxy, no el cliente)", () => {
+    const headers = new Headers({
+      "x-real-ip": "198.51.100.7",
+      "x-forwarded-for": "1.2.3.4, 198.51.100.7",
+    });
+    expect(clientIp(headers)).toBe("198.51.100.7");
   });
 
-  it("usa x-real-ip cuando no hay x-forwarded-for", () => {
-    expect(clientIp(new Headers({ "x-real-ip": "198.51.100.7" }))).toBe("198.51.100.7");
+  it("toma la ÚLTIMA IP de x-forwarded-for (la añade el proxy de confianza, no spoofeable)", () => {
+    const headers = new Headers({ "x-forwarded-for": "203.0.113.5, 70.41.3.18" });
+    expect(clientIp(headers)).toBe("70.41.3.18");
+  });
+
+  it("no se deja spoofear por un x-forwarded-for inventado por el cliente", () => {
+    // El atacante mete una IP falsa al principio; el proxy añade la real al final.
+    const headers = new Headers({ "x-forwarded-for": "9.9.9.9, 203.0.113.5" });
+    expect(clientIp(headers)).toBe("203.0.113.5");
   });
 
   it("cae a 'anon' sin cabeceras de proxy", () => {

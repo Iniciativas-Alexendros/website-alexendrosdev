@@ -92,6 +92,24 @@ describe("POST /api/contact", () => {
     expect(res.status).toBe(422);
   });
 
+  it("responde 502 cuando todos los canales configurados fallan (lead perdido)", async () => {
+    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
+    mocks.state.resend = { emails: { send: mocks.emailSend } };
+    mocks.leadCreate.mockRejectedValue(new Error("db down"));
+    mocks.emailSend.mockRejectedValue(new Error("resend down"));
+    const res = await post(contactoValido, "10.1.0.50");
+    expect(res.status).toBe(502);
+  });
+
+  it("responde 200 si al menos un canal tiene éxito", async () => {
+    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
+    mocks.state.resend = { emails: { send: mocks.emailSend } };
+    mocks.leadCreate.mockRejectedValue(new Error("db down"));
+    mocks.emailSend.mockResolvedValue({ id: "ok" });
+    const res = await post(contactoValido, "10.1.0.51");
+    expect(res.status).toBe(200);
+  });
+
   it("responde 429 al superar el límite por IP", async () => {
     const ip = "10.1.0.99";
     for (let i = 0; i < 5; i++) {
