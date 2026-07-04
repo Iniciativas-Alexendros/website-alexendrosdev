@@ -32,7 +32,7 @@ export const proyectoConRepo: Project = {
   h: 200,
   tags: ["Rust", "CLI"],
   desc: "Proyecto open source de ejemplo.",
-  repoUrl: "https://github.com/Alexendros/demo-repo",
+  repoUrl: "https://github.com/Alexendros/plantillas",
   liveUrl: "https://demo.alexendros.dev",
   metrics: [{ v: "v1.0.0", l: "MIT" }],
 };

@@ -33,11 +33,29 @@ export const newsletterSchema = z.object({
 export type NewsletterInput = z.infer<typeof newsletterSchema>;
 
 // Checkout: el cliente solo envía el id del item; el precio lo resuelve el
-// servidor desde el catálogo (`lib/content/checkout.ts`). Nunca confíes en un
+// servidor desde el catálogo (`lib/content/catalog.ts`). Nunca confíes en un
 // importe enviado por el cliente.
-export const checkoutSchema = z.object({
-  item: z.string().trim().min(1, "Falta el item.").max(80),
-});
+//
+// F12: ampliado con `itemId` (preferido), `mode` (payment|subscription) y
+// `paymentMethod` (stripe|transfer). El campo legacy `item` se mantiene por
+// compatibilidad hacia atrás.
+export const checkoutSchema = z
+  .object({
+    itemId: z.string().trim().min(1, "Falta el item.").max(80).optional(),
+    item: z.string().trim().min(1).max(80).optional(),
+    mode: z.enum(["payment", "subscription"]).optional(),
+    paymentMethod: z.enum(["stripe", "transfer"]).optional(),
+    email: z.string().email("Email no válido.").max(200).optional(),
+    name: z.string().trim().max(120).optional(),
+  })
+  .refine((d) => !!(d.itemId || d.item), {
+    message: "Falta el item.",
+    path: ["itemId"],
+  })
+  .refine((d) => d.paymentMethod !== "transfer" || (!!d.email && !!d.name), {
+    message: "Email y nombre requeridos para transferencia.",
+    path: ["email"],
+  });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
 

@@ -1,8 +1,10 @@
 import type { Addon, ComparisonRow, FaqItem, HomeService, Tiers } from './types'
+import { getCatalogItemsByCategory } from './catalog'
 
 // Precios base ORIENTATIVOS (EUR), contenidos para empresas nuevas y pequeñas
 // (foco en desarrollo de plataformas/web/apps). Ancla ≈ €40-45/h. Públicos en
-// formato «desde».
+// formato «desde». Los importes exactos viven en el catálogo unificado
+// (`catalog.ts`) — fuente de verdad del servidor.
 export const HOME_SERVICES: HomeService[] = [
   {
     name: 'Landing de 1 página',
@@ -31,7 +33,10 @@ export const HOME_SERVICES: HomeService[] = [
   },
 ]
 
-// Precios base orientativos y contenidos (pymes/startups).
+// Tiers retainer derivados del catálogo unificado (F11). Los importes exactos
+// viven en `catalog.ts`; aquí solo se formatean para la UI.
+const RETAINER_ITEMS = getCatalogItemsByCategory('retainer')
+
 export const TIERS: Tiers = {
   proyecto: [
     {
@@ -72,45 +77,36 @@ export const TIERS: Tiers = {
       ],
     },
   ],
-  retainer: [
-    {
-      name: 'Starter',
-      price: '€690',
-      unit: '/mes',
-      feats: [
-        ['20 h/mes', true],
-        ['Mantenimiento y monitorización', true],
-        ['Corrección de errores', true],
-        ['Funcionalidades nuevas', false],
-        ['Soporte prioritario', false],
-      ],
-    },
-    {
-      name: 'Pro',
-      price: '€1.290',
-      unit: '/mes',
-      pro: true,
-      feats: [
-        ['40 h/mes', true],
-        ['Funcionalidades nuevas', true],
-        ['Revisiones de código', true],
-        ['Canal directo', true],
-        ['Informe semanal', true],
-      ],
-    },
-    {
-      name: 'Scale',
-      price: '€1.990',
-      unit: '/mes',
-      feats: [
-        ['70 h/mes (media jornada)', true],
-        ['Hoja de ruta conjunta', true],
-        ['Arquitectura y decisiones documentadas', true],
-        ['Soporte prioritario', true],
-        ['Acuerdo de servicio (SLA)', true],
-      ],
-    },
-  ],
+  retainer: RETAINER_ITEMS.map((item, i) => ({
+    name: item.name.replace('Retainer ', ''),
+    price: `€${(item.amount / 100).toLocaleString('es-ES')}`,
+    unit: '/mes',
+    pro: i === 1,
+    feats:
+      item.id === 'retainer-starter'
+        ? [
+            [item.metadata?.hoursEstimate ?? '15 h/mes', true],
+            ['Mantenimiento y monitorización', true],
+            ['Corrección de errores', true],
+            ['Funcionalidades nuevas', false],
+            ['Soporte prioritario', false],
+          ]
+        : item.id === 'retainer-pro'
+          ? [
+              [item.metadata?.hoursEstimate ?? '30 h/mes', true],
+              ['Funcionalidades nuevas', true],
+              ['Revisiones de código', true],
+              ['Canal directo', true],
+              ['Informe semanal', true],
+            ]
+          : [
+              [item.metadata?.hoursEstimate ?? '50 h/mes', true],
+              ['Hoja de ruta conjunta', true],
+              ['Arquitectura y decisiones documentadas', true],
+              ['Soporte prioritario', true],
+              ['Acuerdo de servicio (SLA)', true],
+            ],
+  })),
 }
 
 export const COMPARISON: ComparisonRow[] = [

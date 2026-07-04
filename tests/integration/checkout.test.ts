@@ -81,7 +81,9 @@ describe("POST /api/checkout", () => {
 
   it("responde 502 si la sesión no trae URL", async () => {
     mocks.state.stripe = {
-      checkout: { sessions: { create: vi.fn().mockResolvedValue({ url: null }) } },
+      checkout: {
+        sessions: { create: vi.fn().mockResolvedValue({ url: null }) },
+      },
     };
     const res = await post({ item: "sesion-consultoria" }, "10.3.0.6");
     expect(res.status).toBe(502);
@@ -89,7 +91,11 @@ describe("POST /api/checkout", () => {
 
   it("responde 502 si Stripe lanza al crear la sesión", async () => {
     mocks.state.stripe = {
-      checkout: { sessions: { create: vi.fn().mockRejectedValue(new Error("stripe caído")) } },
+      checkout: {
+        sessions: {
+          create: vi.fn().mockRejectedValue(new Error("stripe caído")),
+        },
+      },
     };
     const res = await post({ item: "sesion-consultoria" }, "10.3.0.7");
     expect(res.status).toBe(502);
@@ -104,5 +110,70 @@ describe("POST /api/checkout", () => {
       expect(r.status).toBe(200);
     }
     expect((await post({ item: "sesion-consultoria" }, ip)).status).toBe(429);
+  });
+
+  // ─── F12 — Checkout unificado (subscription mode) ────────────────
+
+  it("F12.1: POST con itemId (nuevo formato) funciona igual que item legacy", async () => {
+    const create = vi.fn().mockResolvedValue({ url: "https://x" });
+    mocks.state.stripe = { checkout: { sessions: { create } } };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.4.0.1");
+    expect(res.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ mode: "payment" }));
+  });
+
+  it("F12.2: POST con mode=subscription crea sesión recurring", async () => {
+    const create = vi.fn().mockResolvedValue({ url: "https://x" });
+    mocks.state.stripe = { checkout: { sessions: { create } } };
+    const res = await post({ itemId: "retainer-pro", mode: "subscription" }, "10.4.0.2");
+    expect(res.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: "subscription",
+        line_items: [
+          expect.objectContaining({
+            price_data: expect.objectContaining({
+              unit_amount: 129_000,
+              recurring: { interval: "month" },
+            }),
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("F12.3: POST con item one_time ignora mode=subscription (fuerza payment)", async () => {
+    const create = vi.fn().mockResolvedValue({ url: "https://x" });
+    mocks.state.stripe = { checkout: { sessions: { create } } };
+    const res = await post({ itemId: "sesion-consultoria", mode: "subscription" }, "10.4.0.3");
+    expect(res.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ mode: "payment" }));
+  });
+
+  it("F12.4: POST con itemId + item legacy → usa itemId", async () => {
+    const create = vi.fn().mockResolvedValue({ url: "https://x" });
+    mocks.state.stripe = { checkout: { sessions: { create } } };
+    const res = await post({ itemId: "sesion-consultoria", item: "otro-item" }, "10.4.0.4");
+    expect(res.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        line_items: [
+          expect.objectContaining({
+            price_data: expect.objectContaining({ unit_amount: 6_000 }),
+          }),
+        ],
+      }),
+    );
+  });
+
+  it("F12.5: POST sin itemId ni item → 422", async () => {
+    const res = await post({}, "10.4.0.5");
+    expect(res.status).toBe(422);
+  });
+
+  it("F12.6: POST con itemId inexistente → 422", async () => {
+    mocks.state.stripe = { checkout: { sessions: { create: vi.fn() } } };
+    const res = await post({ itemId: "no-existe" }, "10.4.0.6");
+    expect(res.status).toBe(422);
   });
 });
