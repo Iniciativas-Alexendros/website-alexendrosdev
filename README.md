@@ -1,52 +1,69 @@
-# website-alexendrosdev
+# alexendros.dev
 
-Portfolio profesional de **Alejandro Domingo Agustí** (Alexendros), Software & Platform Engineer en Valencia — sitio de **alexendros.dev**. Construido con **Next.js 16** sobre el sistema de diseño **Arctic Ocean**. Migración fiel del prototipo HTML/CSS/JS de Claude Design a una aplicación real con backend propio.
+[![CI](https://github.com/Alexendros/website-alexendrosdev/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexendros/website-alexendrosdev/actions/workflows/ci.yml)
+[![Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)](https://alexendros.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
 
-El contenido (proyectos, stack, servicios, blog) refleja el trabajo real: seguridad, tooling/MCP e infraestructura auditable en Rust, Python y TypeScript. Quedan marcadores `TODO:` para datos aún no públicos (precios, historial laboral previo, testimonios, URL de LinkedIn).
+Portfolio profesional de **Alejandro Domingo Agustí** — Software & Platform Engineer en Valencia.
+
+[alexendros.dev](https://alexendros.dev)
 
 ## Stack
 
-- **Next.js 16** (App Router, Turbopack) · **React 19** · **TypeScript** estricto
-- **Tailwind CSS v4** + `site.css` portado (tokens HSL, light _Arctic Frost_ / dark _Ocean Depths_)
-- **next/font** (Inter, JetBrains Mono) · **lucide-react** (+ SVG de marca inline)
-- **MDX** para el blog (`next-mdx-remote/rsc`, TOC vía `rehype-slug`)
-- **Backend**: Route Handlers + **zod** + **Resend** + **React Email** + **Prisma 7 / Postgres (Supabase)**
-- **Calidad**: ESLint · Prettier · tsc · Vitest · Playwright + axe
+| Capa           | Tecnología                                                 |
+| -------------- | ---------------------------------------------------------- |
+| Runtime        | Next.js 16 (App Router, Turbopack) · React 19 · TypeScript |
+| Estilos        | Tailwind CSS v4 · Design system Arctic Ocean               |
+| Blog           | MDX (next-mdx-remote/rsc) · rehype-slug                    |
+| Backend        | Route Handlers · Zod · Prisma 7 · Postgres (Supabase)      |
+| Email          | Resend · React Email                                       |
+| Pagos          | Stripe Checkout                                            |
+| Observabilidad | Vercel Analytics · Speed Insights · OpenTelemetry          |
+| Calidad        | ESLint · Prettier · Vitest · Playwright + axe              |
+
+## Quickstart
+
+```bash
+pnpm install
+cp .env.example .env.local   # opcional: degrada sin credenciales
+pnpm dev                     # http://localhost:3000
+```
 
 ## Rutas
 
-`/` · `/sobre-mi` · `/proyectos` (+ `/proyectos/[slug]`) · `/stack` (grafo radial) · `/blog` (+ `/blog/[slug]` MDX) · `/servicios` · `/contacto` · API: `/api/contact`, `/api/newsletter` · SEO: `/sitemap.xml`, `/robots.txt`, `/feed.xml`.
-
-Mapa detallado en [`ARCHITECTURE.md`](./ARCHITECTURE.md). Estado y plan en [`ROADMAP.md`](./ROADMAP.md).
+| Ruta              | Descripción                 |
+| ----------------- | --------------------------- |
+| `/`               | Landing principal           |
+| `/sobre-mi`       | Perfil profesional          |
+| `/proyectos`      | Portfolio de proyectos      |
+| `/stack`          | Grafo radial de tecnologías |
+| `/blog`           | Artículos MDX               |
+| `/servicios`      | Servicios ofrecidos         |
+| `/contacto`       | Formulario de contacto      |
+| `/api/contact`    | API de leads                |
+| `/api/newsletter` | Suscripción newsletter      |
+| `/api/checkout`   | Stripe Checkout             |
+| `/api/health`     | Health check                |
 
 ## Desarrollo
 
 ```bash
-pnpm install
-cp .env.example .env.local   # opcional: el backend degrada sin credenciales
-pnpm dev                     # http://localhost:3000
+pnpm lint           # ESLint
+pnpm typecheck      # TypeScript
+pnpm test           # Vitest unit tests
+pnpm e2e            # Playwright E2E
+pnpm build          # Build producción
 ```
-
-Sin `DATABASE_URL` ni `RESEND_API_KEY` el sitio funciona: los formularios responden 200 pero no persisten ni envían correo (se registra un aviso en log).
-
-## Scripts
-
-| Script                                               | Acción                                        |
-| ---------------------------------------------------- | --------------------------------------------- |
-| `pnpm dev` / `pnpm build` / `pnpm start`             | desarrollo / build / producción               |
-| `pnpm lint` · `pnpm typecheck` · `pnpm format:check` | valoradores estáticos                         |
-| `pnpm test`                                          | tests unitarios (Vitest)                      |
-| `pnpm e2e`                                           | tests end-to-end (Playwright + axe)           |
-| `pnpm db:migrate` / `pnpm db:deploy`                 | migraciones Prisma (requieren `DATABASE_URL`) |
-
-## Variables de entorno
-
-Ver [`.env.example`](./.env.example): `DATABASE_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_TO_EMAIL`. Nunca versionar `.env*` con valores reales.
 
 ## CI/CD
 
-GitHub Actions (`.github/workflows/ci.yml`): `quality` (lint, typecheck, test, build) + `e2e`. El runner es configurable con la variable de repositorio `CI_RUNNER` (p. ej. `self-hosted` para el runner propio); por defecto `ubuntu-latest`.
+GitHub Actions ejecuta `quality` (lint → typecheck → test → build) + `e2e`. Vercel despliega automáticamente a producción desde `main`.
 
-## Notas
+## Variables de entorno
 
-- Editar los módulos en `src/lib/content/` y los posts en `content/blog/`.
+Ver [`.env.example`](./.env.example). El sitio funciona sin credenciales: los formularios responden 200 pero no persisten ni envían correo.
+
+## License
+
+MIT
