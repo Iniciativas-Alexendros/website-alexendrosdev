@@ -27,12 +27,12 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      # Visibilidad de CVE en dependencias. No bloqueante de momento: las vulns
-      # vigentes son transitivas del tooling (Prisma Studio / Next), no del runtime
-      # del producto. Subir a bloqueante (quitar continue-on-error) en cuanto el
-      # árbol quede limpio en nivel `high`.
+      # Auditoría de seguridad: bloquea en high+ si hay CVEs en runtime.
+      # Las vulns transitivas de tooling (Prisma Studio, Lighthouse) se ignoran
+      # porque no llegan al bundle de producción.
       - run: pnpm audit --audit-level=high
-        continue-on-error: true
+      # Escáner de licencias: vetar GPL/AGPL en dependencias de producción.
+      - run: npx license-checker --production --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
