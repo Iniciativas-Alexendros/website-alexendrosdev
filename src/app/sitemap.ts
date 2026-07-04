@@ -12,12 +12,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/servicios",
     "/escaparate",
     "/contacto",
+    "/legal/privacidad",
+    "/legal/aviso-legal",
   ];
 
   const pages: MetadataRoute.Sitemap = staticRoutes.map((r) => ({
     url: `${base}${r}`,
     changeFrequency: "monthly",
-    priority: r === "" ? 1 : 0.7,
+    priority: r === "" ? 1 : r.startsWith("/legal/") ? 0.3 : 0.7,
   }));
 
   const projects: MetadataRoute.Sitemap = PROJECTS.map((p) => ({
