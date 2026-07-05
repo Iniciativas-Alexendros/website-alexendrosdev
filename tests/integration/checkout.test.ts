@@ -2,10 +2,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Solo se mockea el cliente Stripe (y BASE_URL). `getPurchasable` es el catálogo
 // REAL: así se verifica que el precio es fuente de verdad del servidor.
+type StripeMock = {
+  checkout: { sessions: { create: ReturnType<typeof vi.fn> } };
+  paymentLinks?: { create: ReturnType<typeof vi.fn> };
+};
+
 const mocks = vi.hoisted(() => ({
   state: {
-    stripe: null as null | {
-      checkout: { sessions: { create: ReturnType<typeof vi.fn> } };
+    stripe: null as null | StripeMock,
+    transfer: {
+      iban: "",
+      beneficiary: "",
+      bank: "",
+      configured: false,
+    },
+    prisma: null as null | {
+      invoice: { create: ReturnType<typeof vi.fn> };
     },
   },
 }));
@@ -15,6 +27,28 @@ vi.mock("@/lib/stripe", () => ({
     return mocks.state.stripe;
   },
   BASE_URL: "https://alexendros.dev",
+  get TRANSFER_IBAN() {
+    return mocks.state.transfer.iban;
+  },
+  get TRANSFER_BENEFICIARY() {
+    return mocks.state.transfer.beneficiary;
+  },
+  get TRANSFER_BANK() {
+    return mocks.state.transfer.bank;
+  },
+  hasTransferConfig() {
+    return mocks.state.transfer.configured;
+  },
+}));
+
+vi.mock("@/lib/db", () => ({
+  get prisma() {
+    return mocks.state.prisma;
+  },
+}));
+
+vi.mock("@/lib/crm/invoice-number", () => ({
+  generateInvoiceNumberAsync: vi.fn(async () => "INV-2026-001"),
 }));
 
 const { POST } = await import("@/app/api/checkout/route");
@@ -35,6 +69,13 @@ function post(body: unknown, ip: string) {
 
 beforeEach(() => {
   mocks.state.stripe = null;
+  mocks.state.transfer = {
+    iban: "",
+    beneficiary: "",
+    bank: "",
+    configured: false,
+  };
+  mocks.state.prisma = null;
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -174,6 +215,226 @@ describe("POST /api/checkout", () => {
   it("F12.6: POST con itemId inexistente → 422", async () => {
     mocks.state.stripe = { checkout: { sessions: { create: vi.fn() } } };
     const res = await post({ itemId: "no-existe" }, "10.4.0.6");
+    expect(res.status).toBe(422);
+  });
+
+  // ─── F13 — Canal secundario (transferencia + Payment Link) ────────
+
+  it("T3.1: POST transfer → 200 con method=transfer e iban definido", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "CaixaBank",
+      configured: true,
+    };
+    mocks.state.prisma = {
+      invoice: {
+        create: vi.fn().mockResolvedValue({
+          id: "inv-1",
+          number: "INV-2026-001",
+        }),
+      },
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+        name: "Cliente Test",
+      },
+      "10.5.0.1",
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.method).toBe("transfer");
+    expect(body.iban).toBe("ES7621000418401234560123");
+    expect(body.beneficiary).toBe("Alexendros");
+    expect(body.reference).toBe("INV-2026-001");
+    expect(body.invoiceId).toBe("inv-1");
+  });
+
+  it("T3.2: POST transfer sin email → 422 con fields.email", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "",
+      configured: true,
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        name: "Cliente Test",
+      },
+      "10.5.0.2",
+    );
+    expect(res.status).toBe(422);
+    const body = await res.json();
+    expect(body.fields?.email).toBeDefined();
+  });
+
+  it("T3.3: POST transfer sin name → 422", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "",
+      configured: true,
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+      },
+      "10.5.0.3",
+    );
+    expect(res.status).toBe(422);
+  });
+
+  it("T3.4: POST transfer crea Invoice con status=pending_transfer", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "",
+      configured: true,
+    };
+    const create = vi.fn().mockResolvedValue({
+      id: "inv-2",
+      number: "INV-2026-002",
+    });
+    mocks.state.prisma = { invoice: { create } };
+    await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+        name: "Cliente Test",
+      },
+      "10.5.0.4",
+    );
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "pending_transfer",
+          items: expect.objectContaining({
+            create: expect.arrayContaining([
+              expect.objectContaining({
+                description: "Sesión de consultoría (1 h)",
+                quantity: 1,
+              }),
+            ]),
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("T3.5: POST transfer sin prisma → 503", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "",
+      configured: true,
+    };
+    mocks.state.prisma = null;
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+        name: "Cliente Test",
+      },
+      "10.5.0.5",
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("T3.6: POST transfer sin TRANSFER_IBAN → 503", async () => {
+    mocks.state.transfer = {
+      iban: "",
+      beneficiary: "",
+      bank: "",
+      configured: false,
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+        name: "Cliente Test",
+      },
+      "10.5.0.6",
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("T3.7: Stripe session falla → paymentLink.create éxito → 200 fallback=true", async () => {
+    mocks.state.stripe = {
+      checkout: {
+        sessions: {
+          create: vi.fn().mockRejectedValue(new Error("stripe caído")),
+        },
+      },
+      paymentLinks: {
+        create: vi.fn().mockResolvedValue({ url: "https://buy.stripe.test/link_abc" }),
+      },
+    };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.5.0.7");
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.url).toBe("https://buy.stripe.test/link_abc");
+    expect(body.fallback).toBe(true);
+  });
+
+  it("T3.8: Ambos fallan (session + paymentLink) → 502 fallbackAttempted=true", async () => {
+    mocks.state.stripe = {
+      checkout: {
+        sessions: {
+          create: vi.fn().mockRejectedValue(new Error("stripe caído")),
+        },
+      },
+      paymentLinks: {
+        create: vi.fn().mockRejectedValue(new Error("payment link caído")),
+      },
+    };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.5.0.8");
+    expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.fallbackAttempted).toBe(true);
+  });
+
+  it("T3.9: Sin Stripe + con TRANSFER_IBAN → 503 con datos transferencia", async () => {
+    mocks.state.stripe = null;
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "CaixaBank",
+      configured: true,
+    };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.5.0.9");
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.method).toBe("transfer");
+    expect(body.iban).toBe("ES7621000418401234560123");
+    expect(body.beneficiary).toBe("Alexendros");
+  });
+
+  it("T3.10: POST transfer con email inválido → 422", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "",
+      configured: true,
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "no-es-email",
+        name: "Cliente Test",
+      },
+      "10.5.0.10",
+    );
     expect(res.status).toBe(422);
   });
 });

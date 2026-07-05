@@ -61,4 +61,64 @@ describe("PurchaseCard", () => {
     // No hubo redirección: el href sigue en la base.
     expect(hrefValue).toBe(BASE);
   });
+
+  // ─── F13 — Canal secundario (toggle Tarjeta/Transferencia) ────────
+
+  it("T3.11: muestra el toggle Tarjeta/Transferencia", () => {
+    renderWithUser(<PurchaseCard item={item} />);
+    expect(screen.getByRole("radio", { name: "Tarjeta" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Transferencia" })).toBeInTheDocument();
+  });
+
+  it("T3.12: al elegir Transferencia aparecen los inputs de email y nombre", async () => {
+    const { user } = renderWithUser(<PurchaseCard item={item} />);
+    await user.click(screen.getByRole("radio", { name: "Transferencia" }));
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nombre")).toBeInTheDocument();
+  });
+
+  it("T3.13: POST transfer OK → muestra instrucciones (no redirige)", async () => {
+    server.use(
+      http.post(ENDPOINT, () =>
+        HttpResponse.json({
+          method: "transfer",
+          iban: "ES7621000418401234560123",
+          beneficiary: "Alexendros",
+          bank: "CaixaBank",
+          reference: "INV-2026-001",
+          amount: "60.00",
+          currency: "eur",
+          concept: "INV-2026-001",
+          invoiceId: "inv-1",
+        }),
+      ),
+    );
+    const { user } = renderWithUser(<PurchaseCard item={item} />);
+    await user.click(screen.getByRole("radio", { name: "Transferencia" }));
+    await user.type(screen.getByLabelText("Email"), "cliente@example.com");
+    await user.type(screen.getByLabelText("Nombre"), "Cliente Test");
+    await user.click(screen.getByRole("button", { name: /Solicitar datos de transferencia/ }));
+    const instructions = await screen.findByTestId("transfer-instructions");
+    expect(instructions).toBeInTheDocument();
+    expect(instructions).toHaveTextContent("ES7621000418401234560123");
+    expect(instructions).toHaveTextContent("Alexendros");
+    expect(instructions).toHaveTextContent("INV-2026-001");
+    // No hubo redirección a Stripe.
+    expect(hrefValue).toBe(BASE);
+  });
+
+  it("T3.14: POST transfer con error → muestra mensaje de error", async () => {
+    server.use(
+      http.post(ENDPOINT, () =>
+        HttpResponse.json({ error: "Transferencia no configurada." }, { status: 503 }),
+      ),
+    );
+    const { user } = renderWithUser(<PurchaseCard item={item} />);
+    await user.click(screen.getByRole("radio", { name: "Transferencia" }));
+    await user.type(screen.getByLabelText("Email"), "cliente@example.com");
+    await user.type(screen.getByLabelText("Nombre"), "Cliente Test");
+    await user.click(screen.getByRole("button", { name: /Solicitar datos de transferencia/ }));
+    expect(await screen.findByText(/Transferencia no configurada/)).toBeInTheDocument();
+    expect(hrefValue).toBe(BASE);
+  });
 });

@@ -272,7 +272,7 @@ secuenciales (F13 extiende el checkout de F12).
 
 ---
 
-## Instrucciones para MiniMax M3 (orquestador)
+## Instrucciones para el modelo recomendado (orquestador)
 
 ### Prompt de sesión para cada fase
 

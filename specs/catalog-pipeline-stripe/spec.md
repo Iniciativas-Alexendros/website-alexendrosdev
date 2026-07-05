@@ -4,7 +4,7 @@
 **Estado**: planificación
 **Repo**: website-alexendrosdev
 **Fecha**: 2026-07-04
-**Modelo orquestador**: commandcode/minimax-m3 (MiniMax M3 — 1M ctx, optimizado agentes/coding)
+**Modelo orquestador**: ninguno fijo. El sistema recomendará dinámicamente un modelo del catálogo de proveedores/modelos disponibles al inicio de cada sesión. El operador puede aceptarlo, cambiarlo o forzar uno concreto vía UI.
 
 ## Objetivo
 
@@ -193,14 +193,14 @@ todo. Sin cloud → solo logs.
 
 ---
 
-## Orquestación con MiniMax M3
+## Orquestación con el modelo recomendado por el sistema
 
 ### Instrucciones para el modelo orquestador
 
-El modelo `commandcode/minimax-m3` (MiniMax M3) actúa como **orquestador principal**
-de esta feature. Características relevantes:
+El modelo que el sistema recomiende al inicio de la sesión actúa como
+**orquestador principal** de esta feature. Características deseables:
 
-- **Contexto**: 1M tokens → puede cargar los 4 artifacts + ARCHITECTURE.md + ROADMAP.md
+- **Contexto largo**: 1M tokens → puede cargar los 4 artifacts + ARCHITECTURE.md + ROADMAP.md
   - CLAUDE.md + schema.prisma en una sola sesión.
 - **Optimizado para**: agentes, coding, multimodality. Ideal para descomponer tareas
   y delegar a subagentes especializados.
@@ -263,7 +263,7 @@ FASE 16 ────────────────────────
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-### Reglas de orquestación para MiniMax M3
+### Reglas de orquestación para el modelo recomendado
 
 1. **Worktrees paralelos**: F12 y F14 se ejecutan en worktrees independientes
    porque no comparten archivos críticos. El agente `worktree` gestiona la
@@ -293,7 +293,7 @@ FASE 16 ────────────────────────
 6. **Anti-regresión**: antes de mergear cualquier fase, ejecutar `pnpm test:coverage`
    - `pnpm lint` + `pnpm typecheck`. Si algún valorador falla, bloquear merge.
 
-7. **Prompt de arranque** para MiniMax M3 (a usar en cada sesión de orquestación):
+7. **Prompt de arranque** para el modelo recomendado (a usar en cada sesión de orquestación):
 
 ```
 Cargá spec.md, contract.md, scenarios.md y test-plan.md de

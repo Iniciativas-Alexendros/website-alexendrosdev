@@ -86,3 +86,9 @@ pnpm audit:lh|html|a11y  # auditorías Lighthouse / html-validate / axe (scripts
 - **Deploy**: integración Git nativa de **Vercel** (push a `main` → producción; ramas/PR → preview). El workflow `deploy.yml` por CLI se eliminó (redundante, fallaba en `vercel pull`). La CI sigue siendo la fuente de verdad de calidad; Vercel despliega por su cuenta.
 - Editar contenido en `src/lib/content/` y posts en `content/blog/`. Detalle de tests en `tests/README.md`.
 </notas>
+
+<!-- stripe-projects-cli managed:claude-md:start -->
+
+look at AGENTS.md for your rules
+
+<!-- stripe-projects-cli managed:claude-md:end -->
