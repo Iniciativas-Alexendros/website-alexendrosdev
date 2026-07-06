@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
 import { checkoutSchema, flattenErrors } from "@/lib/validation";
-import { getPurchasable } from "@/lib/content/checkout";
-import { stripe, BASE_URL } from "@/lib/stripe";
+import { getCatalogItem } from "@/lib/content/catalog";
+import {
+  stripe,
+  BASE_URL,
+  TRANSFER_IBAN,
+  TRANSFER_BENEFICIARY,
+  TRANSFER_BANK,
+  hasTransferConfig,
+} from "@/lib/stripe";
+import { prisma } from "@/lib/db";
+import { generateInvoiceNumberAsync } from "@/lib/crm/invoice-number";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: Request) {
@@ -28,37 +37,84 @@ export async function POST(req: Request) {
     );
   }
 
+  // F12: preferir itemId sobre item legacy. Si ambos vienen, itemId prevalece.
+  const itemId = parsed.data.itemId ?? parsed.data.item;
+  if (!itemId) {
+    return NextResponse.json({ error: "Item no disponible." }, { status: 422 });
+  }
+
   // El precio se resuelve en el servidor desde el catálogo: el cliente nunca
   // envía importes.
-  const item = getPurchasable(parsed.data.item);
+  const item = getCatalogItem(itemId);
   if (!item) {
     return NextResponse.json({ error: "Item no disponible." }, { status: 422 });
   }
 
-  // Degradación sin credenciales: sin STRIPE_SECRET_KEY no hay pasarela. Se
-  // responde 503 para que el cliente ofrezca el canal de contacto como fallback.
+  // F13: rama explícita de transferencia bancaria. Si el cliente pide
+  // `paymentMethod: "transfer"`, vamos directos al canal secundario sin
+  // tocar Stripe.
+  if (parsed.data.paymentMethod === "transfer") {
+    return handleTransfer(item, parsed.data.email!, parsed.data.name!);
+  }
+
+  // F12: el mode efectivo se deriva del tipo del catálogo. Si el cliente pide
+  // subscription para un item one_time, forzamos payment (UX friendly, no 422).
+  const effectiveMode =
+    item.type === "recurring" ? (parsed.data.mode ?? "subscription") : "payment";
+  if (parsed.data.mode === "subscription" && item.type === "one_time") {
+    console.warn(`[checkout] mode=subscription ignorado para item one_time: ${item.id}`);
+  }
+
+  // Degradación sin credenciales: sin STRIPE_SECRET_KEY no hay pasarela. Si
+  // hay datos de transferencia configurados, los ofrecemos como fallback.
   if (!stripe) {
+    if (hasTransferConfig()) {
+      return NextResponse.json(
+        {
+          error: "Pagos con tarjeta no disponibles. Puedes pagar por transferencia.",
+          method: "transfer",
+          iban: TRANSFER_IBAN,
+          beneficiary: TRANSFER_BENEFICIARY,
+          bank: TRANSFER_BANK,
+        },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
-      { error: "Pagos no disponibles temporalmente. Escríbeme y lo gestionamos." },
+      {
+        error: "Pagos no disponibles temporalmente. Escríbeme y lo gestionamos.",
+      },
       { status: 503 },
     );
   }
 
   const origin = req.headers.get("origin") ?? BASE_URL;
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: [
-        {
+  // F12: construir line_items según el modo efectivo.
+  const lineItem =
+    effectiveMode === "subscription"
+      ? {
+          quantity: 1,
+          price_data: {
+            currency: item.currency,
+            unit_amount: item.amount,
+            recurring: { interval: item.interval ?? "month" },
+            product_data: { name: item.name, description: item.desc },
+          },
+        }
+      : {
           quantity: 1,
           price_data: {
             currency: item.currency,
             unit_amount: item.amount,
             product_data: { name: item.name, description: item.desc },
           },
-        },
-      ],
+        };
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: effectiveMode,
+      line_items: [lineItem],
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/servicios?checkout=cancel`,
       metadata: { item: item.id },
@@ -70,6 +126,133 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("[checkout] error al crear la sesión de Stripe:", err);
+    // F13: fallback a Payment Link si la sesión falla.
+    return await handlePaymentLinkFallback(item, effectiveMode);
+  }
+}
+
+// ─── F13 — Handlers de canal secundario ────────────────────────────────────
+
+type CatalogItem = ReturnType<typeof getCatalogItem>;
+
+async function handleTransfer(
+  item: NonNullable<CatalogItem>,
+  email: string,
+  name: string,
+): Promise<NextResponse> {
+  if (!hasTransferConfig()) {
+    return NextResponse.json(
+      {
+        error: "Transferencia no configurada. Escríbeme a hola@alexendros.dev y lo gestionamos.",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (!prisma) {
+    return NextResponse.json(
+      {
+        error: "No puedo registrar la factura proforma ahora. Escríbeme y la genero manualmente.",
+      },
+      { status: 503 },
+    );
+  }
+
+  try {
+    const number = await generateInvoiceNumberAsync();
+    const amountDecimal = (item.amount / 100).toFixed(2);
+    const invoice = await prisma.invoice.create({
+      data: {
+        number,
+        status: "pending_transfer",
+        currency: item.currency,
+        subtotal: amountDecimal,
+        taxRate: "0",
+        taxAmount: "0",
+        total: amountDecimal,
+        notes: `Proforma para ${name} <${email}> — ${item.name}`,
+        items: {
+          create: [
+            {
+              description: item.name,
+              quantity: 1,
+              unitPrice: amountDecimal,
+              totalPrice: amountDecimal,
+            },
+          ],
+        },
+      },
+    });
+
+    return NextResponse.json({
+      method: "transfer",
+      iban: TRANSFER_IBAN,
+      beneficiary: TRANSFER_BENEFICIARY,
+      bank: TRANSFER_BANK,
+      reference: invoice.number,
+      amount: amountDecimal,
+      currency: item.currency,
+      concept: invoice.number,
+      invoiceId: invoice.id,
+    });
+  } catch (err) {
+    console.error("[checkout] error al crear la factura proforma:", err);
+    return NextResponse.json(
+      { error: "No se pudo registrar la factura proforma." },
+      { status: 502 },
+    );
+  }
+}
+
+async function handlePaymentLinkFallback(
+  item: NonNullable<CatalogItem>,
+  mode: "payment" | "subscription",
+): Promise<NextResponse> {
+  if (!stripe) {
     return NextResponse.json({ error: "No se pudo iniciar el pago." }, { status: 502 });
+  }
+  try {
+    const link = await stripe.paymentLinks.create({
+      line_items: [
+        mode === "subscription"
+          ? {
+              quantity: 1,
+              price_data: {
+                currency: item.currency,
+                unit_amount: item.amount,
+                recurring: { interval: item.interval ?? "month" },
+                product_data: { name: item.name, description: item.desc },
+              },
+            }
+          : {
+              quantity: 1,
+              price_data: {
+                currency: item.currency,
+                unit_amount: item.amount,
+                product_data: { name: item.name, description: item.desc },
+              },
+            },
+      ],
+      metadata: { item: item.id, fallback: "paymentLink" },
+    });
+    if (!link.url) {
+      return NextResponse.json(
+        {
+          error: "No se pudo iniciar el pago.",
+          fallbackAttempted: true,
+        },
+        { status: 502 },
+      );
+    }
+    return NextResponse.json({ url: link.url, fallback: true });
+  } catch (err) {
+    console.error("[checkout] fallback a Payment Link también falló:", err);
+    return NextResponse.json(
+      {
+        error: "No se pudo iniciar el pago.",
+        fallbackAttempted: true,
+      },
+      { status: 502 },
+    );
   }
 }

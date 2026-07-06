@@ -67,10 +67,9 @@
 
 > 4.3 parcial: plantillas React Email y envío vía Resend implementados; el envío real
 > se activa al definir `RESEND_API_KEY`. Sin clave, degrada (log) y la API responde 200.
-> 4.1 hecho: esquema migrado a Supabase (proyecto `hjshdsohotcsfrivsyml`, migración
-> `20260605000000_init` aplicada y verificada por checksum vía MCP). RLS habilitada en
-> todas las tablas públicas (`20260609000000_enable_rls`). Resta inyectar `DATABASE_URL`
-> en el runtime (Vercel/`.env.local`) para activar la persistencia en producción.
+> 4.1 hecho: esquema migrado a Supabase self-hosted en Coolify (`supabase-website-alexendrosdev`,
+> migración `20260605000000_init` aplicada). RLS habilitada en todas las tablas públicas
+> (`20260609000000_enable_rls`). `DATABASE_URL` apunta al self-hosted vía Cloudflare Tunnel.
 
 ## F5 · SEO, a11y, performance
 
@@ -82,12 +81,12 @@
 
 ## F6 · Verify & Consolidate
 
-| #   | Tarea                                                             | Estado   | Bloquea | Desbloquea |
-| --- | ----------------------------------------------------------------- | -------- | ------- | ---------- |
-| 6.1 | Valoradores en verde (tsc, lint, format, Vitest, Playwright, axe) | hecho    | F5      | 6.3        |
-| 6.2 | CI GitHub Actions (lint/test/e2e/build) + runner propio           | hecho    | 0.6     | merge main |
-| 6.3 | Verificación `.claude/` L2 (settings, overlay, plugins)           | hecho    | 0.7,6.1 | release    |
-| 6.4 | Deploy (diferido): Vercel o Hostinger VPS                         | en curso | 6.3     | F8         |
+| #   | Tarea                                                             | Estado | Bloquea | Desbloquea |
+| --- | ----------------------------------------------------------------- | ------ | ------- | ---------- |
+| 6.1 | Valoradores en verde (tsc, lint, format, Vitest, Playwright, axe) | hecho  | F5      | 6.3        |
+| 6.2 | CI GitHub Actions (lint/test/e2e/build) + runner propio           | hecho  | 0.6     | merge main |
+| 6.3 | Verificación `.claude/` L2 (settings, overlay, plugins)           | hecho  | 0.7,6.1 | release    |
+| 6.4 | Deploy (diferido): Vercel o Hostinger VPS                         | hecho  | 6.3     | F8         |
 
 ## F7 · Pagos (Stripe Checkout)
 
@@ -166,6 +165,89 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 > `checkout` y `a11y` (axe sin críticos en 8 rutas, incluida `/stack`). Cubre flujos cliente y los
 > Server Components asíncronos de detalle (`/proyectos/[slug]`, `/blog/[slug]`).
 
+## F11 · Catálogo unificado
+
+| #    | Tarea                                                                                                           | Estado | Bloquea | Desbloquea    |
+| ---- | --------------------------------------------------------------------------------------------------------------- | ------ | ------- | ------------- |
+| 11.1 | `src/lib/content/catalog.ts` + helpers (`getCatalogItem`, `getCatalogItemsByType`, `getCatalogItemsByCategory`) | hecho  | —       | F12, F13, F14 |
+| 11.2 | Refactor `services.ts` — `TIERS`, `ADDONS` derivados del catálogo                                               | hecho  | 11.1    | —             |
+| 11.3 | Deprecar `checkout.ts` (reexporta `PURCHASABLES` desde catálogo para compatibilidad)                            | hecho  | 11.1    | —             |
+| 11.4 | `formatPrice` en `checkout.ts` (locale `es-ES`)                                                                 | hecho  | 11.3    | F12           |
+
+> Spec: `specs/catalog-pipeline-stripe/spec.md` RF1. Precios server-trusted (céntimos). Verificados
+> y sin TODOs. 10 tests unit green en `tests/unit/catalog.test.ts` (T1.1–T1.10 del test-plan).
+
+## F12 · Checkout unified (subscription mode)
+
+| #    | Tarea                                                                                 | Estado | Bloquea | Desbloquea |
+| ---- | ------------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 12.1 | `POST /api/checkout` acepta `itemId` (nuevo) + `{ item }` (legacy)                    | hecho  | F11     | F13        |
+| 12.2 | `mode: subscription` para items `recurring` → `price_data` + `recurring { interval }` | hecho  | 12.1    | —          |
+| 12.3 | Item `one_time` con `mode: subscription` → fuerza `payment` + warning (no 422)        | hecho  | 12.1    | —          |
+| 12.4 | Zod schema ampliado (`itemId`, `mode`, `paymentMethod`) en `lib/validation.ts`        | hecho  | 12.1    | F13        |
+
+> 6 tests integración green en `tests/integration/checkout.test.ts` (T2.1–T2.6). 5 tests componente
+> en `tests/component/PurchaseCard.test.tsx` (T2.12–T2.16). 2 tests e2e en `services.spec.ts` y
+> `escaparate.spec.ts` (T2.17–T2.18).
+
+## F13 · Canal secundario (transferencia + Stripe Payment Link fallback)
+
+| #    | Tarea                                                                                   | Estado | Bloquea | Desbloquea |
+| ---- | --------------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 13.1 | `paymentMethod: transfer` → valida `email`+`name`, crea Invoice proforma, devuelve IBAN | hecho  | F12     | —          |
+| 13.2 | `paymentMethod: transfer` sin email/name → 422                                          | hecho  | F12     | —          |
+| 13.3 | `paymentMethod: transfer` sin `TRANSFER_IBAN` o sin Prisma → 503                        | hecho  | F12     | —          |
+| 13.4 | Fallback: Stripe session falla → `paymentLinks.create` → 200 `{ fallback: true }`       | hecho  | F12     | —          |
+| 13.5 | Ambos (session + payment link) fallan → 502 `{ fallbackAttempted: true }`               | hecho  | F12     | —          |
+| 13.6 | Sin Stripe pero con `TRANSFER_IBAN` → 503 con datos transferencia                       | hecho  | F12     | —          |
+
+> 10 tests integración green en `tests/integration/checkout.test.ts` (T3.1–T3.10). 4 tests componente
+> en `tests/component/PurchaseCard.test.tsx` (T3.11–T3.14). Bloqueos: `TRANSFER_IBAN`,
+> `TRANSFER_BENEFICIARY` (operador) activan el canal real. Código y tests implementados.
+
+## F14 · Webhook ampliado + CRM API + Pipeline 9 stages
+
+| #    | Tarea                                                                                                       | Estado    | Bloquea                                                | Desbloquea |
+| ---- | ----------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------ | ---------- |
+| 14.1 | 3 migraciones Prisma: `Subscription` table, seed `PipelineStage` (9 stages), `stripeInvoiceId` en `Invoice` | pendiente | schema CRM existente (`20260616120000_add_crm_schema`) | 14.2–14.6  |
+| 14.2 | Webhook ampliado: `invoice.paid` → Invoice CRM, `customer.subscription.updated/deleted` → Subscription      | pendiente | 14.1                                                   | —          |
+| 14.3 | `checkout.session.completed` con `dealId` → auto-avance a "Cerrado ganado" (stage 5)                        | pendiente | 14.1                                                   | —          |
+| 14.4 | Lógica pipeline: `lib/crm/pipeline.ts` (transiciones válidas, stages terminales)                            | pendiente | stages seedeados (14.1)                                | 14.5       |
+| 14.5 | Auth CRM: `lib/crm-auth.ts` (middleware `X-API-Key`)                                                        | pendiente | `CRM_API_KEY` env                                      | 14.6       |
+| 14.6 | 11 Route Handlers REST (`src/app/api/crm/`) — contacts, deals, products, invoices, activities, stages       | pendiente | 14.4, 14.5                                             | F15        |
+| 14.7 | Rate-limit CRM 60 req/min por API key                                                                       | pendiente | 14.5                                                   | —          |
+
+> Worktree: `wt/catalog-pipeline-str-f14`. Dependencias: schema Prisma CRM ✅, catálogo (F11) ✅.
+> 41 tests planificados (6 webhook, 25 CRM API, 10 pipeline) en test-plan.md T4.1–T4.41.
+> Criterio de salida: 41 tests green + 3 migraciones aplicadas + lint/typecheck/build verde.
+> **Orquestación**: agente `general` escribe tests RED primero, implementa código mínimo, refactoriza.
+> Migraciones requieren `prisma migrate deploy` contra Supabase con `DIRECT_URL`.
+
+## F15 · Agentes IA autónomos
+
+| #    | Tarea                                                                           | Estado    | Bloquea       | Desbloquea |
+| ---- | ------------------------------------------------------------------------------- | --------- | ------------- | ---------- |
+| 15.1 | Repo `agentes-ia-catalog/` (Python/FastAPI, `localhost:8400`)                   | pendiente | —             | 15.2–15.5  |
+| 15.2 | Agente Auditor (cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min) | pendiente | CRM API (F14) | —          |
+| 15.3 | Agente Diagnosticador (`POST /diagnose`, hipótesis con confianza)               | pendiente | CRM API (F14) | —          |
+| 15.4 | Agente Reparador (`POST /repair`, reintenta persistencia vía CRM API)           | pendiente | CRM API (F14) | —          |
+| 15.5 | Health endpoint + degradación sin Ollama/cloud                                  | pendiente | 15.2–15.4     | F16        |
+
+> Repo externo: `/home/alexendros/repositorios/personal/agentes-ia-catalog/`. 10 tests pytest.
+> Modelos: Ollama local `ornith:9b` + Anthropic API. Gestor: `uv`. No comparte proceso con Next.js.
+
+## F16 · E2E + Gates finales
+
+| #    | Tarea                                                                           | Estado    | Bloquea    | Desbloquea |
+| ---- | ------------------------------------------------------------------------------- | --------- | ---------- | ---------- |
+| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta) | pendiente | F14, F15   | —          |
+| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%   | pendiente | F14, F15   | —          |
+| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                      | pendiente | 16.1, 16.2 | release    |
+| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA)                | pendiente | 16.3       | —          |
+
+> Worktree: `wt/catalog-pipeline-str-f16` (merge final con todas las fases previas integradas).
+> Lock-in actual: 95/83/98/96 (branches bajo por falta de tests CRM). Gate final: 85/80/85/85.
+
 ---
 
 ## Estado de cierre (2026-06-15) — Reposicionamiento hacia desarrollo
@@ -187,10 +269,40 @@ empresas nuevas/pequeñas:
 - **Higiene**: `.idea/`/`.junie/`/`.ruff_cache/` a `.gitignore` y `.prettierignore`.
 - **Verificación**: lint + typecheck + vitest (21/21) + `next build` (28 rutas) en verde.
 
+## Estado de cierre (2026-07-05) — Auditoría F11-F13 + planificación F14-F16
+
+Fases F11-F13 completadas y verificadas (150 tests verdes, lint 0 errors, typecheck 0,
+build 32 rutas). Catálogo unificado, checkout con subscription mode y canal secundario
+(transferencia bancaria + Stripe Payment Link fallback) implementados y testeados.
+
+- **F11**: `catalog.ts` con 9 items (addons, retainers, proyectos), precios server-trusted
+  en céntimos. `services.ts` y `checkout.ts` derivados del catálogo (10 tests unit green).
+- **F12**: `POST /api/checkout` ampliado con `itemId`, `mode`, `paymentMethod`. Items
+  `recurring` → subscription mode. Item `one_time` + mode subscription → fuerza payment
+  sin error 422. Compatibilidad hacia atrás `{ item }` legacy (6 tests integración green).
+- **F13**: Canal transferencia: Invoice proforma, IBAN, referencia `INV-YYYY-NNN`.
+  Fallback Payment Link ante error de Stripe. Degradación sin stripe → 503 con datos
+  transferencia si configurado (10 tests integración green).
+
+**Próxima fase (F14)**: Webhook ampliado + CRM API + Pipeline 9 stages. Dependencias
+satisfechas: schema Prisma CRM (`20260616120000_add_crm_schema` en repo y DB), catálogo
+(F11). Worktree `wt/catalog-pipeline-str-f14` desde main. 41 tests según test-plan.md
+T4.1-T4.41. Orquestación delegable al agente `general` con spec-driven workflow.
+
 ## Bloqueos activos
 
-- **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real (sin clave degrada y responde 200). No bloquea F0–F3 ni la lógica de validación/route handlers (se desarrollan con mocks/tests).
-- **F4.1**: DB Supabase provisionada y migrada (ver F9.4); resta inyectar `DATABASE_URL` en el runtime (Vercel/`.env.local`) para activar la persistencia.
+- **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real de emails transaccionales. Sin clave, degrada a `console.log` y la API responde 200. No bloquea ninguna fase pendiente.
+- **F7.5**: `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` pendientes del operador. Pagos reales no activos; código y tests implementados con `vi.mock`.
+- **F13**: `TRANSFER_IBAN` y `TRANSFER_BENEFICIARY` pendientes del operador. Canal transferencia implementado y testeado; solo falta configurar las credenciales reales.
+- **F14**: requiere `CRM_API_KEY` (generada por operador) para activar auth en los 11 endpoints REST. `prisma migrate deploy` contra Supabase con `DIRECT_URL` para las 3 migraciones nuevas (Subscription table, seed 9 PipelineStage, `stripeInvoiceId` en Invoice).
+- **Infra Coolify**: Supabase self-hosted en Coolify. Cloudflare Tunnel pendiente de configurar en la MiniPC para exponer `db.alexendros.cloud:5432`.
+
+## Referencias
+
+- Spec: `specs/catalog-pipeline-stripe/` — spec.md, contract.md, scenarios.md, test-plan.md
+- Arquitectura: `ARCHITECTURE.md` — stack, rutas, modelos, testing
+- Testing: `tests/README.md` — pirámide completa, patrones, cobertura
+- AGENTS.md: contexto del proyecto, comandos, infraestructura, variables
 
 ## Estado de cierre (2026-06-01)
 
@@ -206,12 +318,11 @@ los ítems que dependen de credenciales o deploy:
 
 ## Estado de cierre (2026-06-09)
 
-Provisionada la base de datos Supabase (proyecto `hjshdsohotcsfrivsyml`) y aplicada la
+Provisionada la base de datos Supabase self-hosted en Coolify y aplicada la
 migración inicial:
 
-- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al proyecto Supabase y
-  verificada por checksum (`list_migrations` vía MCP). Tablas `Lead`, `Subscriber` y `Order`
-  creadas con sus índices.
+- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al self-hosted y
+  verificada. Tablas `Lead`, `Subscriber` y `Order` creadas con sus índices.
 - **Hardening RLS** — Row Level Security habilitada en las 4 tablas públicas (`Lead`,
   `Subscriber`, `Order`, `_prisma_migrations`). Sin políticas: el rol owner que usa Prisma
   ignora RLS, así que la app sigue operando, mientras la Data API (PostgREST) deniega
@@ -222,8 +333,8 @@ migración inicial:
   (sentencias idempotentes), de modo que un `prisma migrate deploy` limpio reproduce la
   postura de seguridad. Producción ya está endurecida; esa migración se registrará en el
   próximo `deploy`.
-- **Pendiente (operador)** — inyectar `DATABASE_URL` (y la variante pooler) en Vercel y
-  `.env.local` para activar la persistencia real; plantilla en `.env.example`.
+- **Pendiente (operador)** — inyectar `DATABASE_URL` y `DIRECT_URL` en Vercel y `.env.local`
+  para activar la persistencia real contra el self-hosted (Cloudflare Tunnel). Plantilla en `.env.example`.
 
 ## Notas
 

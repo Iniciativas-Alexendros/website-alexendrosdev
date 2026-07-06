@@ -40,7 +40,7 @@ describe("invariantes de PURCHASABLES", () => {
     expect(unique(PURCHASABLES.map((i) => i.id))).toBe(true);
     for (const i of PURCHASABLES) {
       expect(i.amount).toBeGreaterThan(0);
-      expect(getPurchasable(i.id)).toBe(i);
+      expect(getPurchasable(i.id)).toStrictEqual(i);
     }
     expect(getPurchasable("inexistente")).toBeNull();
   });

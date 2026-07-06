@@ -15,3 +15,15 @@ export const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET ?? "";
 // URL base absoluta para las success/cancel URLs de Checkout. Se prefiere el
 // origin de la petición; este valor es el fallback en entornos sin cabecera.
 export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://alexendros.dev";
+
+// ─── F13 — Canal secundario: datos de transferencia bancaria ──────────────
+// Si `TRANSFER_IBAN` está configurado, el endpoint /api/checkout puede
+// derivar a este canal cuando Stripe falla o cuando el cliente lo pide
+// explícitamente (`paymentMethod: "transfer"`).
+export const TRANSFER_IBAN = process.env.TRANSFER_IBAN ?? "";
+export const TRANSFER_BENEFICIARY = process.env.TRANSFER_BENEFICIARY ?? "";
+export const TRANSFER_BANK = process.env.TRANSFER_BANK ?? "";
+
+export function hasTransferConfig(): boolean {
+  return Boolean(TRANSFER_IBAN && TRANSFER_BENEFICIARY);
+}
