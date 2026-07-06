@@ -88,14 +88,14 @@ Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 
 ### Infraestructura
 
-| Servicio     | Estado                                                                     | Nota                                                                                                                                         |
-| ------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vercel**   | ✅ deploy Git nativo (push a `main` → prod). Dominio `alexendros.dev`      | Env vars pendientes: `DATABASE_URL`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TRANSFER_IBAN`, `TRANSFER_BENEFICIARY` |
-| **Supabase** | ✅ provisionada (proyecto `hjshdsohotcsfrivsyml`)                          | Migración `20260616120000_add_crm_schema` (schema CRM) registrada en repo; resta `deploy` a prod y seed de 9 stages                          |
-| **Stripe**   | ⚠️ null-safe, clave pendiente (operador)                                   | Pagos reales no activos; código y tests con `vi.mock`                                                                                        |
-| **Resend**   | ⚠️ null-safe, clave pendiente (operador)                                   | Emails transaccionales no activos; código y tests con `vi.mock`                                                                              |
-| **MiniPC**   | NVIDIA RTX 5060 Laptop, Ollama (`ornith:9b`, `qwen2.5-coder:7b`, `bge-m3`) | Coolify + SigNoz planificados, no provisionados                                                                                              |
-| **MCP**      | Stripe CLI 1.43.6 + plugin projects 0.22.0 en `~/.local/bin`               | `stripe-projects` skill en `~/.agents/skills/`                                                                                               |
+| Servicio     | Estado                                                                       | Nota                                                                                                                                                         |
+| ------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Vercel**   | ✅ deploy Git nativo (push a `main` → prod). Dominio `alexendros.dev`        | Env vars configuradas: `DATABASE_URL`, `DIRECT_URL`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TRANSFER_IBAN`, `TRANSFER_BENEFICIARY` |
+| **Supabase** | ✅ self-hosted en Coolify (`supabase-website-alexendrosdev`, Docker oficial) | Postgres en la MiniPC, conectividad vía Cloudflare Tunnel (`db.alexendros.cloud`). 5 migraciones aplicadas.                                                  |
+| **Stripe**   | ⚠️ null-safe, clave pendiente (operador)                                     | Pagos reales no activos; código y tests con `vi.mock`                                                                                                        |
+| **Resend**   | ⚠️ null-safe, clave pendiente (operador)                                     | Emails transaccionales no activos; código y tests con `vi.mock`                                                                                              |
+| **MiniPC**   | NVIDIA RTX 5060, Ollama (`ornith:9b`, `qwen2.5-coder:7b`, `bge-m3`)          | Coolify + Supabase self-hosted + SigNoz. Cloudflare Tunnel para exponer DB.                                                                                  |
+| **MCP**      | Stripe CLI 1.43.6 + plugin projects 0.22.0 en `~/.local/bin`                 | `stripe-projects` skill en `~/.agents/skills/`                                                                                                               |
 
 ### Variables de entorno críticas
 

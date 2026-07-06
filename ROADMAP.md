@@ -67,10 +67,9 @@
 
 > 4.3 parcial: plantillas React Email y envío vía Resend implementados; el envío real
 > se activa al definir `RESEND_API_KEY`. Sin clave, degrada (log) y la API responde 200.
-> 4.1 hecho: esquema migrado a Supabase (proyecto `hjshdsohotcsfrivsyml`, migración
-> `20260605000000_init` aplicada y verificada por checksum vía MCP). RLS habilitada en
-> todas las tablas públicas (`20260609000000_enable_rls`). Resta inyectar `DATABASE_URL`
-> en el runtime (Vercel/`.env.local`) para activar la persistencia en producción.
+> 4.1 hecho: esquema migrado a Supabase self-hosted en Coolify (`supabase-website-alexendrosdev`,
+> migración `20260605000000_init` aplicada). RLS habilitada en todas las tablas públicas
+> (`20260609000000_enable_rls`). `DATABASE_URL` apunta al self-hosted vía Cloudflare Tunnel.
 
 ## F5 · SEO, a11y, performance
 
@@ -293,11 +292,10 @@ T4.1-T4.41. Orquestación delegable al agente `general` con spec-driven workflow
 ## Bloqueos activos
 
 - **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real de emails transaccionales. Sin clave, degrada a `console.log` y la API responde 200. No bloquea ninguna fase pendiente.
-- **F4.1**: DB Supabase provisionada y migrada (ver F9.4). Resta inyectar `DATABASE_URL` en el runtime (Vercel y `.env.local`) para activar la persistencia real. F14 (CRM API) **necesitará** Prisma operativo en prod; los tests usan `vi.mock`.
 - **F7.5**: `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` pendientes del operador. Pagos reales no activos; código y tests implementados con `vi.mock`.
 - **F13**: `TRANSFER_IBAN` y `TRANSFER_BENEFICIARY` pendientes del operador. Canal transferencia implementado y testeado; solo falta configurar las credenciales reales.
 - **F14**: requiere `CRM_API_KEY` (generada por operador) para activar auth en los 11 endpoints REST. `prisma migrate deploy` contra Supabase con `DIRECT_URL` para las 3 migraciones nuevas (Subscription table, seed 9 PipelineStage, `stripeInvoiceId` en Invoice).
-- **Infra Coolify + SigNoz**: no provisionados en miniPC. No bloquean F14-F16, pero son necesarios para observabilidad del pipeline comercial (webhooks Stripe, CRM API, agentes IA).
+- **Infra Coolify**: Supabase self-hosted en Coolify. Cloudflare Tunnel pendiente de configurar en la MiniPC para exponer `db.alexendros.cloud:5432`.
 
 ## Referencias
 
@@ -320,12 +318,11 @@ los ítems que dependen de credenciales o deploy:
 
 ## Estado de cierre (2026-06-09)
 
-Provisionada la base de datos Supabase (proyecto `hjshdsohotcsfrivsyml`) y aplicada la
+Provisionada la base de datos Supabase self-hosted en Coolify y aplicada la
 migración inicial:
 
-- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al proyecto Supabase y
-  verificada por checksum (`list_migrations` vía MCP). Tablas `Lead`, `Subscriber` y `Order`
-  creadas con sus índices.
+- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al self-hosted y
+  verificada. Tablas `Lead`, `Subscriber` y `Order` creadas con sus índices.
 - **Hardening RLS** — Row Level Security habilitada en las 4 tablas públicas (`Lead`,
   `Subscriber`, `Order`, `_prisma_migrations`). Sin políticas: el rol owner que usa Prisma
   ignora RLS, así que la app sigue operando, mientras la Data API (PostgREST) deniega
@@ -336,8 +333,8 @@ migración inicial:
   (sentencias idempotentes), de modo que un `prisma migrate deploy` limpio reproduce la
   postura de seguridad. Producción ya está endurecida; esa migración se registrará en el
   próximo `deploy`.
-- **Pendiente (operador)** — inyectar `DATABASE_URL` (y la variante pooler) en Vercel y
-  `.env.local` para activar la persistencia real; plantilla en `.env.example`.
+- **Pendiente (operador)** — inyectar `DATABASE_URL` y `DIRECT_URL` en Vercel y `.env.local`
+  para activar la persistencia real contra el self-hosted (Cloudflare Tunnel). Plantilla en `.env.example`.
 
 ## Notas
 

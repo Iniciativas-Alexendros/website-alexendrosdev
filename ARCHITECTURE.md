@@ -11,7 +11,7 @@
 | Estilos          | Tailwind CSS v4 (`@theme`) + `src/styles/site.css` (portado, clases `ak-*`) + tokens `design-tokens.css` |
 | Fuentes / iconos | `next/font` (Inter, JetBrains Mono) · `lucide-react`                                                     |
 | Contenido        | Módulos TS tipados (`src/lib/content/`) + blog en MDX (`content/blog/`)                                  |
-| Backend          | Route Handlers + zod + Resend + React Email + Prisma/Supabase                                            |
+| Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)      |
 | Pagos            | Stripe Checkout (null-safe) + catálogo unificado (`catalog.ts`) + canal transferencia + Payment Link     |
 | CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 pendiente)                        |
 | Agentes IA       | Python/FastAPI externo (`localhost:8400`) — monitorización, diagnóstico, reparación (F15 pendiente)      |
