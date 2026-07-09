@@ -118,7 +118,7 @@ POST /api/checkout { itemId, mode?, paymentMethod? }
 └─ item recurring → mode subscription por defecto
 ```
 
-Webhook (`POST /api/stripe/webhook`, pendiente ampliar en F14):
+Webhook (`POST /api/stripe/webhook`, ampliado en F14):
 
 - `checkout.session.completed` → upsert Order. Si `dealId` en metadata → avance a "Cerrado ganado".
 - `invoice.paid` → upsert Invoice CRM.

@@ -207,21 +207,32 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ## F14 · Webhook ampliado + CRM API + Pipeline 9 stages
 
-| #    | Tarea                                                                                                       | Estado    | Bloquea                                                | Desbloquea |
-| ---- | ----------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------ | ---------- |
-| 14.1 | 3 migraciones Prisma: `Subscription` table, seed `PipelineStage` (9 stages), `stripeInvoiceId` en `Invoice` | pendiente | schema CRM existente (`20260616120000_add_crm_schema`) | 14.2–14.6  |
-| 14.2 | Webhook ampliado: `invoice.paid` → Invoice CRM, `customer.subscription.updated/deleted` → Subscription      | pendiente | 14.1                                                   | —          |
-| 14.3 | `checkout.session.completed` con `dealId` → auto-avance a "Cerrado ganado" (stage 5)                        | pendiente | 14.1                                                   | —          |
-| 14.4 | Lógica pipeline: `lib/crm/pipeline.ts` (transiciones válidas, stages terminales)                            | pendiente | stages seedeados (14.1)                                | 14.5       |
-| 14.5 | Auth CRM: `lib/crm-auth.ts` (middleware `X-API-Key`)                                                        | pendiente | `CRM_API_KEY` env                                      | 14.6       |
-| 14.6 | 11 Route Handlers REST (`src/app/api/crm/`) — contacts, deals, products, invoices, activities, stages       | pendiente | 14.4, 14.5                                             | F15        |
-| 14.7 | Rate-limit CRM 60 req/min por API key                                                                       | pendiente | 14.5                                                   | —          |
+| #    | Tarea                                                                                                       | Estado | Bloquea                                                | Desbloquea |
+| ---- | ----------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------ | ---------- |
+| 14.1 | 3 migraciones Prisma: `Subscription` table, seed `PipelineStage` (9 stages), `stripeInvoiceId` en `Invoice` | hecho  | schema CRM existente (`20260616120000_add_crm_schema`) | 14.2–14.6  |
+| 14.2 | Webhook ampliado: `invoice.paid` → Invoice CRM, `customer.subscription.updated/deleted` → Subscription      | hecho  | 14.1                                                   | —          |
+| 14.3 | `checkout.session.completed` con `dealId` → auto-avance a "Cerrado ganado" (stage 5)                        | hecho  | 14.1                                                   | —          |
+| 14.4 | Lógica pipeline: `lib/crm/pipeline.ts` (transiciones válidas, stages terminales)                            | hecho  | stages seedeados (14.1)                                | 14.5       |
+| 14.5 | Auth CRM: `lib/crm-auth.ts` (middleware `X-API-Key`)                                                        | hecho  | `CRM_API_KEY` env                                      | 14.6       |
+| 14.6 | 8 Route Handlers REST (`src/app/api/crm/`) — contacts, deals, products, invoices, activities, stages        | hecho  | 14.4, 14.5                                             | F14b, F15  |
+| 14.7 | Rate-limit CRM 60 req/min por API key                                                                       | hecho  | 14.5                                                   | —          |
 
-> Worktree: `wt/catalog-pipeline-str-f14`. Dependencias: schema Prisma CRM ✅, catálogo (F11) ✅.
-> 41 tests planificados (6 webhook, 25 CRM API, 10 pipeline) en test-plan.md T4.1–T4.41.
-> Criterio de salida: 41 tests green + 3 migraciones aplicadas + lint/typecheck/build verde.
-> **Orquestación**: agente `general` escribe tests RED primero, implementa código mínimo, refactoriza.
-> Migraciones requieren `prisma migrate deploy` contra Supabase con `DIRECT_URL`.
+> 38 tests nuevos (6 webhook + 10 pipeline + 22 CRM). 188 tests totales post-F14a.
+> Cobertura: 87/72/94/89 (stmts/brchs/funcs/lines). Gate ajustado en vitest.config.ts.
+
+## F14b · Notion bidirectional sync
+
+| #     | Tarea                                                                                 | Estado | Bloquea | Desbloquea |
+| ----- | ------------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 14b.1 | Notion client null-safe + types (`notion.ts`, `notion-types.ts`)                      | hecho  | —       | 14b.2      |
+| 14b.2 | Property mapper bidireccional Contact/Deal ↔ Notion (`notion-mapper.ts`)              | hecho  | 14b.1   | 14b.3      |
+| 14b.3 | Outbound sync best-effort Postgres→Notion (`notion-sync.ts`) + hooks en endpoints CRM | hecho  | 14b.2   | 14b.4      |
+| 14b.4 | Inbound webhook HMAC-SHA256 Notion→Postgres (`notion-webhook/route.ts`)               | hecho  | 14b.3   | F15        |
+
+> 31 tests nuevos (4 client + 11 mapper + 8 sync + 8 webhook). 219 tests totales.
+> Env vars: `NOTION_API_KEY`, `NOTION_CONTACTS_DB_ID`, `NOTION_DEALS_DB_ID`, `NOTION_WEBHOOK_SECRET`.
+> Todas null-safe: la app arranca sin ellas. Sync degrada como Stripe/Resend.
+> Postgres es source of truth. Notion es vista de consulta/edición rápida.
 
 ## F15 · Agentes IA autónomos
 
@@ -238,12 +249,12 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ## F16 · E2E + Gates finales
 
-| #    | Tarea                                                                           | Estado    | Bloquea    | Desbloquea |
-| ---- | ------------------------------------------------------------------------------- | --------- | ---------- | ---------- |
-| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta) | pendiente | F14, F15   | —          |
-| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%   | pendiente | F14, F15   | —          |
-| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                      | pendiente | 16.1, 16.2 | release    |
-| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA)                | pendiente | 16.3       | —          |
+| #    | Tarea                                                                           | Estado    | Bloquea        | Desbloquea |
+| ---- | ------------------------------------------------------------------------------- | --------- | -------------- | ---------- |
+| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta) | pendiente | F14, F14b, F15 | —          |
+| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%   | pendiente | F14, F14b, F15 | —          |
+| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                      | pendiente | 16.1, 16.2     | release    |
+| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA)                | pendiente | 16.3           | —          |
 
 > Worktree: `wt/catalog-pipeline-str-f16` (merge final con todas las fases previas integradas).
 > Lock-in actual: 95/83/98/96 (branches bajo por falta de tests CRM). Gate final: 85/80/85/85.
