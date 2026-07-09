@@ -45,7 +45,7 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | **F13**  | Canal secundario (transferencia + Stripe Payment Link fallback)                  | **hecho** — 10 tests integración green                  |
 | **F14**  | Webhook ampliado + CRM API (8 handlers REST) + Pipeline 9 stages + 3 migraciones | **hecho** — 188 tests, commit `bbbc6a8`                 |
 | **F14b** | Notion bidirectional sync (client, mapper, outbound, inbound webhook)            | **hecho** — 219 tests, commit `3c8fbd8`                 |
-| **F15**  | Agentes IA autónomos (Python/FastAPI, repo externo `agentes-ia-catalog/`)        | **pendiente** — desbloqueado por F14+F14b               |
+| **F15**  | Agentes IA autónomos + Hardening con Ornith (Python/FastAPI, 31 tests)           | **pendiente** — desbloqueado por F14+F14b               |
 | **F16**  | E2E + Gates finales — lock-in cobertura 85/80/85/85                              | **pendiente** — depende de F15                          |
 
 ### Specs activos

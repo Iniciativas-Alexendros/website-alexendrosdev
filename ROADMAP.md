@@ -234,18 +234,24 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 > Todas null-safe: la app arranca sin ellas. Sync degrada como Stripe/Resend.
 > Postgres es source of truth. Notion es vista de consulta/edición rápida.
 
-## F15 · Agentes IA autónomos
+## F15 · Agentes IA autónomos + Hardening con Ornith
 
-| #    | Tarea                                                                           | Estado    | Bloquea       | Desbloquea |
-| ---- | ------------------------------------------------------------------------------- | --------- | ------------- | ---------- |
-| 15.1 | Repo `agentes-ia-catalog/` (Python/FastAPI, `localhost:8400`)                   | pendiente | —             | 15.2–15.5  |
-| 15.2 | Agente Auditor (cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min) | pendiente | CRM API (F14) | —          |
-| 15.3 | Agente Diagnosticador (`POST /diagnose`, hipótesis con confianza)               | pendiente | CRM API (F14) | —          |
-| 15.4 | Agente Reparador (`POST /repair`, reintenta persistencia vía CRM API)           | pendiente | CRM API (F14) | —          |
-| 15.5 | Health endpoint + degradación sin Ollama/cloud                                  | pendiente | 15.2–15.4     | F16        |
+| #    | Tarea                                                                            | Estado    | Bloquea       | Desbloquea |
+| ---- | -------------------------------------------------------------------------------- | --------- | ------------- | ---------- |
+| 15.1 | Repo `agentes-ia-catalog/` (Python/FastAPI, `localhost:8400`)                    | pendiente | —             | 15.2–15.8  |
+| 15.2 | LLM provider agnostic: Ollama local (ornith:9b) + fallback OpenAI-compatible API | pendiente | 15.1          | 15.3–15.5  |
+| 15.3 | Agente Auditor (cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min)  | pendiente | 15.2, CRM API | 15.4       |
+| 15.4 | Agente Diagnosticador (`POST /diagnose`, hipótesis con confianza 0.0–1.0)        | pendiente | 15.3          | 15.5       |
+| 15.5 | Agente Reparador (`POST /repair`, reintenta persistencia vía CRM API)            | pendiente | 15.4          | 15.6       |
+| 15.6 | Health endpoint + degradación sin Ollama/cloud                                   | pendiente | 15.2–15.5     | 15.7       |
+| 15.7 | Hardening: tests de utilidad con Ornith (evalúa calidad de diagnósticos)         | pendiente | 15.4          | 15.8       |
+| 15.8 | Hardening: tests de cumplimiento con Ornith (evalúa respeta CRM API contract)    | pendiente | 15.5          | F16        |
 
-> Repo externo: `/home/alexendros/repositorios/personal/agentes-ia-catalog/`. 10 tests pytest.
-> Modelos: Ollama local `ornith:9b` + Anthropic API. Gestor: `uv`. No comparte proceso con Next.js.
+> Repo externo: `/home/alexendros/repositorios/personal/agentes-ia-catalog/`. 31 tests pytest.
+> Stack: Python 3.12+, FastAPI, uv, pytest, httpx, respx.
+> LLM: Ollama local `ornith:9b` (primario) + Groq free tier (fallback OpenAI-compatible).
+> Hardening: Ornith evalúa calidad diagnósticos (utilidad) y contrato API (cumplimiento).
+> No comparte proceso con Next.js — se comunica solo por HTTP con CRM API.
 
 ## F16 · E2E + Gates finales
 
