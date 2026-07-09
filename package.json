@@ -28,6 +28,7 @@
     "audit:a11y": "node scripts/audit-axe.mjs"
   },
   "dependencies": {
+    "@notionhq/client": "^5.23.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@react-email/components": "^1.0.12",
@@ -63,7 +64,6 @@
     "@vitest/coverage-v8": "^4.1.9",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.9",
-    "vite": "^8.0.16",
     "html-validate": "^11.5.3",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
@@ -75,6 +75,7 @@
     "schema-dts": "^2.0.0",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vite": "^8.0.16",
     "vitest": "^4.1.9"
   },
   "lint-staged": {

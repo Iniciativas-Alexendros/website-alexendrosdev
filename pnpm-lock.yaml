@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@notionhq/client':
+        specifier: ^5.23.0
+        version: 5.23.0
       '@prisma/adapter-pg':
         specifier: ^7.8.0
         version: 7.8.0
@@ -796,6 +799,10 @@ packages:
   '@nolyfill/is-core-module@1.0.39':
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
+
+  '@notionhq/client@5.23.0':
+    resolution: {integrity: sha512-vTlkart40A89+l7+aRGNXLr+z3Af94dbaj/PFtommcwqCxWF9aByXmKgCGteD77It8u4ePE1DSL8eIVSANFGPg==}
+    engines: {node: '>=18'}
 
   '@open-draft/deferred-promise@2.2.0':
     resolution: {integrity: sha512-CecwLWx3rhxVQF6V4bAgPS5t+So2sTbPgAzafKkVizyi7tlwpcFpdFqq+wqF2OwNBmqFuu6tOyouTuxgpMfzmA==}
@@ -5519,6 +5526,8 @@ snapshots:
       fastq: 1.20.1
 
   '@nolyfill/is-core-module@1.0.39': {}
+
+  '@notionhq/client@5.23.0': {}
 
   '@open-draft/deferred-promise@2.2.0': {}
 
