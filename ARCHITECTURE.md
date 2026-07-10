@@ -5,18 +5,18 @@
 
 ## Stack
 
-| Capa             | Tecnología                                                                                               |
-| ---------------- | -------------------------------------------------------------------------------------------------------- |
-| Framework        | Next.js 16 (App Router, Turbopack), React 19, TypeScript estricto                                        |
-| Estilos          | Tailwind CSS v4 (`@theme`) + `src/styles/site.css` (portado, clases `ak-*`) + tokens `design-tokens.css` |
-| Fuentes / iconos | `next/font` (Inter, JetBrains Mono) · `lucide-react`                                                     |
-| Contenido        | Módulos TS tipados (`src/lib/content/`) + blog en MDX (`content/blog/`)                                  |
-| Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)      |
-| Pagos            | Stripe Checkout (null-safe) + catálogo unificado (`catalog.ts`) + canal transferencia + Payment Link     |
-| CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 pendiente)                        |
-| Agentes IA       | Python/FastAPI externo (`localhost:8400`) — monitorización, diagnóstico, reparación (F15 pendiente)      |
-| Calidad          | ESLint, Prettier, tsc, Vitest, Playwright, axe, Lighthouse/CWV                                           |
-| Gestor           | pnpm ≥10                                                                                                 |
+| Capa             | Tecnología                                                                                                                 |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js 16 (App Router, Turbopack), React 19, TypeScript estricto                                                          |
+| Estilos          | Tailwind CSS v4 (`@theme`) + `src/styles/site.css` (portado, clases `ak-*`) + tokens `design-tokens.css`                   |
+| Fuentes / iconos | `next/font` (Inter, JetBrains Mono) · `lucide-react`                                                                       |
+| Contenido        | Módulos TS tipados (`src/lib/content/`) + blog en MDX (`content/blog/`)                                                    |
+| Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)                        |
+| Pagos            | Stripe Checkout **live activo** (sk_live_*) + catálogo unificado (`catalog.ts`) + canal transferencia + Payment Link (F17) |
+| CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 pendiente)                                          |
+| Agentes IA       | Python/FastAPI externo (`localhost:8400`) — monitorización, diagnóstico, reparación (F15 pendiente)                        |
+| Calidad          | ESLint, Prettier, tsc, Vitest, Playwright, axe, Lighthouse/CWV                                                             |
+| Gestor           | pnpm ≥10                                                                                                                   |
 
 ## Árbol de rutas (App Router)
 
@@ -53,12 +53,14 @@ src/
                         Testimonials, ServicesList, StackGraph, ContactForm, ...
     providers/          ThemeProvider (no-flash)
   lib/
-    content/            catalog.ts (fuente de verdad precios), projects.ts, posts.ts,
-                        services.ts, timeline.ts, stack.ts, testimonials.ts, faq.ts,
-                        checkout.ts (deprecado → reexporta catálogo), types.ts
-    crm/                invoice-number.ts, pipeline.ts (pendiente), crm-auth.ts (pendiente)
+    content/            catalog.ts (fuente de verdad precios, 9 items con `stripePriceId`),
+                        projects.ts, posts.ts, services.ts, timeline.ts, stack.ts,
+                        testimonials.ts, faq.ts, checkout.ts (deprecado → reexporta catálogo),
+                        types.ts
+    crm/                invoice-number.ts, pipeline.ts, crm-auth.ts
     db/                 cliente Prisma
-    validation/         esquemas zod (contact, newsletter)
+    stripe.ts           cliente Stripe + `isLiveMode` (deriva del prefijo `sk_live_`)
+    validation/         esquemas zod (contact, newsletter, checkout)
     hooks/              useReveal, useTheme
     utils/              helpers
   styles/               design-tokens.css, site.css (portados)
@@ -187,6 +189,33 @@ Servicio Python/FastAPI en repo externo `agentes-ia-catalog/`, puerto `localhost
 
 Modelos: Ollama local `ornith:9b` (clasificación) + Anthropic API (razonamiento diagnóstico).
 Degradación: sin Ollama → cloud para todo. Sin cloud → solo logs. Gestor: `uv`.
+
+## Stripe live (F17, hecho)
+
+`alexendros.dev` acepta pagos reales desde 2026-07-10. Configuración:
+
+- **Catálogo** (`src/lib/content/catalog.ts`): 9 items, cada uno con `stripePriceId`
+  apuntando a `price_test_...`. Los importes en céntimos siguen siendo
+  server-trusted.
+- **Cliente** (`src/lib/stripe.ts`): exporta `stripe` (null-safe) y `isLiveMode`
+  (booleano derivado del prefijo de la clave activa).
+- **Checkout** (`src/app/api/checkout/route.ts`): prefiere `price` cuando
+  `!isLiveMode`; degrada a `price_data` inline con los importes del catálogo en
+  live mode (los `price_test_` serían rechazados por una clave live).
+- **Webhook** (`src/app/api/stripe/webhook/route.ts`): sin cambios respecto a
+  F14. Verifica firma y procesa 4 eventos (`checkout.session.completed`,
+  `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted`).
+- **Env vars Vercel Production**:
+  - `STRIPE_SECRET_KEY` = `sk_live_...` (Standard key)
+  - `STRIPE_WEBHOOK_SECRET` = `whsec_...` del webhook live
+- **Webhook endpoint live**: `we_1TrUSpK8xOmiNNUKB8yz7tob`
+  apuntando a `https://alexendros.dev/api/stripe/webhook`.
+- **Productos live** (Dashboard Stripe): 9 productos creados con los mismos
+  nombres y precios que el catálogo. Sus `price_live_...` aún no se usan en
+  el código (siguiente iteración: poblar catálogo + refinar guardia).
+
+Para auditoría/rollback, las claves viven en el item "Stripe" del vault
+"Infraestructura" en Proton Pass, junto con las claves test.
 
 ```
 

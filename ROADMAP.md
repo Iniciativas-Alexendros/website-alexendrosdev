@@ -90,13 +90,55 @@
 
 ## F7 · Pagos (Stripe Checkout)
 
-| #   | Tarea                                                               | Estado    | Bloquea                  | Desbloquea |
-| --- | ------------------------------------------------------------------- | --------- | ------------------------ | ---------- |
-| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho     | —                        | 7.2        |
-| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho     | 7.1                      | 7.4        |
-| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho     | 7.1                      | 7.4        |
-| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho     | 7.2                      | —          |
-| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | bloqueado | claves Stripe (operador) | —          |
+| #   | Tarea                                                               | Estado | Bloquea | Desbloquea |
+| --- | ------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho  | —       | 7.2        |
+| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho  | 7.1     | 7.4        |
+| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho  | 7.1     | 7.4        |
+| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho  | 7.2     | F17        |
+| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | hecho  | F17.13  | —          |
+
+## F17 · Stripe production activation (test → live)
+
+Activación operativa de Stripe, empezando en modo test y escalando a live con
+un cambio arquitectónico menor: preferir `price` (pre-creado en el Dashboard)
+sobre `price_data` inline para mejor analytics. El código de checkout y
+webhook ya estaba implementado y testeado en F7/F11-F14b.
+
+| #     | Tarea                                                                                      | Estado | Notas                                                                     |
+| ----- | ------------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------------------- |
+| 17.1  | Recuperar/guardar `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` test en Proton Pass        | hecho  | Item `Stripe` en Infraestructura                                          |
+| 17.2  | Crear 9 productos + precios en Dashboard test (3 addons, 3 retainers, 3 proyectos)         | hecho  | `prod_UrBy...` y `price_1TrTaa...`                                        |
+| 17.3  | Poblar `stripePriceId` en `catalog.ts` con los IDs de test                                 | hecho  | Commit `5e83a69`                                                          |
+| 17.4  | Checkout: preferir `price` sobre `price_data` inline (con fallback)                        | hecho  | Commit `5e83a69` + `7d39128` (live guard)                                 |
+| 17.5  | Configurar webhook test → URL de development (rama `development`)                          | hecho  | `we_1TrTsA...` con `?x-vercel-protection-bypass=`                         |
+| 17.6  | Añadir `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` test al entorno Development de Vercel | hecho  | `vercel env add`                                                          |
+| 17.7  | Deploy + test end-to-end en modo test (rama `development` redeploy)                        | hecho  | `cs_test_...` devuelto, 200 OK                                            |
+| 17.8  | Merge a main (rama `development` → `main`)                                                 | hecho  | Commit `21f06c2`                                                          |
+| 17.9  | Onboarding Stripe live (cuenta verificada, datos bancarios)                                | hecho  | Alexendros, `acct_1RgYAKK8xOmiNNUK`                                       |
+| 17.10 | Crear 9 productos + precios live (mismo mapeo, IDs distintos)                              | hecho  | `prod_UrCs...` y `price_1TrUSU...`                                        |
+| 17.11 | Configurar env vars live en Vercel Production (`sk_live_...`, `whsec_...`)                 | hecho  | `vercel env add` tras `rm` (eran vacías)                                  |
+| 17.12 | Crear webhook live apuntando a `https://alexendros.dev/api/stripe/webhook`                 | hecho  | `we_1TrUSpK8xOmiNNUKB8yz7tob`                                             |
+| 17.13 | Smoke test live: `POST /api/checkout` con `sesion-consultoria` → sesión real               | hecho  | `cs_live_a12DZla01aFPPLuu8ZeCR1Jwk1wsrGbXNarP6B02q0qCS1laXlUK8wzQMj`, 60€ |
+| 17.14 | Actualizar `ROADMAP.md` y `ARCHITECTURE.md` (esta sección)                                 | hecho  | —                                                                         |
+
+**Decisión de diseño**: el catálogo lleva los `stripePriceId` de test. Para live,
+`isLiveMode` (derivado del prefijo de la clave activa) fuerza la degradación a
+`price_data` inline. Los importes siguen siendo server-trusted desde el catálogo
+(importe en céntimos, nunca del cliente). Para usar `stripePriceId` en live
+también, hay que poblar el catálogo con `price_live_...` y refinar la guardia
+en `src/app/api/checkout/route.ts` (siguiente iteración, fuera de F17).
+
+**Resultado**: `alexendros.dev` acepta pagos reales vía Stripe Checkout. El
+catálogo unificado (F11), el checkout unified (F12), el canal secundario (F13),
+el webhook ampliado (F14) y el resto del pipeline quedan operativos sin
+cambios adicionales.
+
+**Pendiente fuera de F17**:
+
+- Smoke test end-to-end con pago real confirmado (cancelación, subscripción, etc.)
+- Población del catálogo con `price_live_...` (mejora de analytics, no bloqueante)
+- Tests e2e Playwright contra el deploy de development (cubre `alexendros.dev` real)
 
 ## F8 · Deploy automatizado (Vercel)
 
@@ -309,10 +351,16 @@ T4.1-T4.41. Orquestación delegable al agente `general` con spec-driven workflow
 ## Bloqueos activos
 
 - **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real de emails transaccionales. Sin clave, degrada a `console.log` y la API responde 200. No bloquea ninguna fase pendiente.
-- **F7.5**: `STRIPE_SECRET_KEY` y `STRIPE_WEBHOOK_SECRET` pendientes del operador. Pagos reales no activos; código y tests implementados con `vi.mock`.
 - **F13**: `TRANSFER_IBAN` y `TRANSFER_BENEFICIARY` pendientes del operador. Canal transferencia implementado y testeado; solo falta configurar las credenciales reales.
 - **F14**: requiere `CRM_API_KEY` (generada por operador) para activar auth en los 11 endpoints REST. `prisma migrate deploy` contra Supabase con `DIRECT_URL` para las 3 migraciones nuevas (Subscription table, seed 9 PipelineStage, `stripeInvoiceId` en Invoice).
 - **Infra Coolify**: Supabase self-hosted en Coolify. Cloudflare Tunnel pendiente de configurar en la MiniPC para exponer `db.alexendros.cloud:5432`.
+
+## Desbloqueos recientes
+
+- **F7.5** (2026-07-10): Stripe live activado. `STRIPE_SECRET_KEY` (`sk_live_...`) y
+  `STRIPE_WEBHOOK_SECRET` configuradas en Vercel Production. Webhook live
+  `we_1TrUSpK8xOmiNNUKB8yz7tob` apuntando a `https://alexendros.dev/api/stripe/webhook`.
+  Smoke test confirmó sesión de checkout real (`cs_live_...`). Ver F17 para el detalle.
 
 ## Referencias
 
