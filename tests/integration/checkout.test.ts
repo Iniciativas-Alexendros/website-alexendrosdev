@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Solo se mockea el cliente Stripe (y BASE_URL). `getPurchasable` es el catálogo
 // REAL: así se verifica que el precio es fuente de verdad del servidor.
@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => ({
     prisma: null as null | {
       invoice: { create: ReturnType<typeof vi.fn> };
     },
+    isLiveMode: false,
   },
 }));
 
@@ -39,7 +40,9 @@ vi.mock("@/lib/stripe", () => ({
   hasTransferConfig() {
     return mocks.state.transfer.configured;
   },
-  isLiveMode: false,
+  get isLiveMode() {
+    return mocks.state.isLiveMode;
+  },
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -434,5 +437,65 @@ describe("POST /api/checkout", () => {
       "10.5.0.10",
     );
     expect(res.status).toBe(422);
+  });
+
+  // F17.5b: el checkout debe usar el `stripePriceId` del modo activo.
+  // Mockeando `isLiveMode = true`, el route handler debe pasar el ID live,
+  // no el de test.
+  describe("F17.5b: selección de priceId por modo", () => {
+    afterEach(() => {
+      mocks.state.isLiveMode = false;
+    });
+
+    it("en live mode usa `stripePriceIds.live` y NO el de test", async () => {
+      const create = vi.fn().mockResolvedValue({ url: "https://x" });
+      mocks.state.stripe = { checkout: { sessions: { create } } };
+      mocks.state.isLiveMode = true;
+      await post({ itemId: "sesion-consultoria" }, "10.6.0.1");
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          line_items: [
+            expect.objectContaining({
+              price: "price_1TrUSWK8xOmiNNUK1A2UoF5Y", // live ID
+            }),
+          ],
+        }),
+      );
+    });
+
+    it("en test mode usa `stripePriceIds.test` y NO el de live", async () => {
+      const create = vi.fn().mockResolvedValue({ url: "https://x" });
+      mocks.state.stripe = { checkout: { sessions: { create } } };
+      mocks.state.isLiveMode = false;
+      await post({ itemId: "sesion-consultoria" }, "10.6.0.2");
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          line_items: [
+            expect.objectContaining({
+              price: "price_1TrTacK8xOmiNNUKNemQs0G6", // test ID
+            }),
+          ],
+        }),
+      );
+    });
+
+    it("en live mode con retainer usa el `price_...` live con `recurring` en price_data fallback", async () => {
+      // Verifica que para un retainer en live, el ID live se prefiere y la
+      // sesión es subscription con line_item que apunta al price live.
+      const create = vi.fn().mockResolvedValue({ url: "https://x" });
+      mocks.state.stripe = { checkout: { sessions: { create } } };
+      mocks.state.isLiveMode = true;
+      await post({ itemId: "retainer-pro", mode: "subscription" }, "10.6.0.3");
+      expect(create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mode: "subscription",
+          line_items: [
+            expect.objectContaining({
+              price: "price_1TrUSbK8xOmiNNUKhi6jSFxp", // live ID
+            }),
+          ],
+        }),
+      );
+    });
   });
 });

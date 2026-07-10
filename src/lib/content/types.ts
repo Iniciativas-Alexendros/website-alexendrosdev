@@ -110,11 +110,21 @@ export interface Addon {
  * Item del catálogo unificado (F11). El precio (`amount`, en la unidad mínima
  * de la moneda — céntimos) es la **fuente de verdad del servidor**: el cliente
  * solo envía el `id`, nunca el importe. Ver `lib/content/catalog.ts`.
+ *
+ * F17.5b: `stripePriceIds` mapea por modo de Stripe. El checkout elige el
+ * correcto según la clave activa. Si falta el del modo activo, el código
+ * degrada a `price_data` inline (importe del catálogo) en lugar de fallar.
  */
 export type CatalogItemType = 'one_time' | 'recurring'
 
 export type CatalogCategory =
   'servicio' | 'addon' | 'retainer' | 'consultoria' | 'proyecto'
+
+/** IDs de precio en Stripe por modo (test/live). */
+export interface StripePriceIds {
+  test?: string
+  live?: string
+}
 
 export interface CatalogItem {
   id: string
@@ -124,7 +134,7 @@ export interface CatalogItem {
   currency: string
   type: CatalogItemType
   interval?: 'month' | 'year'
-  stripePriceId?: string
+  stripePriceIds?: StripePriceIds
   active: boolean
   category: CatalogCategory
   metadata?: Record<string, string>

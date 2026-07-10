@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkoutSchema, flattenErrors } from "@/lib/validation";
-import { getCatalogItem } from "@/lib/content/catalog";
+import { getCatalogItem, getCatalogPriceId } from "@/lib/content/catalog";
 import {
   stripe,
   BASE_URL,
@@ -91,17 +91,17 @@ export async function POST(req: Request) {
 
   const origin = req.headers.get("origin") ?? BASE_URL;
 
-  // F17: preferir `price` (precio pre-creado en el Dashboard) cuando el item
-  // del catálogo tiene `stripePriceId` y la clave activa NO es live.
-  //
-  // El catálogo actual contiene `price_test_...`; las claves live los
-  // rechazarían con `Invalid API Key provided to Price`. En live mode
-  // degradamos a `price_data` inline, que sigue siendo server-trusted desde
-  // el catálogo. Para usar `stripePriceId` en live, hay que poblar el
-  // catálogo con `price_live_...` y refinar esta guardia.
-  const canUsePrice = item.stripePriceId && !isLiveMode;
-  const lineItem = canUsePrice
-    ? { quantity: 1, price: item.stripePriceId }
+  // F17.5b: preferir `price` (precio pre-creado en el Dashboard) cuando el
+  // catálogo tiene el ID del modo activo. La clave activa decide el modo;
+  // `getCatalogPriceId(item, isLiveMode ? "live" : "test")` devuelve `null`
+  // si falta el ID de ese modo, en cuyo caso degradamos a `price_data` inline
+  // con los importes server-trusted del catálogo. Esto cubre:
+  //   - live mode completo: catálogo con test+live → usa `price_live_...`
+  //   - test mode: catálogo con test+live → usa `price_test_...`
+  //   - cualquier modo sin ID poblado → fallback a `price_data`
+  const priceId = getCatalogPriceId(item, isLiveMode ? "live" : "test");
+  const lineItem = priceId
+    ? { quantity: 1, price: priceId }
     : effectiveMode === "subscription"
       ? {
           quantity: 1,
@@ -222,10 +222,11 @@ async function handlePaymentLinkFallback(
     return NextResponse.json({ error: "No se pudo iniciar el pago." }, { status: 502 });
   }
   try {
+    const priceId = getCatalogPriceId(item, isLiveMode ? "live" : "test");
     const link = await stripe.paymentLinks.create({
       line_items: [
-        item.stripePriceId
-          ? { quantity: 1, price: item.stripePriceId }
+        priceId
+          ? { quantity: 1, price: priceId }
           : mode === "subscription"
             ? {
                 quantity: 1,

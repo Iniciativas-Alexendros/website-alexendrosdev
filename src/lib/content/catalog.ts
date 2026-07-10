@@ -5,6 +5,12 @@ import type { CatalogItem, CatalogItemType, CatalogCategory } from './types'
 // los enviados por el cliente. El route handler de /api/checkout solo recibe
 // el `id` y resuelve el resto desde este módulo.
 //
+// F17.5b: cada item lleva `stripePriceIds` con los IDs pre-creados en el
+// Dashboard de Stripe, separados por modo (`test` y `live`). El checkout
+// resuelve el correcto según la clave activa (`isLiveMode`). Los importes
+// siguen siendo server-trusted desde `amount` y se usan como fallback de
+// `price_data` si falta el ID del modo activo.
+//
 // Precios verificados y coherentes con el ancla publicada (~€40-45/h).
 // Sin TODOs: ver specs/catalog-pipeline-stripe/contract.md para detalle.
 
@@ -17,7 +23,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 39_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTaaK8xOmiNNUKAqr1fxt5',
+    stripePriceIds: {
+      test: 'price_1TrTaaK8xOmiNNUKAqr1fxt5',
+      live: 'price_1TrUSUK8xOmiNNUKUC096c03',
+    },
     active: true,
     category: 'addon',
     metadata: { hoursEstimate: '~9 h', anchorRate: '~43 €/h' },
@@ -29,7 +38,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 6_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTacK8xOmiNNUKNemQs0G6',
+    stripePriceIds: {
+      test: 'price_1TrTacK8xOmiNNUKNemQs0G6',
+      live: 'price_1TrUSWK8xOmiNNUK1A2UoF5Y',
+    },
     active: true,
     category: 'consultoria',
     metadata: { hoursEstimate: '1 h', anchorRate: '60 €/h' },
@@ -41,7 +53,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 60_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTadK8xOmiNNUKCOVL2dU9',
+    stripePriceIds: {
+      test: 'price_1TrTadK8xOmiNNUKCOVL2dU9',
+      live: 'price_1TrUSXK8xOmiNNUKdLWNpag6',
+    },
     active: true,
     category: 'addon',
     metadata: { hoursEstimate: '~14 h', anchorRate: '~43 €/h' },
@@ -56,7 +71,10 @@ export const CATALOG: CatalogItem[] = [
     currency: 'eur',
     type: 'recurring',
     interval: 'month',
-    stripePriceId: 'price_1TrTafK8xOmiNNUK2vHV7Rs1',
+    stripePriceIds: {
+      test: 'price_1TrTafK8xOmiNNUK2vHV7Rs1',
+      live: 'price_1TrUSZK8xOmiNNUKWuZx0E4T',
+    },
     active: true,
     category: 'retainer',
     metadata: { hoursEstimate: '15 h/mes', anchorRate: '46 €/h' },
@@ -69,7 +87,10 @@ export const CATALOG: CatalogItem[] = [
     currency: 'eur',
     type: 'recurring',
     interval: 'month',
-    stripePriceId: 'price_1TrTahK8xOmiNNUK8B8CGKYH',
+    stripePriceIds: {
+      test: 'price_1TrTahK8xOmiNNUK8B8CGKYH',
+      live: 'price_1TrUSbK8xOmiNNUKhi6jSFxp',
+    },
     active: true,
     category: 'retainer',
     metadata: { hoursEstimate: '30 h/mes', anchorRate: '43 €/h' },
@@ -82,7 +103,10 @@ export const CATALOG: CatalogItem[] = [
     currency: 'eur',
     type: 'recurring',
     interval: 'month',
-    stripePriceId: 'price_1TrTajK8xOmiNNUK180r8o0f',
+    stripePriceIds: {
+      test: 'price_1TrTajK8xOmiNNUK180r8o0f',
+      live: 'price_1TrUSdK8xOmiNNUK1b2axgHl',
+    },
     active: true,
     category: 'retainer',
     metadata: { hoursEstimate: '50 h/mes', anchorRate: '~40 €/h' },
@@ -96,7 +120,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 120_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTakK8xOmiNNUKh2c4rSTT',
+    stripePriceIds: {
+      test: 'price_1TrTakK8xOmiNNUKh2c4rSTT',
+      live: 'price_1TrUSfK8xOmiNNUKBmLycuTp',
+    },
     active: true,
     category: 'proyecto',
     metadata: { hoursEstimate: '~30 h', anchorRate: '~40 €/h' },
@@ -108,7 +135,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 290_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTanK8xOmiNNUKvRe6cMqx',
+    stripePriceIds: {
+      test: 'price_1TrTanK8xOmiNNUKvRe6cMqx',
+      live: 'price_1TrUShK8xOmiNNUK4LhpTNF4',
+    },
     active: true,
     category: 'proyecto',
     metadata: { hoursEstimate: '~72 h', anchorRate: '~40 €/h' },
@@ -120,7 +150,10 @@ export const CATALOG: CatalogItem[] = [
     amount: 590_000,
     currency: 'eur',
     type: 'one_time',
-    stripePriceId: 'price_1TrTaoK8xOmiNNUKJ3q0wS0v',
+    stripePriceIds: {
+      test: 'price_1TrTaoK8xOmiNNUKJ3q0wS0v',
+      live: 'price_1TrUSjK8xOmiNNUKTG4THACP',
+    },
     active: true,
     category: 'proyecto',
     metadata: { hoursEstimate: '~147 h+', anchorRate: '~40 €/h' },
@@ -144,4 +177,16 @@ export function getCatalogItemsByCategory(
   category: CatalogCategory,
 ): CatalogItem[] {
   return CATALOG.filter((item) => item.category === category)
+}
+
+/**
+ * Devuelve el `stripePriceId` del modo activo (test | live) o `null` si falta.
+ * Usado por el route handler de checkout para preferir `price` sobre
+ * `price_data` inline.
+ */
+export function getCatalogPriceId(
+  item: CatalogItem,
+  mode: 'test' | 'live',
+): string | null {
+  return item.stripePriceIds?.[mode] ?? null
 }
