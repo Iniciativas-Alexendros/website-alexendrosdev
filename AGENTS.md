@@ -22,7 +22,7 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | Contenido          | Módulos TS tipados (`src/lib/content/`) + blog MDX (`content/blog/`)                            |
 | Backend            | Route Handlers + zod + Prisma/Supabase + Stripe Checkout + Resend + React Email                 |
 | Catálogo unificado | `src/lib/content/catalog.ts` — fuente de verdad de precios (céntimos), server-trusted           |
-| Calidad            | ESLint, Prettier, tsc, Vitest (26 ficheros, 150 tests), Playwright + axe, Lighthouse/CWV        |
+| Calidad            | ESLint, Prettier, tsc, Vitest (32 ficheros, 229 tests), Playwright + axe, Lighthouse/CWV        |
 | Gestor             | pnpm 11.5.2                                                                                     |
 
 ### Fases (ROADMAP.md)
@@ -36,7 +36,7 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | F4       | Backend (Init) — Prisma, Supabase, Resend, formularios                           | parcial (4.3 bloqueado por `RESEND_API_KEY`)            |
 | F5       | SEO, a11y, performance                                                           | parcial (5.3 CWV sin medición real)                     |
 | F6       | Verify & Consolidate — valoradores, CI, deploy                                   | hecho (6.4 deploy resuelto vía Git nativo Vercel)       |
-| F7       | Pagos (Stripe Checkout) — client, checkout, webhook, UI                          | parcial (7.5 bloqueado por `STRIPE_SECRET_KEY`)         |
+| F7       | Pagos (Stripe Checkout) — client, checkout, webhook, UI                          | **hecho** (live activo, F7.5 completado vía F7-activ.)  |
 | F8       | Deploy automatizado (Vercel)                                                     | hecho (integración Git nativa, workflow CLI descartado) |
 | F9       | Escaparate + deploy en vivo                                                      | hecho                                                   |
 | F10      | Estrategia de testing — pirámide completa, gate cobertura                        | hecho (150 tests, gate 93/86/95/92)                     |
@@ -77,7 +77,7 @@ pnpm format           # Prettier --write
 
 ### Testing
 
-Pirámide completa documentada en `tests/README.md`. 219 tests, 32 ficheros.
+Pirámide completa documentada en `tests/README.md`. 229 tests, 32 ficheros.
 
 Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 

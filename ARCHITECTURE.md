@@ -5,18 +5,18 @@
 
 ## Stack
 
-| Capa             | Tecnología                                                                                                                                                                                                            |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework        | Next.js 16 (App Router, Turbopack), React 19, TypeScript estricto                                                                                                                                                     |
-| Estilos          | Tailwind CSS v4 (`@theme`) + `src/styles/site.css` (portado, clases `ak-*`) + tokens `design-tokens.css`                                                                                                              |
-| Fuentes / iconos | `next/font` (Inter, JetBrains Mono) · `lucide-react`                                                                                                                                                                  |
-| Contenido        | Módulos TS tipados (`src/lib/content/`) + blog en MDX (`content/blog/`)                                                                                                                                               |
-| Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)                                                                                                                   |
-| Pagos            | Stripe Checkout **live activo** (`sk_live_...`, webhook `we_1TrUSpK8xOmiNNUKB8yz7tob`) + catálogo unificado con price IDs dual-mode (`test`/`live`) + canal transferencia + Payment Link fallback (F7 + F17 + F17.5b) |
-| CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 hecho)                                                                                                                                         |
-| Agentes IA       | Módulos TS integrados en `src/lib/agents/` — 3 agentes (Auditor/Diagnosticador/Reparador) con provider LLM híbrido Gemini 3.5 Flash (primario) + OpenCode Zen free (fallback) (F15 pendiente)                         |
-| Calidad          | ESLint, Prettier, tsc, Vitest, Playwright, axe, Lighthouse/CWV                                                                                                                                                        |
-| Gestor           | pnpm ≥10                                                                                                                                                                                                              |
+| Capa             | Tecnología                                                                                                                                                                                                                       |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js 16 (App Router, Turbopack), React 19, TypeScript estricto                                                                                                                                                                |
+| Estilos          | Tailwind CSS v4 (`@theme`) + `src/styles/site.css` (portado, clases `ak-*`) + tokens `design-tokens.css`                                                                                                                         |
+| Fuentes / iconos | `next/font` (Inter, JetBrains Mono) · `lucide-react`                                                                                                                                                                             |
+| Contenido        | Módulos TS tipados (`src/lib/content/`) + blog en MDX (`content/blog/`)                                                                                                                                                          |
+| Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)                                                                                                                              |
+| Pagos            | Stripe Checkout **live activo** (`sk_live_...`, webhook `we_1TrUSpK8xOmiNNUKB8yz7tob`) + catálogo unificado con price IDs dual-mode (`test`/`live`) + canal transferencia + Payment Link fallback (F7 + F7-activ. + F7-activ.5b) |
+| CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 hecho)                                                                                                                                                    |
+| Agentes IA       | Módulos TS integrados en `src/lib/agents/` — 3 agentes (Auditor/Diagnosticador/Reparador) con provider LLM híbrido Gemini 3.5 Flash (primario) + OpenCode Zen free (fallback) (F15 pendiente)                                    |
+| Calidad          | ESLint, Prettier, tsc, Vitest, Playwright, axe, Lighthouse/CWV                                                                                                                                                                   |
+| Gestor           | pnpm ≥10                                                                                                                                                                                                                         |
 
 ## Árbol de rutas (App Router)
 
@@ -38,7 +38,7 @@
 /api/newsletter/confirm app/api/newsletter/confirm/(Route Handler) GET confirmación (double opt-in)
 /api/checkout           app/api/checkout/route.ts  (Route Handler) POST sesión Stripe / transferencia
 /api/stripe/webhook     app/api/stripe/webhook/route.ts (Route Handler) POST eventos Stripe
-/api/crm/*              app/api/crm/** (pendiente) (11 Route Handlers) REST CRM (auth X-API-Key)
+/api/crm/*              app/api/crm/**             (8 Route Handlers) REST CRM (auth X-API-Key, F14)
 /api/health           app/api/health/route.ts    (Route Handler) Health check (F17)
 /api/agents/*         app/api/agents/** (F15)    (5 Route Handlers) health, hooks, audit, diagnose, repair
 /sitemap.xml /robots.txt /feed.xml                 SEO
@@ -161,7 +161,7 @@ Task          { id, title, description?, priority (LOW|MEDIUM|HIGH|URGENT), done
 Invoice       { id, number (unique), status, issuedAt, dueAt?, paidAt?, subtotal, taxRate, taxAmount, total, currency, notes?, contactId?, dealId? }
 InvoiceItem   { id, description, quantity, unitPrice, totalPrice, invoiceId→Invoice, productId?→Product }
 
-─ Pendientes (F14, 3 migraciones) ─
+─ Aplicadas (F14, 3 migraciones) ─
 Subscription  { id, stripeSubscriptionId (unique), customerId?, itemId, status, currentPeriodEnd?, cancelledAt?, createdAt, updatedAt }
 stripeInvoiceId en Invoice: columna String? @unique para idempotencia de webhook invoice.paid
 PipelineStage seed: 9 stages con orden 0-9 y colores hex
@@ -181,17 +181,47 @@ PipelineStage seed: 9 stages con orden 0-9 y colores hex
 
 ## Agentes IA (F15, pendiente)
 
-Servicio Python/FastAPI en repo externo `agentes-ia-catalog/`, puerto `localhost:8400`:
+Módulos TypeScript integrados en `src/lib/agents/` (sin repo externo, sin Ollama, sin
+Python). 5 endpoints REST en `src/app/api/agents/`. Comunicación con el resto del
+sistema solo vía HTTP (CRM API `/api/crm/*` con auth `X-API-Key`).
 
-| Agente         | Endpoint                                  | Función                                                                           |
-| -------------- | ----------------------------------------- | --------------------------------------------------------------------------------- |
-| Auditor        | `POST /hooks/stripe`, `POST /audit/deals` | Clasifica eventos Stripe, detecta anomalías, audita deals estancados              |
-| Diagnosticador | `POST /diagnose`                          | Formula hipótesis de fallo con confianza (DB caída, Stripe down, rate-limit, red) |
-| Reparador      | `POST /repair`                            | Reintenta persistencia vía CRM API, regenera Payment Link, notifica operador      |
-| Health         | `GET /health`                             | `{ status, agents, ollama, cloud_api }`                                           |
+| Agente         | Endpoint                    | Función                                                                                          |
+| -------------- | --------------------------- | ------------------------------------------------------------------------------------------------ |
+| Auditor        | `POST /api/agents/hooks`    | Recibe eventos Stripe, los clasifica con LLM o reglas deterministas                              |
+| Auditor        | `POST /api/agents/audit`    | Trigger manual de auditoría (cron 15 min, deals estancados, anomalías)                           |
+| Diagnosticador | `POST /api/agents/diagnose` | Formula hipótesis de fallo con confianza 0.0-1.0 (DB caída, Stripe down, rate-limit, red)        |
+| Reparador      | `POST /api/agents/repair`   | LLM decide acción correctiva, código ejecuta vía CRM API (validación Zod del payload)            |
+| Health         | `GET /api/agents/health`    | `{ status, llm: { gemini, zen }, crm: boolean }` — null-safe (servicios no configurados = "off") |
 
-Modelos: Ollama local `ornith:9b` (clasificación) + Anthropic API (razonamiento diagnóstico).
-Degradación: sin Ollama → cloud para todo. Sin cloud → solo logs. Gestor: `uv`.
+**Provider LLM híbrido** (cascada):
+
+```
+gemini-3.5-flash (primario, Google Gemini API gratuita, 1M contexto, thinking budgets)
+  → deepseek-v4-flash-free (fallback 1, OpenCode Zen)
+    → mimo-v2.5-free (fallback 2, OpenCode Zen)
+      → north-mini-code-free (fallback 3, OpenCode Zen, solo Reparador)
+        → heurísticas deterministas (degradación total)
+```
+
+Racional: Gemini 3.5 Flash es el más capaz en razonamiento (thinking budgets, 1M tokens
+de contexto), estable (no en feedback period) y gratuito. Los 3 modelos free de
+OpenCode Zen actúan como fallback ante rate limits o indisponibilidad de Gemini.
+
+**Reparador con LLM**: el LLM propone el plan de acción (qué endpoint CRM llamar, con
+qué payload). El código parsea el JSON con Zod y ejecuta deterministamente. El LLM nunca
+invoque APIs por su cuenta.
+
+**Env vars** (todas null-safe):
+
+- `GEMINI_API_KEY` — provider primario
+- `OPENCODE_ZEN_API_KEY` — 3 fallbacks free
+- `OPENCODE_ZEN_BASE_URL` (default `https://api.opencode.ai/v1`)
+- `OPENCODE_ZEN_MODELS` (default `deepseek-v4-flash-free,mimo-v2.5-free,north-mini-code-free`)
+- `CRM_API_KEY` — auth para `crm-client.ts`
+- `AGENT_AUDIT_INTERVAL` (default `900000` = 15 min)
+
+Sin ninguna API key → degradación determinista: Diagnosticador/Reparador devuelven
+`action: "none"`, Auditor usa reglas de conteo.
 
 ## Stripe live (F17, hecho)
 

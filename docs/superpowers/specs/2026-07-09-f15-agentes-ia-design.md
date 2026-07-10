@@ -27,7 +27,7 @@ desde el mismo proceso, sin repositorio externo ni infraestructura adicional.
 src/lib/agents/
 ├── index.ts              # Exportaciones principales
 ├── config.ts             # Settings desde env vars
-├── llm.ts                # Cliente OpenCode Zen free (único proveedor LLM)
+├── llm-provider.ts       # Provider LLM híbrido: Gemini (primario) + OpenCode Zen (fallbacks)
 ├── prompts.ts            # System prompts + few-shot examples por agente
 ├── schemas.ts            # JSON schemas para respuestas estructuradas
 ├── crm-client.ts         # Cliente interno CRM (fetch a /api/crm/*)
@@ -46,12 +46,14 @@ src/app/api/agents/
 └── repair/route.ts       # POST /api/agents/repair
 ```
 
-## 3. Capa LLM — OpenCode Zen Free
+## 3. Capa LLM — Provider híbrido (Gemini + OpenCode Zen)
 
-### 3.1 Proveedor único
+### 3.1 Proveedor híbrido
 
-Sin Ollama, sin Anthropic, sin proveedores de pago. Un solo cliente que itera entre
-los modelos free de OpenCode Zen hasta obtener una respuesta válida.
+Sin Ollama, sin Anthropic, sin proveedores de pago. Cadena de 2 providers con 4
+modelos en total: Gemini 3.5 Flash como primario (vía Google GenAI SDK), luego 3
+modelos free de OpenCode Zen como fallbacks (vía API OpenAI-compatible). El cliente
+orquesta ambos y degrada a heurísticas deterministas si toda la cascada falla.
 
 **Modelos (orden de prioridad):**
 
@@ -91,7 +93,8 @@ interface LLMError {
 
 **Protocolo OpenAI-compatible:**
 Los modelos free de OpenCode Zen usan la API estándar OpenAI (`/v1/chat/completions`).
-El cliente usa `fetch` nativo (no SDK externo).
+Gemini 3.5 Flash usa el SDK oficial `@google/genai` (API Gemini nativa, no OpenAI-compatible).
+El cliente `llm-provider.ts` tiene 2 clientes internos (uno por provider) y los orquesta.
 
 ### 3.2 Prompts estructurados con contexto
 
@@ -168,7 +171,7 @@ en el primer mensaje del system prompt.
 
 ### 3.5 Degradación
 
-Sin `OPENCODE_ZEN_API_KEY` → los agentes usan solo lógica determinista:
+Sin `GEMINI_API_KEY` Y sin `OPENCODE_ZEN_API_KEY` → los agentes usan solo lógica determinista:
 
 - Auditor: reglas de conteo (≥3 fallos/5min) + detección de deals estancados (query Prisma)
 - Diagnosticador: heurísticas basadas en tipo de error HTTP
@@ -321,15 +324,15 @@ F15 sube el gate a: **87/72/94/89** (stmts/brchs/funcs/lines).
 
 ## 7. Configuración (env vars)
 
-| Variable                | Requerida | Default                                                      | Descripción                                      |
-| ----------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------ |
-| `GEMINI_API_KEY`        | No        | —                                                            | API key para Gemini 3.5 Flash (Google, gratuita) |
-| `OPENCODE_ZEN_API_KEY`  | No        | —                                                            | API key para OpenCode Zen free models            |
-| `OPENCODE_ZEN_BASE_URL` | No        | `https://api.opencode.ai/v1`                                 | Endpoint API                                     |
-| `OPENCODE_ZEN_MODELS`   | No        | `mimo-v2.5-free,deepseek-v4-flash-free,north-mini-code-free` | Modelos separados por coma                       |
-| `CRM_API_KEY`           | No        | —                                                            | Ya existe (F14). Auth para CRM API               |
-| `AGENT_AUDIT_INTERVAL`  | No        | `900000`                                                     | Intervalo cron auditor (ms)                      |
-| `RESEND_API_KEY`        | No        | —                                                            | Ya existe (F4). Para alertas email               |
+| Variable                | Requerida | Default                                                      | Descripción                                             |
+| ----------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `GEMINI_API_KEY`        | No        | —                                                            | API key para Gemini 3.5 Flash (Google, gratuita)        |
+| `OPENCODE_ZEN_API_KEY`  | No        | —                                                            | API key para OpenCode Zen free models                   |
+| `OPENCODE_ZEN_BASE_URL` | No        | `https://api.opencode.ai/v1`                                 | Endpoint API                                            |
+| `OPENCODE_ZEN_MODELS`   | No        | `deepseek-v4-flash-free,mimo-v2.5-free,north-mini-code-free` | Modelos separados por coma (orden = prioridad fallback) |
+| `CRM_API_KEY`           | No        | —                                                            | Ya existe (F14). Auth para CRM API                      |
+| `AGENT_AUDIT_INTERVAL`  | No        | `900000`                                                     | Intervalo cron auditor (ms)                             |
+| `RESEND_API_KEY`        | No        | —                                                            | Ya existe (F4). Para alertas email                      |
 
 Todas null-safe. La app arranca y funciona sin ninguna de estas.
 

@@ -88,21 +88,23 @@
 
 ## F7 · Pagos (Stripe Checkout)
 
-| #   | Tarea                                                               | Estado | Bloquea | Desbloquea |
-| --- | ------------------------------------------------------------------- | ------ | ------- | ---------- |
-| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho  | —       | 7.2        |
-| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho  | 7.1     | 7.4        |
-| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho  | 7.1     | 7.4        |
-| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho  | 7.2     | F17        |
-| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | hecho  | F17.13  | —          |
+| #   | Tarea                                                               | Estado | Bloquea     | Desbloquea |
+| --- | ------------------------------------------------------------------- | ------ | ----------- | ---------- |
+| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho  | —           | 7.2        |
+| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho  | 7.1         | 7.4        |
+| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho  | 7.1         | 7.4        |
+| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho  | 7.2         | F7-activ.  |
+| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | hecho  | F7-activ.13 | —          |
 
-> **Activación producción** (F17 + F17.5b, 2026-07-10) — sub-histórico consolidado tras
-> la limpieza del roadmap. **F17** (14 tareas): test → live, 9 productos + precios
-> en Dashboard, `isLiveMode` prefiere `price` sobre `price_data` inline. **F17.5b** (9
-> tareas): `CatalogItem.stripePriceIds?: { test?, live? }`, `getCatalogPriceId(item,
-mode)`, guardia del checkout. 7 tests unit + 3 e2e nuevos. **229 tests, 32 files**.
-> Pendiente fuera: e2e con pago real (cancelación, refund, subscripción), webhook live
-> con `stripe trigger`, limpieza de 4 `price_1TIhh...` antiguos del Dashboard.
+> **Activación producción** (sub-histórico F7-activ., 2026-07-10) — consolidado tras
+> la limpieza del roadmap. **F7-activ.** (14 tareas, antes conocido como F17): test → live,
+> 9 productos + precios en Dashboard, `isLiveMode` prefiere `price` sobre `price_data`
+> inline. **F7-activ.5b** (9 tareas, antes F17.5b): `CatalogItem.stripePriceIds?: {
+test?, live? }`, `getCatalogPriceId(item, mode)`, guardia del checkout. 7 tests unit
+>
+> - 3 e2e nuevos. **229 tests, 32 files**. Pendiente fuera: e2e con pago real
+>   (cancelación, refund, subscripción), webhook live con `stripe trigger`, limpieza de 4
+>   `price_1TIhh...` antiguos del Dashboard.
 
 ## F8 · Deploy automatizado (Vercel)
 
@@ -335,8 +337,8 @@ sin ellas (degradación null-safe al estilo Stripe/Resend).
 
 ## Desbloqueos recientes
 
-- **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK. Detalle en F17 + F17.5b dentro de F7.
-- **F14 + F14b** (2026-07-09): webhook ampliado + CRM REST (8 endpoints) + pipeline 9 stages + Notion sync. 219 tests, 32 files, 0 lint/typecheck.
+- **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK. Detalle en F7-activ. + F7-activ.5b dentro de F7.
+- **F14 + F14b** (2026-07-09): webhook ampliado + CRM REST (8 endpoints) + pipeline 9 stages + Notion sync. 229 tests, 32 files, 0 lint/typecheck.
 - **F11 + F12 + F13** (2026-07-05): catálogo unificado, checkout unified (subscription mode) y canal secundario implementados y desplegados.
 
 ## Referencias
