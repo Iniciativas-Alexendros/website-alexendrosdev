@@ -44,8 +44,8 @@ export {
   type AgentRepairRequest,
 } from "@/lib/agents/schemas";
 
-// Agentes específicos (S4 implementa el Reparador)
-// export { runReparador } from "@/lib/agents/reparador";
+// Agentes específicos (S5 implementa el hardening eval)
+// (S5 implementa el hardening)
 export {
   classifyStripeEvent,
   recordAndCheckAnomaly,
@@ -56,3 +56,4 @@ export {
   type StripeEvent,
 } from "@/lib/agents/auditor";
 export { runDiagnosticador, type DiagnoseOptions } from "@/lib/agents/diagnosticador";
+export { runReparador, type RepairOptions } from "@/lib/agents/reparador";

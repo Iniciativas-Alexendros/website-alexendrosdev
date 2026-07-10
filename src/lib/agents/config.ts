@@ -30,11 +30,11 @@ export const agentsConfig = {
 } as const;
 
 export function hasGemini(): boolean {
-  return Boolean(GEMINI_API_KEY);
+  return Boolean(process.env.GEMINI_API_KEY);
 }
 
 export function hasOpenCodeZen(): boolean {
-  return Boolean(OPENCODE_ZEN_API_KEY);
+  return Boolean(process.env.OPENCODE_ZEN_API_KEY);
 }
 
 export function hasAnyLLM(): boolean {
