@@ -34,8 +34,12 @@ test("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solicitar 
 
 test("T3.16: axe-core no detecta críticos en PurchaseCard con toggle", async ({ page }) => {
   await page.goto("/escaparate");
-  await expect(page.getByRole("radio", { name: "Tarjeta" })).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Transferencia" })).toBeVisible();
+  // El escaparate muestra 3 PurchaseCards (addons), cada una con su propio
+  // radio button "Tarjeta"/"Transferencia". Usamos el primero (la card del
+  // primer addon) para evitar strict mode violation.
+  const card = page.locator(".ak-tier").first();
+  await expect(card.getByRole("radio", { name: "Tarjeta" })).toBeVisible();
+  await expect(card.getByRole("radio", { name: "Transferencia" })).toBeVisible();
   // axe-core se ejecuta en el job e2e (playwright.config.ts) sobre las rutas
   // principales; aquí solo verificamos que el toggle es accesible por nombre.
 });
