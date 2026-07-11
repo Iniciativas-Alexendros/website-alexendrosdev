@@ -17,9 +17,9 @@ desde el mismo proceso, sin repositorio externo ni infraestructura adicional.
 **Cambio de diseño respecto a ROADMAP original:**
 
 - ~~Repo Python/FastAPI separado~~ → módulos TypeScript integrados en `src/lib/agents/`
-- ~~Ollama local (ornith:9b)~~ → eliminado. Solo OpenCode Zen free models
 - ~~Cadena de fallback Ollama→cloud~~ → un solo proveedor LLM con fallback entre modelos free
 - Comunicación con CRM: vía endpoints internos (`/api/crm/*`) para mantener desacoplamiento y testear el contrato real
+- ~~Ollama local~~ → Gemini 3.5 Flash (primario) + OpenCode Zen free models (fallback secundario). Sin Ollama, sin Anthropic, sin proveedores de pago.
 
 ## 2. Estructura de archivos
 
@@ -27,7 +27,7 @@ desde el mismo proceso, sin repositorio externo ni infraestructura adicional.
 src/lib/agents/
 ├── index.ts              # Exportaciones principales
 ├── config.ts             # Settings desde env vars
-├── llm.ts                # Cliente OpenCode Zen free (único proveedor LLM)
+├── llm-provider.ts       # Provider LLM híbrido: Gemini (primario) + OpenCode Zen (fallbacks)
 ├── prompts.ts            # System prompts + few-shot examples por agente
 ├── schemas.ts            # JSON schemas para respuestas estructuradas
 ├── crm-client.ts         # Cliente interno CRM (fetch a /api/crm/*)
@@ -46,18 +46,27 @@ src/app/api/agents/
 └── repair/route.ts       # POST /api/agents/repair
 ```
 
-## 3. Capa LLM — OpenCode Zen Free
+## 3. Capa LLM — Provider híbrido (Gemini + OpenCode Zen)
 
-### 3.1 Proveedor único
+### 3.1 Proveedor híbrido
 
-Sin Ollama, sin Anthropic, sin proveedores de pago. Un solo cliente que itera entre
-los modelos free de OpenCode Zen hasta obtener una respuesta válida.
+Sin Ollama, sin Anthropic, sin proveedores de pago. Cadena de 2 providers con 4
+modelos en total: Gemini 3.5 Flash como primario (vía Google GenAI SDK), luego 3
+modelos free de OpenCode Zen como fallbacks (vía API OpenAI-compatible). El cliente
+orquesta ambos y degrada a heurísticas deterministas si toda la cascada falla.
 
 **Modelos (orden de prioridad):**
 
-1. `mimo-v2.5-free`
-2. `deepseek-v4-flash-free`
-3. `north-mini-code-free`
+1. **`gemini-3.5-flash`** (Google Gemini API, gratuita, 1M contexto, thinking budgets) — primario
+2. `deepseek-v4-flash-free` (OpenCode Zen) — fallback 1
+3. `mimo-v2.5-free` (OpenCode Zen) — fallback 2
+4. `north-mini-code-free` (OpenCode Zen, solo Reparador por contexto 32K) — fallback 3
+
+**Decisión**: Gemini 3.5 Flash es el más capaz en razonamiento (thinking budgets,
+1M tokens de contexto), es estable (no en feedback period) y es gratuito. Los 3
+modelos free de OpenCode Zen actúan como fallback ante rate limits o indisponibilidad
+de Gemini. El cliente `llm.ts` orquesta 2 clientes (uno por provider) e itera la
+cascada completa hasta obtener respuesta o degradar a heurísticas deterministas.
 
 **Interfaz:**
 
@@ -84,7 +93,8 @@ interface LLMError {
 
 **Protocolo OpenAI-compatible:**
 Los modelos free de OpenCode Zen usan la API estándar OpenAI (`/v1/chat/completions`).
-El cliente usa `fetch` nativo (no SDK externo).
+Gemini 3.5 Flash usa el SDK oficial `@google/genai` (API Gemini nativa, no OpenAI-compatible).
+El cliente `llm-provider.ts` tiene 2 clientes internos (uno por provider) y los orquesta.
 
 ### 3.2 Prompts estructurados con contexto
 
@@ -161,7 +171,7 @@ en el primer mensaje del system prompt.
 
 ### 3.5 Degradación
 
-Sin `OPENCODE_ZEN_API_KEY` → los agentes usan solo lógica determinista:
+Sin `GEMINI_API_KEY` Y sin `OPENCODE_ZEN_API_KEY` → los agentes usan solo lógica determinista:
 
 - Auditor: reglas de conteo (≥3 fallos/5min) + detección de deals estancados (query Prisma)
 - Diagnosticador: heurísticas basadas en tipo de error HTTP
@@ -244,8 +254,14 @@ interface RepairRequest {
 3. Crear Task de follow-up en CRM
 4. Avanzar deal a stage correcto si está desincronizado
 
-**El Reparador NO usa LLM** — es puramente determinista. Ejecuta las acciones
-sugeridas por el Diagnosticador.
+**El Reparador usa LLM para generar el plan de acción.** Recibe el diagnóstico del
+Diagnosticador (causa raíz + confianza + acción sugerida), consulta el LLM para
+decidir QUÉ acción correctiva aplicar y generar el PAYLOAD adecuado para la CRM API,
+y luego ejecuta deterministamente la acción. El LLM propone, el código ejecuta. La
+ejecución siempre es determinista (no hay riesgo de que el LLM invoque APIs por su
+cuenta): el Reparador parsea la respuesta del LLM (JSON estructurado con `action`,
+`endpoint`, `payload`), valida con Zod contra el schema del endpoint CRM, y solo
+entonces hace `fetch` a `/api/crm/*`.
 
 ## 5. Evaluación (F15b)
 
@@ -308,25 +324,26 @@ F15 sube el gate a: **87/72/94/89** (stmts/brchs/funcs/lines).
 
 ## 7. Configuración (env vars)
 
-| Variable                | Requerida | Default                                                      | Descripción                           |
-| ----------------------- | --------- | ------------------------------------------------------------ | ------------------------------------- |
-| `OPENCODE_ZEN_API_KEY`  | No        | —                                                            | API key para OpenCode Zen free models |
-| `OPENCODE_ZEN_BASE_URL` | No        | `https://api.opencode.ai/v1`                                 | Endpoint API                          |
-| `OPENCODE_ZEN_MODELS`   | No        | `mimo-v2.5-free,deepseek-v4-flash-free,north-mini-code-free` | Modelos separados por coma            |
-| `CRM_API_KEY`           | No        | —                                                            | Ya existe (F14). Auth para CRM API    |
-| `AGENT_AUDIT_INTERVAL`  | No        | `900000`                                                     | Intervalo cron auditor (ms)           |
-| `RESEND_API_KEY`        | No        | —                                                            | Ya existe (F4). Para alertas email    |
+| Variable                | Requerida | Default                                                      | Descripción                                             |
+| ----------------------- | --------- | ------------------------------------------------------------ | ------------------------------------------------------- |
+| `GEMINI_API_KEY`        | No        | —                                                            | API key para Gemini 3.5 Flash (Google, gratuita)        |
+| `OPENCODE_ZEN_API_KEY`  | No        | —                                                            | API key para OpenCode Zen free models                   |
+| `OPENCODE_ZEN_BASE_URL` | No        | `https://api.opencode.ai/v1`                                 | Endpoint API                                            |
+| `OPENCODE_ZEN_MODELS`   | No        | `deepseek-v4-flash-free,mimo-v2.5-free,north-mini-code-free` | Modelos separados por coma (orden = prioridad fallback) |
+| `CRM_API_KEY`           | No        | —                                                            | Ya existe (F14). Auth para CRM API                      |
+| `AGENT_AUDIT_INTERVAL`  | No        | `900000`                                                     | Intervalo cron auditor (ms)                             |
+| `RESEND_API_KEY`        | No        | —                                                            | Ya existe (F4). Para alertas email                      |
 
 Todas null-safe. La app arranca y funciona sin ninguna de estas.
 
 ## 8. Degradación — Matriz completa
 
-| Estado                   | Auditor                           | Diagnosticador            | Reparador             |
-| ------------------------ | --------------------------------- | ------------------------- | --------------------- |
-| LLM + CRM + DB           | Clasificación IA + alertas        | Diagnóstico IA completo   | Reparación automática |
-| CRM + DB (sin LLM)       | Reglas deterministas              | Heurísticas HTTP          | Reparación automática |
-| Solo DB (sin LLM ni CRM) | Deals estancados (Prisma directo) | "Sin contexto suficiente" | Logs only             |
-| Sin nada                 | Logs only                         | 503                       | 503                   |
+| Estado                   | Auditor                           | Diagnosticador            | Reparador                   |
+| ------------------------ | --------------------------------- | ------------------------- | --------------------------- |
+| LLM + CRM + DB           | Clasificación IA + alertas        | Diagnóstico IA completo   | Reparación automática       |
+| CRM + DB (sin LLM)       | Reglas deterministas              | Heurísticas HTTP          | Reparación automática       |
+| Solo DB (sin LLM ni CRM) | Deals estancados (Prisma directo) | "Sin contexto suficiente" | Reintento directo (sin LLM) |
+| Sin nada                 | Logs only                         | 503                       | 503                         |
 
 Ninguna combinación de dependencias faltantes causa crash.
 

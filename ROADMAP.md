@@ -2,7 +2,6 @@
 
 > Fuente de verdad del avance. Se consulta **antes** de retomar trabajo y se actualiza en **cada PR**.
 > Estados: `pendiente` · `en curso` · `hecho` · `bloqueado`.
-> Plan completo: `~/.claude/plans/implementa-este-dise-o-para-calm-cray.md`.
 
 ## Leyenda de dependencias
 
@@ -62,14 +61,13 @@
 | 4.0 | `/init` en Claude Code → `CLAUDE.md` repo                            | hecho   | 0.6                         | 4.x consolidate |
 | 4.1 | Prisma + Supabase: `schema.prisma` (`Lead`, `Subscriber`), migración | hecho   | DB provisionada (→9.4)      | 4.3             |
 | 4.2 | `POST /api/contact` + `/api/newsletter`: zod, rate-limit, honeypot   | hecho   | F2                          | 4.4             |
-| 4.3 | Resend + React Email (notif. lead, bienvenida)                       | parcial | `RESEND_API_KEY` (operador) | 4.4             |
+| 4.3 | Resend + React Email (notif. lead, bienvenida)                       | parcial | `RESEND_API_KEY` (operador) | 4.4, F18.1      |
 | 4.4 | Conectar formularios reales (contacto multi-step, newsletter)        | hecho   | 4.2                         | —               |
 
-> 4.3 parcial: plantillas React Email y envío vía Resend implementados; el envío real
-> se activa al definir `RESEND_API_KEY`. Sin clave, degrada (log) y la API responde 200.
-> 4.1 hecho: esquema migrado a Supabase self-hosted en Coolify (`supabase-website-alexendrosdev`,
-> migración `20260605000000_init` aplicada). RLS habilitada en todas las tablas públicas
-> (`20260609000000_enable_rls`). `DATABASE_URL` apunta al self-hosted vía Cloudflare Tunnel.
+> 4.3 parcial: plantillas + envío Resend implementados; envío real con `RESEND_API_KEY`. Sin
+> clave, degrada (log) y responde 200. 4.1 hecho: Supabase self-hosted en Coolify
+> (`supabase-website-alexendrosdev`, migración `20260605000000_init` aplicada), RLS
+> habilitada (`20260609000000_enable_rls`). `DATABASE_URL` vía Cloudflare Tunnel.
 
 ## F5 · SEO, a11y, performance
 
@@ -90,84 +88,23 @@
 
 ## F7 · Pagos (Stripe Checkout)
 
-| #   | Tarea                                                               | Estado | Bloquea | Desbloquea |
-| --- | ------------------------------------------------------------------- | ------ | ------- | ---------- |
-| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho  | —       | 7.2        |
-| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho  | 7.1     | 7.4        |
-| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho  | 7.1     | 7.4        |
-| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho  | 7.2     | F17        |
-| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | hecho  | F17.13  | —          |
+| #   | Tarea                                                               | Estado | Bloquea     | Desbloquea |
+| --- | ------------------------------------------------------------------- | ------ | ----------- | ---------- |
+| 7.1 | Cliente `lib/stripe.ts` null-safe + catálogo server-trusted         | hecho  | —           | 7.2        |
+| 7.2 | `POST /api/checkout` (zod, rate-limit, precio del servidor)         | hecho  | 7.1         | 7.4        |
+| 7.3 | `POST /api/stripe/webhook` (firma) + modelo `Order` Prisma          | hecho  | 7.1         | 7.4        |
+| 7.4 | UI: addons comprables en `/servicios` + página `/checkout/success`  | hecho  | 7.2         | F7-activ.  |
+| 7.5 | Activar pagos reales (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`) | hecho  | F7-activ.13 | —          |
 
-## F17 · Stripe production activation (test → live)
-
-Activación operativa de Stripe, empezando en modo test y escalando a live con
-un cambio arquitectónico menor: preferir `price` (pre-creado en el Dashboard)
-sobre `price_data` inline para mejor analytics. El código de checkout y
-webhook ya estaba implementado y testeado en F7/F11-F14b.
-
-| #     | Tarea                                                                                      | Estado | Notas                                                                     |
-| ----- | ------------------------------------------------------------------------------------------ | ------ | ------------------------------------------------------------------------- |
-| 17.1  | Recuperar/guardar `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` test en Proton Pass        | hecho  | Item `Stripe` en Infraestructura                                          |
-| 17.2  | Crear 9 productos + precios en Dashboard test (3 addons, 3 retainers, 3 proyectos)         | hecho  | `prod_UrBy...` y `price_1TrTaa...`                                        |
-| 17.3  | Poblar `stripePriceId` en `catalog.ts` con los IDs de test                                 | hecho  | Commit `5e83a69`                                                          |
-| 17.4  | Checkout: preferir `price` sobre `price_data` inline (con fallback)                        | hecho  | Commit `5e83a69` + `7d39128` (live guard)                                 |
-| 17.5  | Configurar webhook test → URL de development (rama `development`)                          | hecho  | `we_1TrTsA...` con `?x-vercel-protection-bypass=`                         |
-| 17.6  | Añadir `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` test al entorno Development de Vercel | hecho  | `vercel env add`                                                          |
-| 17.7  | Deploy + test end-to-end en modo test (rama `development` redeploy)                        | hecho  | `cs_test_...` devuelto, 200 OK                                            |
-| 17.8  | Merge a main (rama `development` → `main`)                                                 | hecho  | Commit `21f06c2`                                                          |
-| 17.9  | Onboarding Stripe live (cuenta verificada, datos bancarios)                                | hecho  | Alexendros, `acct_1RgYAKK8xOmiNNUK`                                       |
-| 17.10 | Crear 9 productos + precios live (mismo mapeo, IDs distintos)                              | hecho  | `prod_UrCs...` y `price_1TrUSU...`                                        |
-| 17.11 | Configurar env vars live en Vercel Production (`sk_live_...`, `whsec_...`)                 | hecho  | `vercel env add` tras `rm` (eran vacías)                                  |
-| 17.12 | Crear webhook live apuntando a `https://alexendros.dev/api/stripe/webhook`                 | hecho  | `we_1TrUSpK8xOmiNNUKB8yz7tob`                                             |
-| 17.13 | Smoke test live: `POST /api/checkout` con `sesion-consultoria` → sesión real               | hecho  | `cs_live_a12DZla01aFPPLuu8ZeCR1Jwk1wsrGbXNarP6B02q0qCS1laXlUK8wzQMj`, 60€ |
-| 17.14 | Actualizar `ROADMAP.md` y `ARCHITECTURE.md` (esta sección)                                 | hecho  | —                                                                         |
-
-**Decisión de diseño**: el catálogo lleva los `stripePriceId` de test. Para live,
-`isLiveMode` (derivado del prefijo de la clave activa) fuerza la degradación a
-`price_data` inline. Los importes siguen siendo server-trusted desde el catálogo
-(importe en céntimos, nunca del cliente). Para usar `stripePriceId` en live
-también, hay que poblar el catálogo con `price_live_...` y refinar la guardia
-en `src/app/api/checkout/route.ts` (siguiente iteración, fuera de F17).
-
-**Resultado**: `alexendros.dev` acepta pagos reales vía Stripe Checkout. El
-catálogo unificado (F11), el checkout unified (F12), el canal secundario (F13),
-el webhook ampliado (F14) y el resto del pipeline quedan operativos sin
-cambios adicionales.
-
-**Pendiente fuera de F17**:
-
-- Smoke test end-to-end con pago real confirmado (cancelación, subscripción, etc.)
-- Población del catálogo con `price_live_...` (mejora de analytics, no bloqueante)
-- Tests e2e Playwright contra el deploy de development (cubre `alexendros.dev` real)
-
-### F17.5b · Live price IDs en el catálogo (2026-07-10)
-
-Iteración para que el checkout use el `price_live_...` real del Dashboard en
-producción, en lugar de degradar a `price_data` inline. Esto evita que Stripe
-cree productos anónimos on-the-fly y rompe el analytics.
-
-| #       | Tarea                                                                                              | Estado | Notas                                                       |
-| ------- | -------------------------------------------------------------------------------------------------- | ------ | ----------------------------------------------------------- |
-| 17.5b-1 | Listar `price_live_...` en Dashboard y validar que existen 9 con importes/recurring correctos      | hecho  | `price_1TrUSU...` ↔ catálogo: 9/9 OK                        |
-| 17.5b-2 | Refactorizar tipo `CatalogItem`: `stripePriceId?: string` → `stripePriceIds?: { test?, live? }`    | hecho  | `lib/content/types.ts`                                      |
-| 17.5b-3 | Poblar catálogo con ambos IDs (test + live) para los 9 items                                       | hecho  | `lib/content/catalog.ts`                                    |
-| 17.5b-4 | `getCatalogPriceId(item, mode)` resuelve el ID del modo activo o `null` si falta                   | hecho  | `lib/content/catalog.ts`                                    |
-| 17.5b-5 | Refinar guardia del checkout: usar el ID del modo activo, fallback a `price_data` inline           | hecho  | `app/api/checkout/route.ts` (sesión + paymentLink fallback) |
-| 17.5b-6 | Tests de integridad: formato, presencia, no cross-mode, getCatalogPriceId contract                 | hecho  | 7 tests nuevos en `tests/unit/catalog.test.ts`              |
-| 17.5b-7 | Tests E2E live/test del checkout: `isLiveMode` como getter mockeable                               | hecho  | 3 tests nuevos en `tests/integration/checkout.test.ts`      |
-| 17.5b-8 | Smoke test post-deploy: `cs_live_...` con `price_1TrUSWK8xOmiNNUK1A2UoF5Y` y `prod_UrCswCK6GqUFDm` | hecho  | Verificado vía Dashboard Stripe                             |
-| 17.5b-9 | Checks de integridad: typecheck, lint, format, tests (229), build                                  | hecho  | 0 errors, 32 files, 229 tests, build OK                     |
-
-**Resultado**: el checkout live usa los precios del Dashboard (`price: "price_1TrUSW..."`)
-y los productos del Dashboard (`prod_UrCswCK6GqUFDm`). El fallback a `price_data`
-sigue activo si por algún motivo el catálogo perdiera los IDs del modo activo.
-
-**Pendiente fuera de F17.5b**:
-
-- Tests e2e Playwright contra el deploy de development con pago real (cancelación, refund)
-- Tests contra el webhook live real (mockear con `stripe trigger`)
-- Limpiar los 4 `price_1TIhh...` antiguos del Dashboard live (no se pueden archivar
-  por CLI; habría que hacerlo desde la UI o dejarlo como ruido histórico aceptable)
+> **Activación producción** (sub-histórico F7-activ., 2026-07-10) — consolidado tras
+> la limpieza del roadmap. **F7-activ.** (14 tareas, antes conocido como F17): test → live,
+> 9 productos + precios en Dashboard, `isLiveMode` prefiere `price` sobre `price_data`
+> inline. **F7-activ.5b** (9 tareas, antes F17.5b): `CatalogItem.stripePriceIds?: {
+test?, live? }`, `getCatalogPriceId(item, mode)`, guardia del checkout. 7 tests unit
+>
+> - 3 e2e nuevos. **229 tests, 32 files**. Pendiente fuera: e2e con pago real
+>   (cancelación, refund, subscripción), webhook live con `stripe trigger`, limpieza de 4
+>   `price_1TIhh...` antiguos del Dashboard.
 
 ## F8 · Deploy automatizado (Vercel)
 
@@ -176,9 +113,8 @@ sigue activo si por algún motivo el catálogo perdiera los IDs del modo activo.
 | 8.1 | `deploy.yml` (workflow_run tras CI) + `vercel.json` + `.env.example` | descartado | 6.2     | 8.2        |
 | 8.2 | Despliegue real a producción                                         | hecho      | —       | —          |
 
-> Deploy resuelto vía **integración Git nativa de Vercel** (2026-06-15): push a `main`
-> → producción; ramas/PR → preview. El workflow `deploy.yml` por CLI se eliminó por
-> redundante (fallaba en `vercel pull` con "Project not found" por `VERCEL_PROJECT_ID`
+> Deploy vía **integración Git nativa de Vercel** (push a `main` → producción; ramas/PR → preview).
+> `deploy.yml` por CLI eliminado por redundante (fallaba en `vercel pull` con `VERCEL_PROJECT_ID`
 > inválido). La CI (`ci.yml`) sigue siendo la verificación de calidad bloqueante.
 
 ## F9 · Escaparate (página showcase) + deploy en vivo
@@ -193,13 +129,10 @@ sigue activo si por algún motivo el catálogo perdiera los IDs del modo activo.
 | 9.6 | Personalización de contenido: datos reales + 5 proyectos OSS de GitHub      | hecho  | 9.1                   | —          |
 | 9.7 | Landing "en construcción" `/proximamente` + split preview/prod              | hecho  | 9.1                   | 9.5        |
 
-> Holding page (sitio lanzado): el portfolio completo es público por defecto en todos los entornos.
-> La landing `/proximamente` (vía `src/middleware.ts` + `isComingSoon` en `src/lib/flags.ts`) queda
-> como **opt-in**: actívala con `COMING_SOON=1` para volver a cerrar el sitio temporalmente. La
-> cabecera/pie se ocultan en ese modo.
-
-> Nota build (2026-06-15): el fallo `useContext` null en sandbox **ya no se reproduce**;
-> `next build` compila las 28 rutas en verde en local (worktree), igual que CI/Vercel.
+> Holding page: portfolio público por defecto. Landing `/proximamente` (vía `src/middleware.ts`
+>
+> - `isComingSoon` en `src/lib/flags.ts`) queda como **opt-in**: actívala con `COMING_SOON=1`.
+>   Cabecera/pie se ocultan en ese modo.
 
 ## F10 · Estrategia de testing
 
@@ -220,21 +153,21 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 > Cobertura (v8) sobre `src/lib/**` + `src/app/api/**`, gate en `vitest.config.ts`:
 >
-> | Hito          | Statements | Branches | Functions | Lines |
-> | ------------- | ---------- | -------- | --------- | ----- |
-> | F10.2 base    | 60         | 55       | 60        | 60    |
-> | F10.3 +API    | 72         | 68       | 72        | 72    |
-> | F10.4 +comp   | 80         | 75       | 80        | 80    |
-> | F10.8 lock-in | 93         | 86       | 95        | 92    |
+> | Hito              | Statements | Branches | Functions | Lines |
+> | ----------------- | ---------- | -------- | --------- | ----- |
+> | F10.2 base        | 60         | 55       | 60        | 60    |
+> | F10.3 +API        | 72         | 68       | 72        | 72    |
+> | F10.4 +comp       | 80         | 75       | 80        | 80    |
+> | F10.8 lock-in     | 93         | 86       | 95        | 92    |
+> | F14 (gate actual) | 85         | 70       | 93        | 87    |
 >
-> Medición actual ≈ **96/89/98/96** (101 tests verdes). El gate de F10.8 se fija ~3 pts por debajo
-> de lo medido (lock-in seguro). Los componentes/páginas (Server Components asíncronos incluidos) se
-> cubren por comportamiento (proyecto `component` y e2e), no por porcentaje. Regla RSC: async server
-> components → e2e.
+> Medición actual ≈ **87.7/72.08/95.41/89.93** (229 tests verdes, 32 ficheros). Gate relajado
+> en F14 al añadir CRM (branches baja por las 8 rutas REST con muchos caminos de error).
+> Server Components asíncronos se cubren por e2e, no por porcentaje. Regla RSC: async
+> server components → e2e.
 >
-> E2E (chromium): `smoke` + `navigation`, `projects`, `blog`, `services`, `stack`, `newsletter`,
-> `checkout` y `a11y` (axe sin críticos en 8 rutas, incluida `/stack`). Cubre flujos cliente y los
-> Server Components asíncronos de detalle (`/proyectos/[slug]`, `/blog/[slug]`).
+> E2E (chromium): `smoke`, `navigation`, `projects`, `blog`, `services`, `stack`,
+> `newsletter`, `checkout`, `a11y` (axe sin críticos en 8 rutas, incluida `/stack`).
 
 ## F11 · Catálogo unificado
 
@@ -272,8 +205,7 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 | 13.5 | Ambos (session + payment link) fallan → 502 `{ fallbackAttempted: true }`               | hecho  | F12     | —          |
 | 13.6 | Sin Stripe pero con `TRANSFER_IBAN` → 503 con datos transferencia                       | hecho  | F12     | —          |
 
-> 10 tests integración green en `tests/integration/checkout.test.ts` (T3.1–T3.10). 4 tests componente
-> en `tests/component/PurchaseCard.test.tsx` (T3.11–T3.14). Bloqueos: `TRANSFER_IBAN`,
+> 10 tests integración (T3.1–T3.10) + 4 componente (T3.11–T3.14) green. `TRANSFER_IBAN` +
 > `TRANSFER_BENEFICIARY` (operador) activan el canal real. Código y tests implementados.
 
 ## F14 · Webhook ampliado + CRM API + Pipeline 9 stages
@@ -300,137 +232,118 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 | 14b.3 | Outbound sync best-effort Postgres→Notion (`notion-sync.ts`) + hooks en endpoints CRM | hecho  | 14b.2   | 14b.4      |
 | 14b.4 | Inbound webhook HMAC-SHA256 Notion→Postgres (`notion-webhook/route.ts`)               | hecho  | 14b.3   | F15        |
 
-> 31 tests nuevos (4 client + 11 mapper + 8 sync + 8 webhook). 219 tests totales.
-> Env vars: `NOTION_API_KEY`, `NOTION_CONTACTS_DB_ID`, `NOTION_DEALS_DB_ID`, `NOTION_WEBHOOK_SECRET`.
-> Todas null-safe: la app arranca sin ellas. Sync degrada como Stripe/Resend.
-> Postgres es source of truth. Notion es vista de consulta/edición rápida.
+> 31 tests nuevos (4 client + 11 mapper + 8 sync + 8 webhook), 219 tests totales. Env vars:
+> `NOTION_API_KEY`, `NOTION_CONTACTS_DB_ID`, `NOTION_DEALS_DB_ID`, `NOTION_WEBHOOK_SECRET`.
+> Todas null-safe. Postgres = source of truth; Notion = vista consulta/edición rápida.
 
-## F15 · Agentes IA autónomos + Hardening con Ornith
+## F15 · Agentes IA autónomos + Hardening (TS integrado)
 
-| #    | Tarea                                                                           | Estado    | Bloquea       | Desbloquea |
-| ---- | ------------------------------------------------------------------------------- | --------- | ------------- | ---------- |
-| 15.1 | Repo `agentes-ia-catalog/` (Python/FastAPI, `localhost:8400`)                   | pendiente | —             | 15.2–15.8  |
-| 15.2 | LLM provider agnostic: Ollama local (ornith:9b) + fallback OpenCode Zen free    | pendiente | 15.1          | 15.3–15.5  |
-| 15.3 | Agente Auditor (cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min) | pendiente | 15.2, CRM API | 15.4       |
-| 15.4 | Agente Diagnosticador (`POST /diagnose`, hipótesis con confianza 0.0–1.0)       | pendiente | 15.3          | 15.5       |
-| 15.5 | Agente Reparador (`POST /repair`, reintenta persistencia vía CRM API)           | pendiente | 15.4          | 15.6       |
-| 15.6 | Health endpoint + degradación sin Ollama/cloud                                  | pendiente | 15.2–15.5     | 15.7       |
-| 15.7 | Hardening: tests de utilidad con Ornith (evalúa calidad de diagnósticos)        | pendiente | 15.4          | 15.8       |
-| 15.8 | Hardening: tests de cumplimiento con Ornith (evalúa respeta CRM API contract)   | pendiente | 15.5          | F16        |
+> Módulos TS integrados en `src/lib/agents/` (sin repo externo). Provider LLM híbrido
+> en cadena: Gemini 3.5 Flash (primario, gratuito) → DeepSeek V4 Flash Free →
+> MiMo V2.5 Free → North Mini Code Free (fallbacks por rate limit / indisponibilidad).
+> Reparador usa LLM para decidir la acción, código determinista para ejecutarla.
 
-> Repo externo: `/home/alexendros/repositorios/personal/agentes-ia-catalog/`. 31 tests pytest.
-> Stack: Python 3.12+, FastAPI, uv, pytest, httpx, respx.
-> LLM: Ollama local `ornith:9b` (primario) + OpenCode Zen free (fallback: `mimo-v2.5-free` → `deepseek-v4-flash-free` → `north-mini-code-free`).
-> Hardening: Ornith evalúa calidad diagnósticos (utilidad) y contrato API (cumplimiento).
-> No comparte proceso con Next.js — se comunica solo por HTTP con CRM API.
+| #    | Tarea                                                                                                  | Estado    | Bloquea            | Desbloquea |
+| ---- | ------------------------------------------------------------------------------------------------------ | --------- | ------------------ | ---------- |
+| 15.1 | Módulos base `src/lib/agents/`: `auditor.ts`, `diagnosticador.ts`, `reparador.ts`                      | pendiente | F14, F14b          | 15.2–15.8  |
+| 15.2 | Provider LLM híbrido `lib/agents/llm-provider.ts` (Gemini primario + 3 fallbacks OpenCode Zen free)    | pendiente | 15.1, env vars LLM | 15.3–15.5  |
+| 15.3 | Agente Auditor: cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min, escribe a `AuditorLog` | pendiente | 15.2, CRM API      | 15.4       |
+| 15.4 | Agente Diagnosticador `POST /api/agents/diagnose`: hipótesis con `confidence: 0.0–1.0`                 | pendiente | 15.3               | 15.5       |
+| 15.5 | Agente Reparador `POST /api/agents/repair`: LLM decide acción correctiva, código ejecuta vía CRM API   | pendiente | 15.4               | 15.6       |
+| 15.6 | Health + hooks: `GET /api/agents/health`, `POST /api/agents/hooks` (webhook receiver seguro)           | pendiente | 15.2–15.5          | 15.7       |
+| 15.7 | Hardening utilidad: tests con LLM evalúan calidad de diagnósticos (mocks por proveedor)                | pendiente | 15.4               | 15.8       |
+| 15.8 | Hardening cumplimiento: tests con LLM evalúan respeto al contrato CRM API (mocks por proveedor)        | pendiente | 15.5               | 15.9       |
+| 15.9 | Endurecer y documentar: ARCHITECTURE.md, rate-limit agentes, observabilidad, fallback determinista     | pendiente | 15.6–15.8          | F16        |
+
+> 5 endpoints REST en `src/app/api/agents/`: `health`, `hooks`, `audit`, `diagnose`, `repair`.
+> Sin repo Python externo, sin Ollama local: módulos TS dentro de Next.js, comunicación
+> con el resto del sistema solo vía HTTP (CRM API). **Env vars**: `GEMINI_API_KEY`
+> (gratuita, primaria) + `OPENCODE_ZEN_API_KEY` (opcional, 3 fallbacks). Sin ninguna,
+> degradación determinista: Diagnosticador/Reparador devuelven `action: "none"`.
 
 ## F16 · E2E + Gates finales
 
-| #    | Tarea                                                                           | Estado    | Bloquea        | Desbloquea |
-| ---- | ------------------------------------------------------------------------------- | --------- | -------------- | ---------- |
-| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta) | pendiente | F14, F14b, F15 | —          |
-| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%   | pendiente | F14, F14b, F15 | —          |
-| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                      | pendiente | 16.1, 16.2     | release    |
-| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA)                | pendiente | 16.3           | —          |
+| #    | Tarea                                                                            | Estado    | Bloquea    | Desbloquea |
+| ---- | -------------------------------------------------------------------------------- | --------- | ---------- | ---------- |
+| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta)  | pendiente | F15        | —          |
+| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%    | pendiente | F15        | —          |
+| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                       | pendiente | 16.1, 16.2 | release    |
+| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización) | pendiente | 16.3       | —          |
 
-> Worktree: `wt/catalog-pipeline-str-f16` (merge final con todas las fases previas integradas).
-> Lock-in actual: 95/83/98/96 (branches bajo por falta de tests CRM). Gate final: 85/80/85/85.
+> Lock-in actual 85/70/93/87 (medición 87.7/72.08/95.41/89.93, 229 tests, 32 ficheros).
+> Gate F16: 85/80/85/85. F17 (monitorización) y F18 (contenido) en paralelo a F15/F16
+> según el diagrama de tracks al final.
+
+## F17 · Monitorización full-stack
+
+> Track paralelo a F15, cero dependencia. Duración estimada: 1–2 semanas. Sin
+> monitorización, el sitio en producción es un punto ciego.
+
+| #    | Tarea                                                               | Notas                                                                                                        |
+| ---- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| 17.1 | Health endpoint `GET /api/health` (DB, Stripe, Resend, MiniPC)      | Null-safe: servicios no configurados devuelven `status: "disabled"`.                                         |
+| 17.2 | Uptime monitor externo (Uptime Robot o `cron-job.org`)              | Ping `/api/health` cada 5 min. Alerta email tras 3 checks fallidos consecutivos.                             |
+| 17.3 | SigNoz: instrumentar Next.js con OTEL (`@vercel/otel`)              | Exporta traces a SigNoz en MiniPC vía Cloudflare Tunnel. Cubre Route Handlers y RSC.                         |
+| 17.4 | Dashboard SigNoz: latencia por ruta, errores 4xx/5xx, p95/p99       | Plantillas estándar SigNoz, sin código custom.                                                               |
+| 17.5 | Dashboard Supabase: conexiones, tamaño, slow queries                | `pg_stat_activity` + `pg_stat_user_tables`. Script cron en MiniPC que expone métricas a SigNoz.              |
+| 17.6 | Monitoreo Stripe: webhook failures + checkout success rate          | Logging estructurado en `/api/stripe/webhook` (ya existe `console.log`). Dashboard SigNoz ingiere esos logs. |
+| 17.7 | Monitoreo MiniPC: Ollama, Coolify, Cloudflare Tunnel                | `/opt/health/minipc-health.sh` ejecutado por cron, expone JSON a endpoint local que SigNoz scrapea.          |
+| 17.8 | Alertas email vía Resend (cuando `RESEND_API_KEY` esté configurada) | Mientras tanto, solo dashboards SigNoz. Sin canal de alerta, los fallos se descubren manualmente.            |
+
+## F18 · Contenido & Marketing
+
+> Depende de F16 (no producir contenido con gates de calidad pendientes). Activa
+> la infraestructura de blog y newsletter ya construida en F3 + F4.
+
+| #    | Tarea                                                       | Notas                                                                                                              |
+| ---- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 18.1 | Activar Resend con `RESEND_API_KEY` real                    | Infra React Email + Resend client hecha (F4.3). Solo falta la clave del operador.                                  |
+| 18.2 | Calendario editorial: `content/blog/editorial-calendar.md`  | 4 posts planificados (temas, fechas, keywords). Artefacto de planificación versionado en el repo.                  |
+| 18.3 | Templates newsletter: mensual + anuncio de post             | Reutiliza el layout de `emails/welcome.tsx`. Dos variantes nuevas.                                                 |
+| 18.4 | 2 posts iniciales en MDX                                    | Pipeline de renderizado MDX funciona desde F3.3.                                                                   |
+| 18.5 | Endpoint `POST /api/newsletter/send` (admin, `CRM_API_KEY`) | Dispara envío a todos los subscribers. Protegido con `X-API-Key`.                                                  |
+| 18.6 | Analytics con Plausible (privacy-first, script <1 KB)       | Insertado en `layout.tsx`. Alternativa: Umami self-hosted en Coolify si se prefiere control total sobre los datos. |
 
 ---
 
-## Estado de cierre (2026-06-15) — Reposicionamiento hacia desarrollo
+## Tracks paralelos
 
-Pivote del eje comercial de **seguridad → desarrollo de plataformas/webs/apps** y reescritura
-del copy a lenguaje accesible para el cliente (menos jerga), más precios contenidos para
-empresas nuevas/pequeñas:
+F15 y F17 en paralelo; F16 depende de F15; F18 depende de F16.
 
-- **Mensaje/tono**: hero, footer, terminal, metadatos/OG (`layout.tsx`), páginas
-  `sobre-mi`/`servicios`/`proyectos`/`blog` y `feed.xml` reorientados a desarrollo y sin jerga
-  (XEK, SAST/SCA/DAST, mTLS, check-only, hardening, gateway de credenciales).
-- **Servicios** (`services.ts`): desarrollo lidera (webs/apps, plataformas, automatización);
-  seguridad pasa a servicio secundario. Precios contenidos (ancla ≈ €40-45/h): proyecto
-  €1.200/€2.900/€5.900+, cuota €690/€1.290/€1.990, addons €60-600.
-- **Catálogo Stripe** (`checkout.ts`): reencuadrado (puesta a punto web, consultoría, revisión
-  de seguridad) con precios contenidos; test `checkout.test.ts` actualizado.
-- **Proyectos** (`projects.ts`): TrenchPass → «Plataforma / Backend», XEK → «Herramientas /
-  Automatización»; `alexendros.me` (web) ascendido a destacado. Nuevo `kind: "Plataforma"`.
-- **Higiene**: `.idea/`/`.junie/`/`.ruff_cache/` a `.gitignore` y `.prettierignore`.
-- **Verificación**: lint + typecheck + vitest (21/21) + `next build` (28 rutas) en verde.
+```
+F15 (Agentes IA) ──────────┬──────► F16 (Gates) ──► F18 (Contenido)
+                           │
+F17 (Monitorización) ──────┘  (independiente, paralelo a F15)
+```
 
-## Estado de cierre (2026-07-05) — Auditoría F11-F13 + planificación F14-F16
+| Track | Fase | Nombre                    | Depende de         |
+| ----- | ---- | ------------------------- | ------------------ |
+| A     | F15  | Agentes IA + Hardening    | F14, F14b          |
+| B     | F17  | Monitorización full-stack | — (paralelo a F15) |
+| C     | F16  | E2E + Gates finales       | F15                |
+| D     | F18  | Contenido & Marketing     | F16                |
 
-Fases F11-F13 completadas y verificadas (150 tests verdes, lint 0 errors, typecheck 0,
-build 32 rutas). Catálogo unificado, checkout con subscription mode y canal secundario
-(transferencia bancaria + Stripe Payment Link fallback) implementados y testeados.
+## Configuración pendiente del operador
 
-- **F11**: `catalog.ts` con 9 items (addons, retainers, proyectos), precios server-trusted
-  en céntimos. `services.ts` y `checkout.ts` derivados del catálogo (10 tests unit green).
-- **F12**: `POST /api/checkout` ampliado con `itemId`, `mode`, `paymentMethod`. Items
-  `recurring` → subscription mode. Item `one_time` + mode subscription → fuerza payment
-  sin error 422. Compatibilidad hacia atrás `{ item }` legacy (6 tests integración green).
-- **F13**: Canal transferencia: Invoice proforma, IBAN, referencia `INV-YYYY-NNN`.
-  Fallback Payment Link ante error de Stripe. Degradación sin stripe → 503 con datos
-  transferencia si configurado (10 tests integración green).
+Código listo, falta credencial para activar en producción. La app arranca y responde 200
+sin ellas (degradación null-safe al estilo Stripe/Resend).
 
-**Próxima fase (F14)**: Webhook ampliado + CRM API + Pipeline 9 stages. Dependencias
-satisfechas: schema Prisma CRM (`20260616120000_add_crm_schema` en repo y DB), catálogo
-(F11). Worktree `wt/catalog-pipeline-str-f14` desde main. 41 tests según test-plan.md
-T4.1-T4.41. Orquestación delegable al agente `general` con spec-driven workflow.
-
-## Bloqueos activos
-
-- **F4.3**: requiere `RESEND_API_KEY` del operador para el envío real de emails transaccionales. Sin clave, degrada a `console.log` y la API responde 200. No bloquea ninguna fase pendiente.
-- **F13**: `TRANSFER_IBAN` y `TRANSFER_BENEFICIARY` pendientes del operador. Canal transferencia implementado y testeado; solo falta configurar las credenciales reales.
-- **F14**: requiere `CRM_API_KEY` (generada por operador) para activar auth en los 11 endpoints REST. `prisma migrate deploy` contra Supabase con `DIRECT_URL` para las 3 migraciones nuevas (Subscription table, seed 9 PipelineStage, `stripeInvoiceId` en Invoice).
-- **Infra Coolify**: Supabase self-hosted en Coolify. Cloudflare Tunnel pendiente de configurar en la MiniPC para exponer `db.alexendros.cloud:5432`.
+| Variable                                                          | Fase | Efecto sin ella                                              |
+| ----------------------------------------------------------------- | ---- | ------------------------------------------------------------ |
+| `RESEND_API_KEY`                                                  | F4.3 | Emails transaccionales → `console.log`; newsletters no salen |
+| `TRANSFER_IBAN` + `TRANSFER_BENEFICIARY`                          | F13  | Canal transferencia bancaria → 503                           |
+| `NOTION_API_KEY` + `NOTION_CONTACTS_DB_ID` + `NOTION_DEALS_DB_ID` | F14b | Sync Notion outbound → warn silencioso                       |
+| `NOTION_WEBHOOK_SECRET`                                           | F14b | Webhook inbound Notion → 200 ack sin procesar                |
 
 ## Desbloqueos recientes
 
-- **F7.5** (2026-07-10): Stripe live activado. `STRIPE_SECRET_KEY` (`sk_live_...`) y
-  `STRIPE_WEBHOOK_SECRET` configuradas en Vercel Production. Webhook live
-  `we_1TrUSpK8xOmiNNUKB8yz7tob` apuntando a `https://alexendros.dev/api/stripe/webhook`.
-  Smoke test confirmó sesión de checkout real (`cs_live_...`). Ver F17 para el detalle.
+- **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK. Detalle en F7-activ. + F7-activ.5b dentro de F7.
+- **F14 + F14b** (2026-07-09): webhook ampliado + CRM REST (8 endpoints) + pipeline 9 stages + Notion sync. 229 tests, 32 files, 0 lint/typecheck.
+- **F11 + F12 + F13** (2026-07-05): catálogo unificado, checkout unified (subscription mode) y canal secundario implementados y desplegados.
 
 ## Referencias
 
-- Spec: `specs/catalog-pipeline-stripe/` — spec.md, contract.md, scenarios.md, test-plan.md
+- Specs: `specs/catalog-pipeline-stripe/` · `docs/superpowers/specs/2026-07-11-roadmap-reformulation-design.md`
 - Arquitectura: `ARCHITECTURE.md` — stack, rutas, modelos, testing
 - Testing: `tests/README.md` — pirámide completa, patrones, cobertura
 - AGENTS.md: contexto del proyecto, comandos, infraestructura, variables
-
-## Estado de cierre (2026-06-01)
-
-Implementadas y verificadas (CI verde, PRs #1–#3 mergeados a `main`): **F0–F6** salvo
-los ítems que dependen de credenciales o deploy:
-
-- **F0.7** scaffolding `.claude/` L2 — **hecho** (PR #4, settings + overlay + plugins Vercel).
-- **F4.0** `/init` → `CLAUDE.md` — **hecho** (PR #3).
-- **F4.1 / F4.3** persistencia y envío real — listos en código; faltan `DATABASE_URL` y
-  `RESEND_API_KEY` para activarlos (sin ellos, degrada y responde 200).
-- **F6.3** verificación `.claude/` L2 — **hecho** (settings.json, overlay, .gitignore).
-- **F6.4** deploy (Vercel) — pendiente.
-
-## Estado de cierre (2026-06-09)
-
-Provisionada la base de datos Supabase self-hosted en Coolify y aplicada la
-migración inicial:
-
-- **F9.4** — **hecho**: migración `20260605000000_init` aplicada al self-hosted y
-  verificada. Tablas `Lead`, `Subscriber` y `Order` creadas con sus índices.
-- **Hardening RLS** — Row Level Security habilitada en las 4 tablas públicas (`Lead`,
-  `Subscriber`, `Order`, `_prisma_migrations`). Sin políticas: el rol owner que usa Prisma
-  ignora RLS, así que la app sigue operando, mientras la Data API (PostgREST) deniega
-  `anon`/`authenticated`. Esto despeja el aviso **ERROR** `rls_disabled_in_public` sobre
-  `_prisma_migrations`; los 3 avisos **INFO** `rls_enabled_no_policy` restantes son el
-  estado deseado para un backend que usa Prisma (no la Data API).
-- **Reproducibilidad** — el hardening queda versionado en `20260609000000_enable_rls`
-  (sentencias idempotentes), de modo que un `prisma migrate deploy` limpio reproduce la
-  postura de seguridad. Producción ya está endurecida; esa migración se registrará en el
-  próximo `deploy`.
-- **Pendiente (operador)** — inyectar `DATABASE_URL` y `DIRECT_URL` en Vercel y `.env.local`
-  para activar la persistencia real contra el self-hosted (Cloudflare Tunnel). Plantilla en `.env.example`.
-
-## Notas
-
-- Contenido personalizado con los datos reales de **Alejandro Domingo Agustí** (Alexendros) y sus 5 proyectos OSS públicos (TrenchPass, plantillas, XEK, GV.ERRA, alexendros.me). El seed original ("Alejandro Vargas") queda archivado en la rama `base-seed-snapshot`. Pendientes marcados con `TODO:`: precios reales, historial laboral previo, testimonios, URL de LinkedIn.
-- Fidelidad pixel-perfect: comparar contra `screenshots/*.png` del bundle original.
