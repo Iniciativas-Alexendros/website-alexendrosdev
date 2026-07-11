@@ -5,10 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-# Runner self-hosted de la org (labelled `ts`).
-env:
-  RUNNER: "[self-hosted, ts]"
-
 # Cancela ejecuciones en curso de la misma rama cuando llega un push nuevo.
 concurrency:
   group: ci-${{ github.ref }}
@@ -16,15 +12,14 @@ concurrency:
 
 jobs:
   quality:
-    runs-on: ${{ env.RUNNER }}
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+      - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
       # Auditoría de seguridad: bloquea en high+ si hay CVEs en runtime.
       # Las vulns transitivas de tooling (Prisma Studio, Lighthouse) se ignoran
@@ -39,16 +34,15 @@ jobs:
       - run: pnpm build
 
   e2e:
-    runs-on: ${{ env.RUNNER }}
+    runs-on: ubuntu-latest
     needs: quality
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
+      - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
