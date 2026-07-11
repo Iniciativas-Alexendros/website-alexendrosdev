@@ -44,8 +44,8 @@ export {
   type AgentRepairRequest,
 } from "@/lib/agents/schemas";
 
-// Agentes específicos (S5 implementa el hardening eval)
-// (S5 implementa el hardening)
+// Agentes específicos (F15 completo)
+// (F15 S5 — hardening — completado)
 export {
   classifyStripeEvent,
   recordAndCheckAnomaly,
@@ -57,3 +57,17 @@ export {
 } from "@/lib/agents/auditor";
 export { runDiagnosticador, type DiagnoseOptions } from "@/lib/agents/diagnosticador";
 export { runReparador, type RepairOptions } from "@/lib/agents/reparador";
+export {
+  evaluateDiagnoseUtility,
+  evaluateRepairUtility,
+  type DiagnoseScenario,
+  type RepairScenario,
+} from "@/lib/agents/eval/utilidad";
+export {
+  validateCrmCall,
+  evaluateCrmCompliance,
+  captureCrmCalls,
+  type CrmCall,
+  type CrmContract,
+  type ComplianceResult,
+} from "@/lib/agents/eval/cumplimiento";

@@ -75,7 +75,7 @@ export type AgentDiagnoseRequest = z.infer<typeof agentDiagnoseRequestSchema>;
 export const agentRepairRequestSchema = z.object({
   diagnosis: diagnosticResultSchema,
   dealId: z.string().trim().max(100).optional(),
-  dryRun: z.boolean().optional().default(false),
+  dryRun: z.boolean().optional(),
 });
 
 export type AgentRepairRequest = z.infer<typeof agentRepairRequestSchema>;
