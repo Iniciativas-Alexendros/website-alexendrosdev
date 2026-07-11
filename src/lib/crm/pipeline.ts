@@ -63,6 +63,11 @@ export function isTerminalStage(order: number): boolean {
   return order === 5 || TERMINAL_ORDERS.has(order);
 }
 
+/** Devuelve todos los stages (para system prompts y listados). */
+export function getAllStages(): Stage[] {
+  return [...STAGES];
+}
+
 /**
  * Calcula subtotal, impuesto y total para una lista de items de factura.
  */
