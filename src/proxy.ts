@@ -5,7 +5,7 @@ import { isComingSoon } from "@/lib/flags";
 // la propia landing accesible (las APIs y los assets quedan fuera por el matcher).
 const ALLOW = ["/proximamente"];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   if (!isComingSoon()) return NextResponse.next();
 
   const { pathname } = req.nextUrl;
