@@ -4,6 +4,16 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Runner type"
+        required: true
+        default: "ubuntu-latest"
+        type: choice
+        options:
+          - ubuntu-latest
+          - self-hosted
 
 # Cancela ejecuciones en curso de la misma rama cuando llega un push nuevo.
 concurrency:
@@ -11,9 +21,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  runner-health:
+    if: github.event_name == 'workflow_dispatch' && inputs.runner == 'self-hosted'
+    runs-on: self-hosted
+    timeout-minutes: 2
+    permissions: {}
+    steps:
+      - run: |
+          echo "::notice::Runner: $(hostname) | Kernel: $(uname -a)"
+          echo "::notice::Docker: $(docker --version 2>/dev/null || echo 'N/A')"
+          curl -so /dev/null -w "api.github.com: %{http_code} (%{time_total}s)\n" \
+            https://api.github.com
+          curl -so /dev/null -w "broker: %{http_code} (%{time_total}s)\n" \
+            https://broker.actions.githubusercontent.com
+      - name: Check broker health from logs
+        run: |
+          RECENT=$(find /actions-runner/_diag/ -name 'Runner_*.log' -mmin -3 | sort | tail -1)
+          if [ -n "$RECENT" ]; then
+            ERRORS=$(grep -c 'ERR.*BrokerServer' "$RECENT" 2>/dev/null || echo 0)
+            if [ "$ERRORS" -gt 0 ]; then
+              echo "::warning::Broker errors in last 3 min: ${ERRORS}"
+            else
+              echo "::notice::Broker healthy (0 errors)"
+            fi
+          else
+            echo "::warning::No recent runner logs found"
+          fi
+      - name: Mark runner healthy
+        run: echo "RUNNER_HEALTHY=true" >> "$GITHUB_ENV"
+
   quality:
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name == 'workflow_dispatch' && inputs.runner) || 'ubuntu-latest' }}
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,11 +62,7 @@ jobs:
           node-version: 22
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
-      # Auditoría de seguridad: bloquea en high+ si hay CVEs en runtime.
-      # Las vulns transitivas de tooling (Prisma Studio, Lighthouse) se ignoran
-      # porque no llegan al bundle de producción.
       - run: pnpm audit --audit-level=high
-      # Escáner de licencias: vetar GPL/AGPL en dependencias de producción.
       - run: npx license-checker --production --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
       - run: pnpm format:check
       - run: pnpm lint
@@ -34,9 +71,11 @@ jobs:
       - run: pnpm build
 
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ${{ (github.event_name == 'workflow_dispatch' && inputs.runner) || 'ubuntu-latest' }}
     needs: quality
     timeout-minutes: 20
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
