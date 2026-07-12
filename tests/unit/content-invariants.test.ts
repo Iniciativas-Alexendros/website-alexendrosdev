@@ -74,7 +74,42 @@ describe("coherencia del resto del contenido", () => {
     expect(SITE.url).toMatch(/^https?:\/\//);
     expect(NAV.length).toBeGreaterThan(0);
     expect(TECH.length).toBeGreaterThan(0);
-    // Testimonios puede estar vacío (placeholder); debe ser un array.
-    expect(Array.isArray(TESTIMONIALS)).toBe(true);
+  });
+});
+
+describe("invariantes de TESTIMONIALS", () => {
+  it("tiene al menos un testimonio visible (no todas las ranuras pendientes)", () => {
+    const visible = TESTIMONIALS.filter(
+      (t) =>
+        !t.quote.startsWith("__PENDIENTE__:") &&
+        !t.name.startsWith("__PENDIENTE__:") &&
+        !t.role.startsWith("__PENDIENTE__:"),
+    );
+    expect(visible.length).toBeGreaterThan(0);
+  });
+
+  it("los visibles tienen campos no vacíos y, si son 'client', url recomendada", () => {
+    const visible = TESTIMONIALS.filter(
+      (t) =>
+        !t.quote.startsWith("__PENDIENTE__:") &&
+        !t.name.startsWith("__PENDIENTE__:") &&
+        !t.role.startsWith("__PENDIENTE__:"),
+    );
+    for (const t of visible) {
+      expect(t.quote.length).toBeGreaterThan(0);
+      expect(t.name.length).toBeGreaterThan(0);
+      expect(t.role.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("las ranuras pendientes tienen los tres campos con prefijo __PENDIENTE__:", () => {
+    const pendientes = TESTIMONIALS.filter(
+      (t) => t.kind === "solicitado" || t.quote.startsWith("__PENDIENTE__:"),
+    );
+    for (const t of pendientes) {
+      expect(t.quote).toMatch(/^__PENDIENTE__:/);
+      expect(t.name).toMatch(/^__PENDIENTE__:/);
+      expect(t.role).toMatch(/^__PENDIENTE__:/);
+    }
   });
 });

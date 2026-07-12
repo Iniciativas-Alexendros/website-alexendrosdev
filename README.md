@@ -1,6 +1,6 @@
 # alexendros.dev
 
-[![CI](https://github.com/Alexendros/website-alexendrosdev/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexendros/website-alexendrosdev/actions/workflows/ci.yml)
+[![CI](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml/badge.svg)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml)
 [![Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)](https://alexendros.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)

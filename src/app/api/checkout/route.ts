@@ -51,6 +51,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Item no disponible." }, { status: 422 });
   }
 
+  // P1: items marcados como inactivos (p.ej. proyectos "a consultar") no son
+  // comprables directos: se redirige al cliente a contacto para presupuesto.
+  if (!item.active) {
+    return NextResponse.json(
+      {
+        error: "Este servicio requiere presupuesto personalizado. Escríbeme y lo hablamos.",
+        redirect: "/contacto",
+      },
+      { status: 422 },
+    );
+  }
+
   // F13: rama explícita de transferencia bancaria. Si el cliente pide
   // `paymentMethod: "transfer"`, vamos directos al canal secundario sin
   // tocar Stripe.

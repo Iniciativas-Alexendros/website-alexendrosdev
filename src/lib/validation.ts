@@ -154,3 +154,25 @@ export const crmInvoicePatchSchema = z.object({
 });
 
 export type CrmInvoicePatchInput = z.infer<typeof crmInvoicePatchSchema>;
+
+export const crmTaskSchema = z.object({
+  title: z.string().trim().min(1, "Indica el título.").max(200),
+  description: z.string().trim().max(5000).optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
+  contactId: z.string().uuid("ID de contacto inválido.").optional(),
+  dealId: z.string().uuid("ID de deal inválido.").optional(),
+});
+
+export type CrmTaskInput = z.infer<typeof crmTaskSchema>;
+
+// ─── P1.6 — Newsletter admin (envío manual) ──────────────────────────────────
+
+export const newsletterSendSchema = z.object({
+  subject: z.string().trim().min(1, "Indica el asunto.").max(200),
+  // El cuerpo del email: texto plano o HTML sencillo. Mantenido simple a
+  // propósito; si se quiere Markdown se añade un parser más adelante.
+  body: z.string().trim().min(1, "Indica el cuerpo.").max(50_000),
+  dryRun: z.boolean().optional(),
+});
+
+export type NewsletterSendInput = z.infer<typeof newsletterSendSchema>;

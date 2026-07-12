@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Fragment, Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
@@ -15,7 +16,11 @@ const display = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace
 
 const CHANNELS: { ic: IconName; t: string; href: string }[] = [
   { ic: "mail", t: SITE.email, href: `mailto:${SITE.email}` },
-  { ic: "linkedin", t: display(SITE.socials.linkedin), href: SITE.socials.linkedin },
+  {
+    ic: "linkedin",
+    t: display(SITE.socials.linkedin),
+    href: SITE.socials.linkedin,
+  },
   { ic: "github", t: display(SITE.socials.github), href: SITE.socials.github },
   { ic: "external-link", t: display(SITE.socials.web), href: SITE.socials.web },
 ];
@@ -121,8 +126,12 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         setSent(true);
         track("lead_submitted", { utm_source: utms.utmSource ?? "direct" });
       } else {
-        const body = (await res.json().catch(() => null)) as { error?: string } | null;
-        setErrors({ submit: body?.error ?? "No se pudo enviar el mensaje. Inténtalo de nuevo." });
+        const body = (await res.json().catch(() => null)) as {
+          error?: string;
+        } | null;
+        setErrors({
+          submit: body?.error ?? "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+        });
       }
     } catch {
       setErrors({ submit: "Error de red. Inténtalo de nuevo." });
@@ -192,7 +201,13 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         aria-hidden
         value={data.website}
         onChange={(e) => set("website", e.target.value)}
-        style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          width: 1,
+          height: 1,
+          opacity: 0,
+        }}
       />
 
       <div className="ak-fields">
@@ -277,7 +292,11 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                 checked={data.consent}
                 onChange={(e) => set("consent", e.target.checked)}
               />
-              Acepto la política de privacidad y el tratamiento de mis datos.
+              Acepto la{" "}
+              <Link href="/legal/privacidad" style={{ textDecoration: "underline" }}>
+                política de privacidad
+              </Link>{" "}
+              y el tratamiento de mis datos.
             </label>
             {errors.consent && (
               <span className="ak-err-msg">

@@ -76,7 +76,13 @@ export async function POST(req: Request) {
   switch (event.type) {
     case "page.properties_updated": {
       if (event.entity) {
-        await handlePropertiesUpdated(event.entity.id);
+        const ok = await handlePropertiesUpdated(event.entity.id);
+        if (!ok) {
+          return NextResponse.json(
+            { error: "No se pudo procesar la actualización." },
+            { status: 500 },
+          );
+        }
       }
       break;
     }
@@ -95,13 +101,14 @@ export async function POST(req: Request) {
 
 /**
  * Fetch página actualizada de Notion → upsert en Postgres.
+ * @returns `true` si se procesó (o no aplicaba), `false` si falló la persistencia.
  */
-async function handlePropertiesUpdated(notionPageId: string) {
-  if (!notion || !prisma) return;
+async function handlePropertiesUpdated(notionPageId: string): Promise<boolean> {
+  if (!notion || !prisma) return true;
 
   try {
     const page = await notion.pages.retrieve({ page_id: notionPageId });
-    if (!("properties" in page)) return;
+    if (!("properties" in page)) return true;
 
     const properties = page.properties as Record<string, unknown>;
 
@@ -116,7 +123,7 @@ async function handlePropertiesUpdated(notionPageId: string) {
         });
         console.info(`[notion-webhook] contacto ${contact.id} actualizado desde Notion`);
       }
-      return;
+      return true;
     }
 
     // Intentar actualizar Deal
@@ -143,11 +150,13 @@ async function handlePropertiesUpdated(notionPageId: string) {
         });
         console.info(`[notion-webhook] deal ${deal.id} actualizado desde Notion`);
       }
-      return;
+      return true;
     }
 
     console.info(`[notion-webhook] página ${notionPageId} no encontrada en Postgres`);
+    return true;
   } catch (err) {
     console.error("[notion-webhook] error procesando properties_updated:", err);
+    return false;
   }
 }

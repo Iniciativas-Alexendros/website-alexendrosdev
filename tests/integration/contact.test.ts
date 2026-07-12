@@ -71,7 +71,9 @@ describe("POST /api/contact", () => {
     mocks.state.prisma = { lead: { create: mocks.leadCreate } };
     await post({ ...contactoValido, utmSource: "newsletter" }, "10.1.0.3");
     expect(mocks.leadCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ utmSource: "newsletter" }) }),
+      expect.objectContaining({
+        data: expect.objectContaining({ utmSource: "newsletter" }),
+      }),
     );
   });
 
@@ -108,6 +110,21 @@ describe("POST /api/contact", () => {
     mocks.emailSend.mockResolvedValue({ id: "ok" });
     const res = await post(contactoValido, "10.1.0.51");
     expect(res.status).toBe(200);
+  });
+
+  it("bloqueo legal: rechaza 422 un envío sin consentimiento (GDPR)", async () => {
+    const res = await post({ ...contactoValido, consent: false }, "[IP_ADDRESS]");
+    expect(res.status).toBe(422);
+    const body = (await res.json()) as { fields?: Record<string, string> };
+    expect(body.fields).toHaveProperty("consent");
+    expect(mocks.leadCreate).not.toHaveBeenCalled();
+  });
+
+  it("bloqueo legal: rechaza 422 si falta el campo consent", async () => {
+    const sinConsent = { ...contactoValido };
+    delete (sinConsent as { consent?: boolean }).consent;
+    const res = await post(sinConsent, "[IP_ADDRESS]");
+    expect(res.status).toBe(422);
   });
 
   it("responde 429 al superar el límite por IP", async () => {

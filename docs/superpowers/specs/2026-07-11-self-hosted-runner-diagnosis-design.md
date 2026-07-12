@@ -3,7 +3,7 @@
 **Tipo**: Investigación / recuperación
 **Fecha**: 2026-07-11
 **Estado**: diagnóstico inicial hecho, fix definitivo pendiente en sesión aparte
-**Contexto**: El CI workflow del repo `Alexendros/website-alexendrosdev` dejó de ejecutar jobs de GH Actions alrededor del 8-10 de julio. El runner self-hosted `infra-alex-01` aparece como `status=online` pero `online=False` en la API de GitHub, lo que indica que el long-poll persistente está fallando.
+**Contexto**: El CI workflow del repo `Iniciativas-Alexendros/website-alexendrosdev` dejó de ejecutar jobs de GH Actions alrededor del 8-10 de julio. El runner self-hosted `infra-alex-01` aparece como `status=online` pero `online=False` en la API de GitHub, lo que indica que el long-poll persistente está fallando.
 
 ---
 
@@ -24,7 +24,7 @@ github-runners-runner-alex-1  myoung34/github-runner:latest  Up 42 hours
 github-runners-runner-ia-1    myoung34/github-runner:latest  Up 6 minutes
 ```
 
-- `runner-alex`: registrado para `Alexendros/website-alexendrosdev` con label `self-hosted,ts,linux,x64`, agent ID 23, ephemeral mode, `disableUpdate: true`. Comando de arranque `./bin/Runner.Listener run --startuptype service`.
+- `runner-alex`: registrado para `Iniciativas-Alexendros/website-alexendrosdev` con label `self-hosted,ts,linux,x64`, agent ID 23, ephemeral mode, `disableUpdate: true`. Comando de arranque `./bin/Runner.Listener run --startuptype service`.
 - `runner-ia`: registrado para OTRA organización (`Iniciativas-Alexendros`, `gitHubUrl: https://github.com/Iniciativas-Alexendros`). **No es para nuestro repo**, así que no nos sirve aunque tenga label `ts`.
 
 ### Configuración del runner `runner-alex`
@@ -43,7 +43,7 @@ github-runners-runner-ia-1    myoung34/github-runner:latest  Up 6 minutes
 
 Env vars relevantes:
 
-- `REPO_URL=https://github.com/Alexendros/website-alexendrosdev`
+- `REPO_URL=https://github.com/Iniciativas-Alexendros/website-alexendrosdev`
 - `ACCESS_TOKEN=gho_<redacted-32-chars>`
 - `LABELS=self-hosted,ts,linux,x64`
 - `RUNNER_SCOPE=repo`
@@ -156,7 +156,7 @@ docker rm github-runners-runner-alex-1
 
 # Usar la imagen myoung34 con versión fija
 docker run -d --name github-runners-runner-alex-1 \
-  -e REPO_URL=https://github.com/Alexendros/website-alexendrosdev \
+  -e REPO_URL=https://github.com/Iniciativas-Alexendros/website-alexendrosdev \
   -e ACCESS_TOKEN=gho_... \
   -e LABELS=self-hosted,ts,linux,x64 \
   -e RUNNER_SCOPE=repo \
@@ -204,7 +204,7 @@ Si `gho_<redacted>` está corrupto o revocado, regenerar:
 2. Crear token con scope: `repo` (Actions: Read and Write)
 3. Reemplazar `ACCESS_TOKEN` en la config del contenedor Coolify
 4. Reiniciar el contenedor
-5. Verificar `gh api repos/Alexendros/website-alexendrosdev/actions/runners` → debe aparecer como `online: true`
+5. Verificar `gh api repos/Iniciativas-Alexendros/website-alexendrosdev/actions/runners` → debe aparecer como `online: true`
 
 ### Paso 8: Usar GitHub App en lugar de PAT
 
@@ -215,7 +215,7 @@ env:
   - APP_ID=123456
   - APP_PRIVATE_KEY=$(cat /path/to/key.pem)
   - APP_LOGIN=Alexendros
-  - REPO_URL=https://github.com/Alexendros/website-alexendrosdev
+  - REPO_URL=https://github.com/Iniciativas-Alexendros/website-alexendrosdev
   - LABELS=self-hosted,ts,linux,x64
   - EPHEMERAL=true
 ```
@@ -253,7 +253,7 @@ Copia este prompt en una nueva sesión para retomar la investigación:
 Diagnosticar el self-hosted GitHub Actions runner `infra-alex-01` en la
 MiniPC de Alexendros. El runner aparece como `status=online` pero
 `online=False` en la API de GitHub, lo que indica que el long-poll
-persistente está fallando. Resultado: CI de Alexendros/website-alexendrosdev
+persistente está fallando. Resultado: CI de Iniciativas-Alexendros/website-alexendrosdev
 no ejecuta jobs (jobs=[] en runs de los últimos dias).
 
 CONTEXTO:
@@ -261,7 +261,7 @@ CONTEXTO:
 - Container Coolify: `github-runners-runner-alex-1` (myoung34/github-runner:latest)
 - Runner version: 2.335.1, ephemeral mode, disableUpdate=true
 - Label: self-hosted,ts,linux,x64
-- Repositorio objetivo: Alexendros/website-alexendrosdev
+- Repositorio objetivo: Iniciativas-Alexendros/website-alexendrosdev
 - Log path en contenedor: /actions-runner/_diag/Runner_*.log
 - .runner path: /actions-runner/.runner
 

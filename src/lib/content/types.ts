@@ -38,6 +38,12 @@ export interface Post {
 // real y verificable. `quote` describe el proyecto; `name`/`role` lo identifican;
 // `url` apunta al repo o sitio público.
 export interface Testimonial {
+  // Categoría de la entrada para filtrado en UI:
+  //   - "work"       trabajo propio verificable (repo público o proyecto en producción)
+  //   - "client"     cita atribuida a un cliente real
+  //   - "solicitado" ranura pendiente del operador (no se renderiza mientras
+  //                  los campos contengan `__PENDIENTE__:`)
+  kind?: "work" | "client" | "solicitado"
   quote: string
   name: string
   role: string

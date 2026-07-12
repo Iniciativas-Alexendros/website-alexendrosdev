@@ -48,7 +48,8 @@ function PricingToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => vo
   );
 }
 
-function TierCard({ t }: { t: Tier }) {
+function TierCard({ t, mode }: { t: Tier; mode: Mode }) {
+  const isProject = mode === "proyecto";
   return (
     <div className={`ak-tier ${t.pro ? "ak-tier-pro" : ""}`.trim()}>
       {t.pro && (
@@ -70,12 +71,26 @@ function TierCard({ t }: { t: Tier }) {
           </li>
         ))}
       </ul>
+      {isProject && (
+        <p
+          className="ak-tier-note"
+          style={{
+            fontSize: "12px",
+            color: "var(--ak-mute, #6b7785)",
+            marginTop: 4,
+            marginBottom: 12,
+            lineHeight: 1.4,
+          }}
+        >
+          Precio orientativo. Tras la discovery call entregamos presupuesto cerrado.
+        </p>
+      )}
       <Button
         variant={t.pro ? "primary" : "secondary"}
         href="/contacto"
         style={{ width: "100%", justifyContent: "center" }}
       >
-        Empezar
+        {isProject ? "Pedir presupuesto" : "Empezar"}
       </Button>
     </div>
   );
@@ -158,7 +173,7 @@ export function ServicesView() {
       <section className="ak-section" style={{ paddingTop: 28 }}>
         <div className="ak-pricing">
           {TIERS[mode].map((t) => (
-            <TierCard key={t.name} t={t} />
+            <TierCard key={t.name} t={t} mode={mode} />
           ))}
         </div>
       </section>

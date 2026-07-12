@@ -10,20 +10,43 @@
 
 ---
 
+---
+
+## REESTRUCTURACIÓN 2026-07-12 (auditoría → nuevo orden de prioridades)
+
+> La auditoría previa (`AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: los defectos
+> DEFECTO-001/002/003/004/005/007 ya están resueltos en código. La auditoría del 2026-07-12
+> detectó que el problema real es de **orden de inversión**: se construyó automatización interna
+> (CRM, Notion sync, agentes IA) antes de las bases para vender y parecer profesional.
+> Plan completo: `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md`.
+>
+> **Nuevo orden (P0→P4):** P0 hardening seguridad del código nuevo · P1 Profesionalización &
+> Comercialización (prioridad) · P2 Monitorización (F17 sube) · P3 Agentes IA mínimo/congelar ·
+> P4 Pulido & gates CI. Decisiones: comercializar primero; tiers de proyecto = "a consultar".
+>
+> **Nuevos hallazgos (ver plan):** NUEVO-1 auth CRM no timing-safe + sin rate-limit en fallos ·
+> NUEVO-2 ruta `/api/crm/tasks` inexistente (Reparador roto) · NUEVO-3 webhook Notion traga
+> errores · NUEVO-4 sync Notion sin reconciliación · NUEVO-5 LLM escribe en CRM sin confirmación
+> · NUEVO-6 docs desincronizados · NUEVO-7 sin página legal/GDPR · NUEVO-8 precios incoherentes
+> (proyectos no comprables en UI pero sí en checkout) · NUEVO-9 social proof débil · NUEVO-10
+> F18 sin activar.
+
+---
+
 ## F0 · Prepare — cimientos, docs y repo
 
-| #    | Tarea                                                                 | Estado | Bloquea | Desbloquea     |
-| ---- | --------------------------------------------------------------------- | ------ | ------- | -------------- |
-| 0.1  | Scaffold Next.js 16 (TS, App Router, Tailwind v4, ESLint, src/)       | hecho  | —       | todo           |
-| 0.2  | Instalar deps + build scripts nativos (sharp, oxide)                  | hecho  | 0.1     | build/dev      |
-| 0.3  | Build baseline verde (`pnpm build`)                                   | hecho  | 0.2     | F1             |
-| 0.4  | `ROADMAP.md` + `ARCHITECTURE.md` (esqueleto)                          | hecho  | —       | seguimiento    |
-| 0.5  | `git init` (main) + `.gitignore` + commit baseline                    | hecho  | 0.4     | 0.6            |
-| 0.6  | Crear repo privado GitHub + push (`Alexendros/website-alexendrosdev`) | hecho  | 0.5     | CI/PR          |
-| 0.7  | Scaffolding L2 `.claude/` (settings, overlay, plugins Vercel)         | hecho  | 0.5     | F6 consolidate |
-| 0.8  | Portar tokens (`colors_and_type.css`) + `site.css` (67KB) a la app    | hecho  | 0.3     | F1             |
-| 0.9  | Configurar `next/font` (Inter, JetBrains Mono) + `lucide-react`       | hecho  | 0.8     | F1             |
-| 0.10 | Toolchain calidad: Prettier, Vitest, Playwright, scripts npm          | hecho  | 0.2     | valoradores    |
+| #    | Tarea                                                                             | Estado | Bloquea | Desbloquea     |
+| ---- | --------------------------------------------------------------------------------- | ------ | ------- | -------------- |
+| 0.1  | Scaffold Next.js 16 (TS, App Router, Tailwind v4, ESLint, src/)                   | hecho  | —       | todo           |
+| 0.2  | Instalar deps + build scripts nativos (sharp, oxide)                              | hecho  | 0.1     | build/dev      |
+| 0.3  | Build baseline verde (`pnpm build`)                                               | hecho  | 0.2     | F1             |
+| 0.4  | `ROADMAP.md` + `ARCHITECTURE.md` (esqueleto)                                      | hecho  | —       | seguimiento    |
+| 0.5  | `git init` (main) + `.gitignore` + commit baseline                                | hecho  | 0.4     | 0.6            |
+| 0.6  | Crear repo privado GitHub + push (`Iniciativas-Alexendros/website-alexendrosdev`) | hecho  | 0.5     | CI/PR          |
+| 0.7  | Scaffolding L2 `.claude/` (settings, overlay, plugins Vercel)                     | hecho  | 0.5     | F6 consolidate |
+| 0.8  | Portar tokens (`colors_and_type.css`) + `site.css` (67KB) a la app                | hecho  | 0.3     | F1             |
+| 0.9  | Configurar `next/font` (Inter, JetBrains Mono) + `lucide-react`                   | hecho  | 0.8     | F1             |
+| 0.10 | Toolchain calidad: Prettier, Vitest, Playwright, scripts npm                      | hecho  | 0.2     | valoradores    |
 
 ## F1 · Sistema de diseño y layout global
 
@@ -236,24 +259,32 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 > `NOTION_API_KEY`, `NOTION_CONTACTS_DB_ID`, `NOTION_DEALS_DB_ID`, `NOTION_WEBHOOK_SECRET`.
 > Todas null-safe. Postgres = source of truth; Notion = vista consulta/edición rápida.
 
-## F15 · Agentes IA autónomos + Hardening (TS integrado)
+## F15 · Agentes IA autónomos + Hardening (TS integrado) — **RE-PRIORIZADO A P3 (mínimo/congelar)**
 
+> **Estado real (2026-07-12):** los módulos TS (`src/lib/agents/*`) y los 5 endpoints
+> (`/api/agents/{health,hooks,audit,diagnose,repair}`) **están implementados en código**, pero el
+> roadmap los marcaba "pendiente". La acción principal del Reparador (`create_followup_task`) **falla**
+> porque la ruta `/api/crm/tasks` no existe (NUEVO-2). Por decisión de negocio, F15 se **congela** en
+> "mínimo viable": tras crear `/api/crm/tasks` (P0.2) lo hecho funciona; no se invierte más hasta
+> P1/P2 hechos. Reparador en modo determinista/dryRun por defecto en prod (sin LLM-write autónomo
+> sin confirmación — NUEVO-5).
+>
 > Módulos TS integrados en `src/lib/agents/` (sin repo externo). Provider LLM híbrido
 > en cadena: Gemini 3.5 Flash (primario, gratuito) → DeepSeek V4 Flash Free →
 > MiMo V2.5 Free → North Mini Code Free (fallbacks por rate limit / indisponibilidad).
 > Reparador usa LLM para decidir la acción, código determinista para ejecutarla.
 
-| #    | Tarea                                                                                                  | Estado    | Bloquea            | Desbloquea |
-| ---- | ------------------------------------------------------------------------------------------------------ | --------- | ------------------ | ---------- |
-| 15.1 | Módulos base `src/lib/agents/`: `auditor.ts`, `diagnosticador.ts`, `reparador.ts`                      | pendiente | F14, F14b          | 15.2–15.8  |
-| 15.2 | Provider LLM híbrido `lib/agents/llm-provider.ts` (Gemini primario + 3 fallbacks OpenCode Zen free)    | pendiente | 15.1, env vars LLM | 15.3–15.5  |
-| 15.3 | Agente Auditor: cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min, escribe a `AuditorLog` | pendiente | 15.2, CRM API      | 15.4       |
-| 15.4 | Agente Diagnosticador `POST /api/agents/diagnose`: hipótesis con `confidence: 0.0–1.0`                 | pendiente | 15.3               | 15.5       |
-| 15.5 | Agente Reparador `POST /api/agents/repair`: LLM decide acción correctiva, código ejecuta vía CRM API   | pendiente | 15.4               | 15.6       |
-| 15.6 | Health + hooks: `GET /api/agents/health`, `POST /api/agents/hooks` (webhook receiver seguro)           | pendiente | 15.2–15.5          | 15.7       |
-| 15.7 | Hardening utilidad: tests con LLM evalúan calidad de diagnósticos (mocks por proveedor)                | pendiente | 15.4               | 15.8       |
-| 15.8 | Hardening cumplimiento: tests con LLM evalúan respeto al contrato CRM API (mocks por proveedor)        | pendiente | 15.5               | 15.9       |
-| 15.9 | Endurecer y documentar: ARCHITECTURE.md, rate-limit agentes, observabilidad, fallback determinista     | pendiente | 15.6–15.8          | F16        |
+| #    | Tarea                                                                                                  | Estado         | Bloquea            | Desbloquea |
+| ---- | ------------------------------------------------------------------------------------------------------ | -------------- | ------------------ | ---------- |
+| 15.1 | Módulos base `src/lib/agents/`: `auditor.ts`, `diagnosticador.ts`, `reparador.ts`                      | hecho (código) | F14, F14b          | 15.2–15.8  |
+| 15.2 | Provider LLM híbrido `lib/agents/llm-provider.ts` (Gemini primario + 3 fallbacks OpenCode Zen free)    | pendiente      | 15.1, env vars LLM | 15.3–15.5  |
+| 15.3 | Agente Auditor: cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min, escribe a `AuditorLog` | pendiente      | 15.2, CRM API      | 15.4       |
+| 15.4 | Agente Diagnosticador `POST /api/agents/diagnose`: hipótesis con `confidence: 0.0–1.0`                 | pendiente      | 15.3               | 15.5       |
+| 15.5 | Agente Reparador `POST /api/agents/repair`: LLM decide acción correctiva, código ejecuta vía CRM API   | pendiente      | 15.4               | 15.6       |
+| 15.6 | Health + hooks: `GET /api/agents/health`, `POST /api/agents/hooks` (webhook receiver seguro)           | pendiente      | 15.2–15.5          | 15.7       |
+| 15.7 | Hardening utilidad: tests con LLM evalúan calidad de diagnósticos (mocks por proveedor)                | pendiente      | 15.4               | 15.8       |
+| 15.8 | Hardening cumplimiento: tests con LLM evalúan respeto al contrato CRM API (mocks por proveedor)        | pendiente      | 15.5               | 15.9       |
+| 15.9 | Endurecer y documentar: ARCHITECTURE.md, rate-limit agentes, observabilidad, fallback determinista     | pendiente      | 15.6–15.8          | F16        |
 
 > 5 endpoints REST en `src/app/api/agents/`: `health`, `hooks`, `audit`, `diagnose`, `repair`.
 > Sin repo Python externo, sin Ollama local: módulos TS dentro de Next.js, comunicación
@@ -274,10 +305,12 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 > Gate F16: 85/80/85/85. F17 (monitorización) y F18 (contenido) en paralelo a F15/F16
 > según el diagrama de tracks al final.
 
-## F17 · Monitorización full-stack
+## F17 · Monitorización full-stack — **RE-PRIORIZADO A P2 (sube)**
 
-> Track paralelo a F15, cero dependencia. Duración estimada: 1–2 semanas. Sin
-> monitorización, el sitio en producción es un punto ciego.
+> **Estado real (2026-07-12):** el endpoint `GET /api/health` **ya existe** en código
+> (`src/app/api/health/route.ts`), pero el resto (uptime externo, SigNoz/OTel, alertas) está
+> pendiente. Por decisión de negocio sube a **P2**, por delante de F15: para un sitio con pagos
+> reales, monitorizar es más urgente que los agentes IA. Track paralelo, cero dependencia.
 
 | #    | Tarea                                                               | Notas                                                                                                        |
 | ---- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
@@ -306,22 +339,27 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ---
 
-## Tracks paralelos
+## Tracks paralelos (reestructuración 2026-07-12)
 
-F15 y F17 en paralelo; F16 depende de F15; F18 depende de F16.
+Nuevo orden por prioridad de negocio (ver plan). P0→P4 secuencia; P1 y P2 en paralelo.
 
 ```
-F15 (Agentes IA) ──────────┬──────► F16 (Gates) ──► F18 (Contenido)
-                           │
-F17 (Monitorización) ──────┘  (independiente, paralelo a F15)
+P0 (Hardening seguridad) ──────► P1 (Profesionalización & Comercialización)
+                                     │
+P0 ───────────────────────────────► P2 (Monitorización, F17 sube)
+                                     │
+                                   P3 (Agentes IA F15: mínimo/congelar)
+                                     │
+                                   P4 (Pulido & gates CI)
 ```
 
-| Track | Fase | Nombre                    | Depende de         |
-| ----- | ---- | ------------------------- | ------------------ |
-| A     | F15  | Agentes IA + Hardening    | F14, F14b          |
-| B     | F17  | Monitorización full-stack | — (paralelo a F15) |
-| C     | F16  | E2E + Gates finales       | F15                |
-| D     | F18  | Contenido & Marketing     | F16                |
+| Track | Fase | Nombre                                | Depende de         |
+| ----- | ---- | ------------------------------------- | ------------------ |
+| 0     | P0   | Hardening seguridad del código nuevo  | F14, F14b          |
+| 1     | P1   | Profesionalización & Comercialización | P0                 |
+| 2     | P2   | Monitorización full-stack (F17)       | — (paralelo a P1)  |
+| 3     | P3   | Agentes IA (F15) mínimo/congelar      | P0.2 (ruta /tasks) |
+| 4     | P4   | Pulido & gates CI                     | P1, P2             |
 
 ## Configuración pendiente del operador
 
@@ -343,6 +381,8 @@ sin ellas (degradación null-safe al estilo Stripe/Resend).
 
 ## Referencias
 
+- **Reestructuración 2026-07-12:** `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md` (nuevo orden P0→P4 + hallazgos NUEVO-1..10)
+- Auditoría previa (obsoleta, base F10): `AUDITORIA-CRITICA.md`
 - Specs: `specs/catalog-pipeline-stripe/` · `docs/superpowers/specs/2026-07-11-roadmap-reformulation-design.md`
 - Arquitectura: `ARCHITECTURE.md` — stack, rutas, modelos, testing
 - Testing: `tests/README.md` — pirámide completa, patrones, cobertura

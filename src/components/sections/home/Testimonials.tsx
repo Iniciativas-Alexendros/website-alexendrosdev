@@ -7,8 +7,20 @@ import { Icon } from "@/components/ui/Icon";
 
 const PER_VIEW = 3;
 
+// Filtra entradas pendiente del operador: las ranuras con prefijo
+// `__PENDIENTE__:` no se renderizan hasta que el operador complete la cita, el
+// nombre y el rol. Ver `src/lib/content/testimonials.ts`.
+function visibleTestimonials() {
+  return TESTIMONIALS.filter(
+    (t) =>
+      !t.quote.startsWith("__PENDIENTE__:") &&
+      !t.name.startsWith("__PENDIENTE__:") &&
+      !t.role.startsWith("__PENDIENTE__:"),
+  );
+}
+
 export function Testimonials() {
-  const data = TESTIMONIALS;
+  const data = visibleTestimonials();
   const maxI = Math.max(0, data.length - PER_VIEW);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -66,7 +78,9 @@ export function Testimonials() {
           <div className="ak-tcar-viewport">
             <div
               className="ak-tcar-track"
-              style={{ transform: `translateX(calc(-${i} * (100% + 20px) / ${PER_VIEW}))` }}
+              style={{
+                transform: `translateX(calc(-${i} * (100% + 20px) / ${PER_VIEW}))`,
+              }}
             >
               {data.map((t, n) => {
                 const card = (
