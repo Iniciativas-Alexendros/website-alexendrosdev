@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { PROJECTS, PURCHASABLES } from "@/lib/content";
 import { Eyebrow, SectionHead } from "@/components/ui/SectionHead";
 import { Button } from "@/components/ui/Button";
@@ -26,8 +27,21 @@ export function EscaparateView() {
         <div className="ak-zz">
           {featured.map((p, i) => (
             <article key={p.id} className={`ak-zz-row ${i % 2 ? "rev" : ""}`.trim()}>
-              <Link href={`/proyectos/${p.id}`} className="ak-ph ak-ph-grad ak-zz-media">
-                <span className="ak-ph-label">screenshot del producto</span>
+              <Link
+                href={`/proyectos/${p.id}`}
+                className={`ak-ph ak-zz-media ${p.image ? "" : "ak-ph-grad"}`.trim()}
+              >
+                {p.image ? (
+                  <Image
+                    src={p.image}
+                    alt={`Captura de ${p.title}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: "cover" }}
+                  />
+                ) : (
+                  <span className="ak-ph-label">screenshot del producto</span>
+                )}
               </Link>
               <div>
                 <div className="ak-zz-idx">

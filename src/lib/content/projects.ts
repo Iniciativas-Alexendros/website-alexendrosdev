@@ -17,7 +17,7 @@ export const PROJECTS: Project[] = [
     tags: ["Next.js", "React", "TypeScript", "Tailwind", "Vercel"],
     desc: "Sitio web para publicar ideas, rápido y respetuoso con la privacidad: sin rastreo ni cookies de terceros. Construido con Next.js y React, con tipografía propia y servido desde la red global de Vercel para que cargue al instante.",
     metaDescription: "Sitio personal en Next.js sin rastreo ni cookies. Rápido, privado y construido con React, Tailwind y Vercel.",
-    liveUrl: "https://alexendros.dev",
+    liveUrl: "https://alexendros.me",
     metrics: [
       { v: "0", l: "rastreadores / cookies", acc: true },
       { v: "Next.js", l: "React + Tailwind" },
@@ -84,7 +84,7 @@ export const PROJECTS: Project[] = [
     h: 225,
     tags: ["Bash", "Python", "Automatización", "CI", "Calidad"],
     desc: "Conjunto de más de 40 comprobaciones automáticas que revisan la calidad, la configuración y las buenas prácticas de seguridad de un proyecto, una aplicación en vivo o un servidor. Trabaja por fases con controles de promoción; solo revisa e informa, nunca modifica.",
-    metaDescription: "40+ comprobaciones automáticas de calidad y seguridad en 3 fases. Solo revisa e informa, nunca modifica el proyecto. MIT.",
+    metaDescription: "40+ comprobaciones de calidad y seguridad en 3 fases. Solo revisa e informa, nunca modifica el proyecto. MIT.",
     metrics: [
       { v: "40+", l: "comprobaciones", acc: true },
       { v: "3 fases", l: "ejecución guiada" },
