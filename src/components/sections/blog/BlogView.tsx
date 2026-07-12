@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { BLOG_TAGS, POSTS, SITE } from "@/lib/content";
+import { BLOG_TAGS, SITE } from "@/lib/content";
+import { getPublishedPosts } from "@/lib/content/posts";
 import type { Post } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
@@ -70,17 +71,20 @@ export function BlogView() {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState("Todos");
   const [page, setPage] = useState(1);
-  const featured = POSTS.find((p) => p.featured);
+  // Solo posts publicados (calendario editorial: las fechas futuras quedan
+  // ocultas hasta su día). Evaluado por llamada; ver `lib/content/posts`.
+  const published = useMemo(() => getPublishedPosts(), []);
+  const featured = published.find((p) => p.featured);
 
   const rest = useMemo(
     () =>
-      POSTS.filter(
+      published.filter(
         (p) =>
           !p.featured &&
           (tag === "Todos" || p.tag === tag) &&
           (q === "" || p.title.toLowerCase().includes(q.toLowerCase())),
       ),
-    [tag, q],
+    [published, tag, q],
   );
 
   return (

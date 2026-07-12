@@ -1,4 +1,5 @@
-import { POSTS, SITE } from "@/lib/content";
+import { SITE } from "@/lib/content";
+import { getPublishedPosts } from "@/lib/content/posts";
 
 const MONTHS: Record<string, number> = {
   Ene: 0,
@@ -35,11 +36,12 @@ function escape(s: string): string {
 
 export async function GET() {
   const base = SITE.url;
-  const items = POSTS.map((p) => {
-    const date = parseDate(p.date);
-    const pubDate = date ? `<pubDate>${date.toUTCString()}</pubDate>` : "";
-    const desc = p.desc ?? `${p.title} — nota de ingeniería.`;
-    return `    <item>
+  const items = getPublishedPosts()
+    .map((p) => {
+      const date = parseDate(p.date);
+      const pubDate = date ? `<pubDate>${date.toUTCString()}</pubDate>` : "";
+      const desc = p.desc ?? `${p.title} — nota de ingeniería.`;
+      return `    <item>
       <title>${escape(p.title)}</title>
       <link>${base}/blog/${p.id}</link>
       <guid isPermaLink="true">${base}/blog/${p.id}</guid>
@@ -47,7 +49,8 @@ export async function GET() {
       ${pubDate}
       <description>${escape(desc)}</description>
     </item>`;
-  }).join("\n");
+    })
+    .join("\n");
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">

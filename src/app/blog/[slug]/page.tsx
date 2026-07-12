@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import rehypeSlug from "rehype-slug";
-import { POSTS, SITE, getPost } from "@/lib/content";
+import { SITE, getPost } from "@/lib/content";
+import { getPublishedPosts, isPostPublished } from "@/lib/content/posts";
 import { extractToc, getPostSource } from "@/lib/blog";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHead } from "@/components/ui/SectionHead";
@@ -12,7 +13,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { makeBlogPostingJsonLd } from "@/lib/seo/jsonld";
 
 export function generateStaticParams() {
-  return POSTS.map((p) => ({ slug: p.id }));
+  return getPublishedPosts().map((p) => ({ slug: p.id }));
 }
 
 export async function generateMetadata({
@@ -39,11 +40,14 @@ function shortDate(d: string) {
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = getPost(slug);
-  if (!p) notFound();
+  // Calendario editorial: posts con fecha futura responden 404 hasta su día.
+  if (!p || !isPostPublished(p)) notFound();
 
   const source = getPostSource(slug);
   const toc = source ? extractToc(source) : [];
-  const related = POSTS.filter((x) => x.id !== p.id).slice(0, 3);
+  const related = getPublishedPosts()
+    .filter((x) => x.id !== p.id)
+    .slice(0, 3);
 
   return (
     <div className="ak-container">

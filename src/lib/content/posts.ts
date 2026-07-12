@@ -80,3 +80,49 @@ export const BLOG_TAGS = [
 export function getPost(id: string): Post | undefined {
   return POSTS.find((p) => p.id === id)
 }
+
+// ─── Calendario editorial ───────────────────────────────────────────────────
+// Los posts con fecha futura NO se publican hasta llegada su fecha: quedan
+// fuera del listado, del home, del sitemap y del feed, y su URL responde 404.
+// `POSTS` conserva el catálogo completo (tests e invariantes); los consumidores
+// públicos deben usar `getPublishedPosts()` / `isPostPublished()`.
+// Las páginas estáticas se regeneran en cada despliegue: un post cuya fecha
+// llegue aparece automáticamente en el siguiente deploy.
+const MONTHS: Record<string, number> = {
+  Ene: 0,
+  Feb: 1,
+  Mar: 2,
+  Abr: 3,
+  May: 4,
+  Jun: 5,
+  Jul: 6,
+  Ago: 7,
+  Sep: 8,
+  Oct: 9,
+  Nov: 10,
+  Dic: 11,
+}
+
+export function parsePostDate(d: string): Date | null {
+  const m = /^(\d{1,2})\s+([A-Za-zÁ-ú]{3})\w*\s+(\d{4})$/.exec(d.trim())
+  if (!m) return null
+  const mon = MONTHS[m[2].slice(0, 3)]
+  if (mon === undefined) return null
+  return new Date(Date.UTC(Number(m[3]), mon, Number(m[1])))
+}
+
+// Un post está publicado si su fecha es hoy o anterior. Fechas no parseables
+// no bloquean (fail-open) para no ocultar contenido por un typo de formato.
+export function isPostPublished(p: Post, now: Date = new Date()): boolean {
+  const d = parsePostDate(p.date)
+  if (!d) return true
+  const endOfToday = new Date(now)
+  endOfToday.setHours(23, 59, 59, 999)
+  return d.getTime() <= endOfToday.getTime()
+}
+
+// Evaluado por llamada (sin caché de módulo): feed y sitemap se generan en
+// runtime y respetan el calendario editorial sin redesplegar.
+export function getPublishedPosts(now?: Date): Post[] {
+  return POSTS.filter((p) => isPostPublished(p, now))
+}

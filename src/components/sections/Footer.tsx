@@ -75,6 +75,12 @@ export function Footer() {
           <Link className="ak-footer-lk" href="/legal/aviso-legal">
             Aviso legal
           </Link>
+          <Link className="ak-footer-lk" href="/legal/condiciones">
+            Condiciones
+          </Link>
+          <Link className="ak-footer-lk" href="/legal/cookies">
+            Cookies
+          </Link>
         </span>
       </div>
     </footer>

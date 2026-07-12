@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { POSTS } from "@/lib/content";
+import { getPublishedPosts } from "@/lib/content/posts";
 import { Eyebrow } from "@/components/ui/SectionHead";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 
 export function HomeBlog() {
-  const posts = POSTS.slice(1, 5);
+  const posts = getPublishedPosts().slice(1, 5);
   return (
     <section className="ak-section" id="blog">
       <div
