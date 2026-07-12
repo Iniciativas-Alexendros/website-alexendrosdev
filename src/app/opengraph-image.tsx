@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const alt = "Alexendros — Desarrollo de plataformas, webs y apps";
 
 export const size = {
