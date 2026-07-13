@@ -1,0 +1,48 @@
+name: Feature Request
+description: Proponer una nueva funcionalidad o mejora
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución propuesta
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+    validations:
+      required: false
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impacto estimado
+      options:
+        - Alto — afecta a muchos usuarios o funcionalidad core
+        - Medio — mejora relevante pero no crítica
+        - Bajo — nice-to-have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: effort
+    attributes:
+      label: Esfuerzo estimado
+      options:
+        - XS (< 2h)
+        - S (< 1 día)
+        - M (1-3 días)
+        - L (1 semana)
+        - XL (> 1 semana)
+    validations:
+      required: true

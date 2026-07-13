@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discusión general
+    url: https://github.com/Iniciativas-Alexendros/website-alexendrosdev/discussions
+    about: Para preguntas y discusiones generales
+  - name: Vulnerabilidad de seguridad
+    url: https://github.com/Iniciativas-Alexendros/website-alexendrosdev/security/advisories/new
+    about: Reportar vulnerabilidades de forma privada
