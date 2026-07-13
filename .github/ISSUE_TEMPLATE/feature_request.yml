@@ -1,0 +1,35 @@
+name: Petición de feature
+description: Propón una mejora o nueva funcionalidad
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad
+      description: ¿Qué problema resuelve esta feature?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: Describe la solución que imaginas.
+    validations:
+      required: true
+  - type: textarea
+    id: alt
+    attributes:
+      label: Alternativas consideradas
+    validations:
+      required: false
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad sugerida
+      options:
+        - Baja
+        - Media
+        - Alta
+    validations:
+      required: true

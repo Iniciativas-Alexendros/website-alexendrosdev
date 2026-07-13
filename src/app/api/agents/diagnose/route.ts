@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCrmAuth } from "@/lib/crm-auth";
 import { runDiagnosticador } from "@/lib/agents/diagnosticador";
 import { agentDiagnoseRequestSchema, type AgentDiagnoseRequest } from "@/lib/agents/schemas";
 import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
@@ -7,10 +8,8 @@ import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
 // Recibe una incidencia y formula hipótesis de causa. Auth: X-API-Key CRM.
 
 export async function POST(req: Request) {
-  const apiKey = req.headers.get("x-api-key");
-  if (!apiKey || apiKey !== process.env.CRM_API_KEY) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
+  const authErr = requireCrmAuth(req);
+  if (authErr) return authErr;
 
   let body: unknown;
   try {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { PROJECTS, getProject } from "@/lib/content/projects";
-import { POSTS, getPost } from "@/lib/content/posts";
 import { PURCHASABLES, getPurchasable } from "@/lib/content/checkout";
 import { ADDONS, COMPARISON, FAQ, HOME_SERVICES, TIERS } from "@/lib/content/services";
 import { STACK_CATS, STACK_DETAIL } from "@/lib/content/stack";
@@ -24,14 +23,6 @@ describe("invariantes de PROJECTS", () => {
       expect(p.metrics.length).toBeGreaterThan(0);
       expect(p.tags.length).toBeGreaterThan(0);
     }
-  });
-});
-
-describe("invariantes de POSTS", () => {
-  it("tiene ids únicos y getPost los resuelve", () => {
-    expect(unique(POSTS.map((p) => p.id))).toBe(true);
-    for (const p of POSTS) expect(getPost(p.id)).toBe(p);
-    expect(getPost("inexistente")).toBeUndefined();
   });
 });
 

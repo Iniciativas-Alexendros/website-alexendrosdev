@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCrmAuth } from "@/lib/crm-auth";
 import { runAudit } from "@/lib/agents/auditor";
 
 // POST /api/agents/audit
@@ -6,10 +7,8 @@ import { runAudit } from "@/lib/agents/auditor";
 // estancados. Auth: X-API-Key del CRM.
 
 export async function POST(req: Request) {
-  const apiKey = req.headers.get("x-api-key");
-  if (!apiKey || apiKey !== process.env.CRM_API_KEY) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
+  const authErr = requireCrmAuth(req);
+  if (authErr) return authErr;
 
   const report = await runAudit();
 

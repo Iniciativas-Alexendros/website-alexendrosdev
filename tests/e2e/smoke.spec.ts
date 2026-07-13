@@ -35,10 +35,10 @@ test("el formulario de contacto se envía", async ({ page }) => {
   await expect(page.getByText(/Mensaje enviado/)).toBeVisible();
 });
 
-test("el escaparate renderiza proyectos destacados y compra directa", async ({ page }) => {
+test("el escaparate redirige al catálogo de servicios", async ({ page }) => {
   await page.goto("/escaparate");
-  await expect(page.getByRole("heading", { name: "Escaparate", level: 1 })).toBeVisible();
-  await expect(page.getByRole("button", { name: /Pagar ahora/ }).first()).toBeVisible();
+  await expect(page).toHaveURL(/\/servicios$/);
+  await expect(page.getByRole("heading", { name: "Planes claros", level: 1 })).toBeVisible();
 });
 
 test("la home no tiene violaciones de accesibilidad críticas", async ({ page }) => {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCrmAuth } from "@/lib/crm-auth";
 import { z } from "zod";
 import { processHookEvent, type StripeEvent } from "@/lib/agents/auditor";
 import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
@@ -28,10 +29,8 @@ const stripeEventSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const apiKey = req.headers.get("x-api-key");
-  if (!apiKey || apiKey !== process.env.CRM_API_KEY) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
+  const authErr = requireCrmAuth(req);
+  if (authErr) return authErr;
 
   let body: unknown;
   try {

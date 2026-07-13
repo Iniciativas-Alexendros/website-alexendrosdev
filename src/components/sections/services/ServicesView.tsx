@@ -13,7 +13,11 @@ type Mode = "proyecto" | "retainer";
 function AddonsSection() {
   return (
     <section className="ak-section" style={{ paddingTop: 8 }}>
-      <SectionHead eyebrow="extras" title="Servicios puntuales" />
+      <SectionHead
+        eyebrow="contratación directa"
+        title="Listo para comprar"
+        sub="Servicios puntuales con precio cerrado. Pago seguro con Stripe y confirmación al instante."
+      />
       <div className="ak-pricing">
         {PURCHASABLES.map((item) => (
           <PurchaseCard key={item.id} item={item} />
@@ -71,12 +75,12 @@ function TierCard({ t, mode }: { t: Tier; mode: Mode }) {
           </li>
         ))}
       </ul>
-      {isProject && (
+      {isProject && t.name !== "Scale" && (
         <p
           className="ak-tier-note"
           style={{
             fontSize: "12px",
-            color: "var(--ak-mute, #6b7785)",
+            color: "var(--text-tertiary)",
             marginTop: 4,
             marginBottom: 12,
             lineHeight: 1.4,
@@ -90,7 +94,7 @@ function TierCard({ t, mode }: { t: Tier; mode: Mode }) {
         href="/contacto"
         style={{ width: "100%", justifyContent: "center" }}
       >
-        {isProject ? "Pedir presupuesto" : "Empezar"}
+        {isProject ? (t.name === "Scale" ? "Hablemos" : "Pedir presupuesto") : "Empezar"}
       </Button>
     </div>
   );
@@ -170,6 +174,7 @@ export function ServicesView() {
           <PricingToggle mode={mode} setMode={setMode} />
         </div>
       </section>
+      <AddonsSection />
       <section className="ak-section" style={{ paddingTop: 28 }}>
         <div className="ak-pricing">
           {TIERS[mode].map((t) => (
@@ -178,7 +183,6 @@ export function ServicesView() {
         </div>
       </section>
       <Comparison />
-      <AddonsSection />
       <FaqSection />
     </div>
   );

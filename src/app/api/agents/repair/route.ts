@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireCrmAuth } from "@/lib/crm-auth";
 import { runReparador } from "@/lib/agents/reparador";
 import { agentRepairRequestSchema, type AgentRepairRequest } from "@/lib/agents/schemas";
 import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
@@ -7,10 +8,8 @@ import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
 // Ejecuta la reparación propuesta por el Diagnosticador. Auth: X-API-Key CRM.
 
 export async function POST(req: Request) {
-  const apiKey = req.headers.get("x-api-key");
-  if (!apiKey || apiKey !== process.env.CRM_API_KEY) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
+  const authErr = requireCrmAuth(req);
+  if (authErr) return authErr;
 
   let body: unknown;
   try {
@@ -28,15 +27,17 @@ export async function POST(req: Request) {
   }
 
   const dryRun = req.headers.get("x-dry-run") === "true";
+  // Por defecto simulación en prod: solo un flag explícito x-apply muta el CRM.
+  const effectiveDryRun = dryRun || !req.headers.get("x-apply");
   const { result, action, mode } = await runReparador(parsed.data as AgentRepairRequest, {
-    dryRun,
+    dryRun: effectiveDryRun,
   });
 
   return NextResponse.json({
     result,
     action,
     mode,
-    dryRun,
+    dryRun: effectiveDryRun,
     llm: {
       gemini: hasGemini(),
       opencodeZen: hasOpenCodeZen(),

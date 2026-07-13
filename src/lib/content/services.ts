@@ -66,7 +66,7 @@ export const TIERS: Tiers = {
     },
     {
       name: 'Scale',
-      price: '€5.900+',
+      price: 'a consultar',
       unit: '/proyecto',
       feats: [
         ['Arquitectura a medida', true],

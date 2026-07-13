@@ -16,7 +16,7 @@ function LegalNote() {
       className="ak-form-legal"
       style={{
         fontSize: "11px",
-        color: "var(--ak-mute, #6b7785)",
+        color: "var(--text-tertiary)",
         marginTop: 8,
         marginBottom: 0,
         lineHeight: 1.5,
@@ -66,26 +66,28 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
 
   if (variant === "cta" || variant === "coming") {
     return (
-      <form className="ak-cta-form" onSubmit={onSubmit}>
-        <input
-          type="email"
-          required
-          placeholder="tu@email.com"
-          aria-label="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Button variant="primary" type="submit">
-          {status === "loading" ? "Enviando…" : variant === "coming" ? "Avísame" : "Hablemos"}
-          <Icon name="arrow-right" size={16} style={{ marginLeft: 6 }} />
-        </Button>
+      <div>
+        <form className="ak-cta-form" onSubmit={onSubmit}>
+          <input
+            type="email"
+            required
+            placeholder="tu@email.com"
+            aria-label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Button variant="primary" type="submit">
+            {status === "loading" ? "Enviando…" : variant === "coming" ? "Avísame" : "Hablemos"}
+            <Icon name="arrow-right" size={16} style={{ marginLeft: 6 }} />
+          </Button>
+        </form>
         {status === "ok" || status === "error" ? (
           <p className="ak-form-msg" role="status" data-state={status}>
             {msg}
           </p>
         ) : null}
         <LegalNote />
-      </form>
+      </div>
     );
   }
 

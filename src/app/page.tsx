@@ -5,7 +5,6 @@ import { Icon } from "@/components/ui/Icon";
 import { Hero } from "@/components/sections/home/Hero";
 import { HomeProjects } from "@/components/sections/home/HomeProjects";
 import { HomeServices } from "@/components/sections/home/HomeServices";
-import { HomeBlog } from "@/components/sections/home/HomeBlog";
 import { Testimonials } from "@/components/sections/home/Testimonials";
 import { HomeCTA } from "@/components/sections/home/HomeCTA";
 
@@ -28,9 +27,6 @@ export default function HomePage() {
         <HomeProjects />
       </div>
       <HomeServices />
-      <div className="ak-container">
-        <HomeBlog />
-      </div>
       {TESTIMONIALS.length > 0 && <Testimonials />}
       <HomeCTA />
     </>

@@ -1,9 +1,5 @@
 import type { Project } from "./types";
 
-// Proyectos públicos reales (github.com/Alexendros). Cada entrada lidera con el
-// alcance técnico (lenguaje, arquitectura, qué resuelve). Las métricas son
-// factuales y verificables en cada README (licencia, versión, nº de módulos/skills);
-// no se incluyen métricas de adopción no públicas (stars, usuarios).
 export const PROJECTS: Project[] = [
   {
     id: "alexendros-me",
@@ -25,23 +21,6 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    id: "trenchpass",
-    title: "TrenchPass — Plataforma de acceso centralizado",
-    category: "Plataforma / Backend",
-    kind: "Plataforma",
-    year: "2026",
-    h: 240,
-    featured: true,
-    tags: ["Rust", "axum", "API", "PostgreSQL", "Docker", "OpenTelemetry"],
-    desc: "Plataforma backend en Rust (axum) que centraliza el acceso a ~20 servicios externos (Notion, Stripe, GitHub, Vercel…) tras una única API: un punto de entrada fiable, con registro de cada acceso y monitorización integrada. Diseño de plataforma de principio a fin, pensado para crecer sin perder control.",
-    metaDescription: "API gateway en Rust (axum) que centraliza ~20 servicios externos con registro de acceso y monitorización. AGPL-3.0.",
-    metrics: [
-      { v: "~20", l: "servicios integrados", acc: true },
-      { v: "Rust", l: "axum + PostgreSQL" },
-      { v: "AGPL-3.0", l: "open source" },
-    ],
-  },
-  {
     id: "nasve",
     title: "Gráficas Nasve — Web y tienda para imprenta",
     category: "Web",
@@ -60,36 +39,54 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    id: "plantillas",
-    title: "Plantillas para Claude Code",
+    id: "pipeline-crm",
+    title: "Pipeline CRM + Notion — Automatización de ventas",
+    category: "Automatización",
+    kind: "Plataforma",
+    year: "2026",
+    h: 220,
+    featured: true,
+    tags: ["Next.js", "Prisma", "Stripe", "Notion API", "REST"],
+    desc: "Pipeline de ventas con 9 etapas, API CRM REST (8 handlers), webhook ampliado de Stripe y sincronización bidireccional con Notion. 188 tests de integración.",
+    metrics: [
+      { v: "9", l: "etapas pipeline" },
+      { v: "188", l: "tests integración", acc: true },
+      { v: "bidireccional", l: "sync Notion" },
+    ],
+    repoUrl: "https://github.com/Iniciativas-Alexendros/website-alexendrosdev",
+    liveUrl: "https://alexendros.dev/servicios",
+  },
+  {
+    id: "stripe-catalog",
+    title: "Catálogo unificado + Stripe Checkout",
+    category: "E-commerce",
+    kind: "API",
+    year: "2026",
+    h: 200,
+    tags: ["Stripe", "Next.js", "TypeScript", "Zod"],
+    desc: "Sistema de catálogo server-trusted con checkout Stripe unificado (suscripción y one-time), precios en céntimos, doble canal de pago y webhook de verificación de firma.",
+    metrics: [
+      { v: "10", l: "tests unitarios" },
+      { v: "2", l: "canales de pago", acc: true },
+      { v: "server-trusted", l: "catálogo" },
+    ],
+    repoUrl: "https://github.com/Iniciativas-Alexendros/website-alexendrosdev",
+  },
+  {
+    id: "mcp-toolkit",
+    title: "MCP Toolkit — Servidores para agentes IA",
     category: "Developer Tooling",
     kind: "Open Source",
     year: "2026",
-    h: 200,
-    tags: ["Python", "Claude Code", "MCP", "GitHub Actions", "pre-commit"],
-    desc: "Ecosistema de plantillas modulares `claude-init`-ready para construir agentes, skills, comandos, hooks, plugins, servidores MCP y repositorios GitHub profesionales. Cada módulo incluye plantilla, ejemplo funcional y validador automático con modo `--strict`.",
-    metaDescription: "Plantillas modulares para Claude Code: agentes, skills, MCP, hooks y repos GitHub profesionales. 8 módulos validados. MIT.",
+    h: 210,
+    tags: ["MCP", "TypeScript", "Rust", "Zod"],
+    desc: "Colección de servidores MCP listos para producción: custodia de credenciales, acceso a APIs externas y herramientas de desarrollo para agentes de IA. Tipado estricto y tests.",
     metrics: [
-      { v: "8/8", l: "módulos validados", acc: true },
-      { v: "8", l: "tipos de módulo" },
-      { v: "v1.0.0", l: "MIT" },
+      { v: "MCP", l: "protocolo estándar" },
+      { v: "AGPL-3.0", l: "open source", acc: true },
+      { v: "multi-lang", l: "TS + Rust" },
     ],
-  },
-  {
-    id: "xek",
-    title: "XEK — Verificación automática de calidad",
-    category: "Herramientas / Automatización",
-    kind: "Open Source",
-    year: "2026",
-    h: 225,
-    tags: ["Bash", "Python", "Automatización", "CI", "Calidad"],
-    desc: "Conjunto de más de 40 comprobaciones automáticas que revisan la calidad, la configuración y las buenas prácticas de seguridad de un proyecto, una aplicación en vivo o un servidor. Trabaja por fases con controles de promoción; solo revisa e informa, nunca modifica.",
-    metaDescription: "40+ comprobaciones de calidad y seguridad en 3 fases. Solo revisa e informa, nunca modifica el proyecto. MIT.",
-    metrics: [
-      { v: "40+", l: "comprobaciones", acc: true },
-      { v: "3 fases", l: "ejecución guiada" },
-      { v: "v0.7.0", l: "MIT" },
-    ],
+    repoUrl: "https://github.com/Alexendros",
   },
 ];
 

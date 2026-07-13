@@ -21,7 +21,7 @@ export default function PrivacidadPage() {
           })}
         </p>
 
-        <article style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
+        <article className="ak-prose" style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
           <section style={{ marginBottom: 28 }}>
             <h2 style={{ marginBottom: 12 }}>1. Responsable del tratamiento</h2>
             <p>

@@ -82,9 +82,10 @@ describe("POST /api/agents/repair", () => {
     dealId: "deal-1",
   };
 
-  it("T11.1: 401 sin X-API-Key", async () => {
+  it("T11.1: 503 sin CRM_API_KEY (auth requerida)", async () => {
+    delete process.env.CRM_API_KEY;
     const res = await repairPOST(makeReq(validRequest));
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(503);
   });
 
   it("T11.2: 422 con body invalido (sin diagnosis)", async () => {
@@ -93,13 +94,15 @@ describe("POST /api/agents/repair", () => {
     expect(res.status).toBe(422);
   });
 
-  it("T11.3: 200 con diagnostico valido (modo determinista, sin LLM)", async () => {
+  it("T11.3: 200 con diagnostico valido (modo determinista, sin LLM, con x-apply)", async () => {
     process.env.CRM_API_KEY = "test-key";
     // Mockear el fetch a CRM para que la llamada POST /api/crm/tasks devuelva 200
     mocks.fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ id: "task-1" }), { status: 200 }),
     );
-    const res = await repairPOST(makeReq(validRequest, { "x-api-key": "test-key" }));
+    const res = await repairPOST(
+      makeReq(validRequest, { "x-api-key": "test-key", "x-apply": "1" }),
+    );
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.mode).toBe("deterministic");

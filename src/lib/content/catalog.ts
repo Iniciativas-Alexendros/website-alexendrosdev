@@ -61,6 +61,21 @@ export const CATALOG: CatalogItem[] = [
     category: 'addon',
     metadata: { hoursEstimate: '~14 h', anchorRate: '~43 €/h' },
   },
+  {
+    id: 'auditoria-rapida-web',
+    name: 'Auditoría rápida de tu web',
+    desc: 'Revisión exprés de 30 minutos: velocidad, SEO básico y problemas visibles. Te entrego un informe de 1 página con lo que conviene mejorar primero.',
+    amount: 9_000,
+    currency: 'eur',
+    type: 'one_time',
+    stripePriceIds: {
+      test: 'price_1TrTabAuditRapidWebTest',
+      live: 'price_1TrUSAuditRapidWebLive01',
+    },
+    active: true,
+    category: 'addon',
+    metadata: { hoursEstimate: '~2 h', anchorRate: '45 €/h' },
+  },
 
   // ─── Retainers (recurring mensual) ───────────────────────────────
   {

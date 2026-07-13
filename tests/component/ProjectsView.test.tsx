@@ -27,7 +27,8 @@ describe("ProjectsView", () => {
   it("filtra por categoría (Open Source)", async () => {
     const { user } = renderWithUser(<ProjectsView />);
     await user.click(screen.getByRole("button", { name: "Open Source" }));
-    expect(countText()).toBe(`${openSourceCount} proyectos`);
+    const suffix = openSourceCount === 1 ? "" : "s";
+    expect(countText()).toBe(`${openSourceCount} proyecto${suffix}`);
   });
 
   it("busca por texto libre (case-insensitive)", async () => {

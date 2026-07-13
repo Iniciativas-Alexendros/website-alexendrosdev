@@ -41,9 +41,6 @@ export function Footer() {
           <Link className="ak-footer-lk" href="/stack">
             Stack
           </Link>
-          <Link className="ak-footer-lk" href="/blog">
-            Blog
-          </Link>
         </div>
         <div>
           <div className="ak-footer-ct">Recursos</div>

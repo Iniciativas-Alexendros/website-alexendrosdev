@@ -51,10 +51,10 @@ function makeReq(method: string, body?: unknown, headers: Record<string, string>
 }
 
 describe("POST /api/agents/hooks", () => {
-  it("T7.1: 401 sin X-API-Key", async () => {
+  it("T7.1: 503 sin CRM_API_KEY (auth requerida)", async () => {
     const req = makeReq("POST", { type: "payment_intent.succeeded" });
     const res = await hooksPOST(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(503);
   });
 
   it("T7.2: 401 con X-API-Key incorrecta", async () => {
@@ -126,10 +126,11 @@ describe("POST /api/agents/hooks", () => {
 });
 
 describe("POST /api/agents/audit", () => {
-  it("T7.7: 401 sin X-API-Key", async () => {
+  it("T7.7: 503 sin CRM_API_KEY (auth requerida)", async () => {
+    delete process.env.CRM_API_KEY;
     const req = makeReq("POST");
     const res = await auditPOST(req);
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(503);
   });
 
   it("T7.8: 200 con X-API-Key valida (modo determinista, sin deals)", async () => {

@@ -18,8 +18,8 @@ const CENTER = { x: 440, y: 280 };
 const CAT_POS: Record<string, { x: number; y: number }> = {
   Lenguajes: { x: 205, y: 150 },
   Web: { x: 675, y: 150 },
-  "Infra & Datos": { x: 205, y: 410 },
-  "Tooling & IA": { x: 675, y: 410 },
+  Infraestructura: { x: 205, y: 410 },
+  "Herramientas e IA": { x: 675, y: 410 },
 };
 
 type NodeType = "center" | "cat" | "leaf";

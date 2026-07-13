@@ -4,6 +4,15 @@
    Stack origin: Next.js + Tailwind CSS v4 + shadcn/ui
    Fonts: Inter (sans) · JetBrains Mono (mono) — vía next/font
    (variables --font-inter / --font-jetbrains desde app/layout.tsx)
+
+   NOTA (contraste WCAG AA, verificado en F8):
+   - --text-tertiary (light) ≥4.5:1 sobre --bg-base/--bg-elevated
+   - --text-muted    (light) ≥4.5:1 sobre --bg-inset
+   - --text-link     (light) ≥4.5:1 sobre --bg-highlight
+   - --success       (light) ≥4.5:1 como texto sobre tinta clara
+   - --text-link     (dark)  #3a9e9e ≈4.6:1 (antes #2d8b8b 3.9:1)
+   Los valores HSL NO llevan comentarios inline: rompen hsl(var())
+   en el build de Turbopack (color cae a heredado/blanco).
    ============================================================ */
 
 /* ----------------------------------------------------------
@@ -15,7 +24,7 @@
   --primary-100: 213 72% 90%;
   --primary-200: 213 60% 80%;
   --primary-300: 213 58% 70%;
-  --primary-400: 214 38% 47%;   /* #4a6fa5 accent */
+  --primary-400: 214 38% 47%;
   --primary-500: 214 41% 41%;
   --primary-600: 214 45% 34%;
   --primary-700: 214 50% 28%;
@@ -24,34 +33,34 @@
   --primary-950: 214 75% 9%;
 
   /* Surfaces */
-  --bg-base: 210 20% 98%;        /* #fafafa */
-  --bg-elevated: 0 0% 100%;      /* #ffffff */
-  --bg-sunken: 210 20% 96%;      /* #f0f4f8 */
-  --bg-highlight: 213 72% 90%;   /* #d4e4f7 */
-  --bg-inset: 210 18% 93%;       /* #e8ecf1 */
+  --bg-base: 210 20% 98%;
+  --bg-elevated: 0 0% 100%;
+  --bg-sunken: 210 20% 96%;
+  --bg-highlight: 213 72% 90%;
+  --bg-inset: 210 18% 93%;
 
   /* Text */
-  --text-primary: 213 30% 15%;   /* #1a2332 */
-  --text-secondary: 215 16% 34%; /* #4a5568 */
-  --text-tertiary: 210 12% 50%;  /* #708090 */
-  --text-muted: 213 15% 63%;     /* #94a3b8 */
+  --text-primary: 213 30% 15%;
+  --text-secondary: 215 16% 34%;
+  --text-tertiary: 210 16% 36%;
+  --text-muted: 213 18% 42%;
   --text-on-primary: 0 0% 100%;
-  --text-link: 214 38% 47%;
-  --text-link-hover: 214 41% 41%;
+  --text-link: 214 42% 38%;
+  --text-link-hover: 214 45% 32%;
 
   /* Accent semántico para CTA (fill con texto encima). AA-safe en ambos modos:
      en light = primary-400; en dark se eleva a primary-300 (ver .dark). */
   --cta: var(--primary-400);
 
   /* State / semantic */
-  --success: 180 52% 36%;        /* #2d8b8b */
-  --warning: 42 40% 56%;         /* #c4a35a */
-  --emergency: 3 37% 52%;        /* #b85450 (Arctic Ocean v2: renombrado de --error) */
+  --success: 180 55% 28%;
+  --warning: 42 40% 56%;
+  --emergency: 3 37% 52%;
   --info: 214 38% 47%;
 
   /* Borders */
-  --border: 210 20% 82%;         /* #c8d4e0 */
-  --border-subtle: 210 25% 93%;  /* #e2e8f0 */
+  --border: 210 20% 82%;
+  --border-subtle: 210 25% 93%;
   --border-focus: 214 38% 47%;
 
   /* Shadows (color/alpha only) */
@@ -131,39 +140,39 @@
 .dark {
   --primary-50: 195 58% 14%;
   --primary-100: 195 50% 20%;
-  --primary-200: 180 52% 36%;   /* #2d8b8b accent (teal) */
+  --primary-200: 180 52% 36%;
   --primary-300: 180 47% 42%;
   --primary-400: 180 45% 55%;
   --primary-500: 180 48% 57%;
   --primary-600: 180 50% 67%;
-  --primary-700: 180 38% 76%;   /* #a8dadc seafoam */
+  --primary-700: 180 38% 76%;
   --primary-800: 180 35% 84%;
   --primary-900: 180 30% 92%;
-  --primary-950: 140 20% 96%;   /* #f1faee cream */
+  --primary-950: 140 20% 96%;
 
-  --bg-base: 213 30% 15%;        /* #1a2332 */
-  --bg-elevated: 213 28% 18%;    /* #222d3d */
-  --bg-sunken: 213 32% 12%;      /* #131c28 */
-  --bg-highlight: 213 25% 21%;   /* #243447 */
-  --bg-inset: 213 35% 9%;        /* #0d1520 */
+  --bg-base: 213 30% 15%;
+  --bg-elevated: 213 28% 18%;
+  --bg-sunken: 213 32% 12%;
+  --bg-highlight: 213 25% 21%;
+  --bg-inset: 213 35% 9%;
 
-  --text-primary: 140 20% 96%;   /* #f1faee */
-  --text-secondary: 180 38% 76%; /* #a8dadc */
+  --text-primary: 140 20% 96%;
+  --text-secondary: 180 38% 76%;
   --text-tertiary: 195 25% 57%;
   --text-muted: 195 20% 44%;
   --text-on-primary: 213 30% 15%;
-  --text-link: 180 47% 42%;      /* #3a9e9e primary-300 — AA 4.6:1 (v2 fix; era #2d8b8b 3.9:1) */
-  --text-link-hover: 180 45% 55%; /* #4ab0b0 primary-400 dark — conserva diferencial de hover */
+  --text-link: 180 47% 42%;
+  --text-link-hover: 180 45% 55%;
 
-  /* CTA dark elevado a primary-300 (#3a9e9e ≈4.6:1 sobre --text-on-primary) — AA v2 */
+  /* CTA dark elevado a primary-300 (#3a9e9e ≈4.6:1 sobre --text-on-primary) — AA */
   --cta: var(--primary-300);
 
-  --success: 174 56% 55%;        /* #4ecdc4 */
-  --warning: 42 70% 64%;         /* #e9c46a */
-  --emergency: 0 55% 67%;        /* #e07a7a (Arctic Ocean v2: renombrado de --error) */
+  --success: 174 56% 55%;
+  --warning: 42 70% 64%;
+  --emergency: 0 55% 67%;
   --info: 200 50% 59%;
 
-  --border: 213 30% 23%;         /* #2a3a4e */
+  --border: 213 30% 23%;
   --border-subtle: 213 28% 18%;
   --border-focus: 180 52% 36%;
 

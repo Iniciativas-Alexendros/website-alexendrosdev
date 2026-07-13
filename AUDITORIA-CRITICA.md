@@ -1,12 +1,12 @@
-# AUDITORÍA CRÍTICA — website-alexendrosdev
+# AUDITORÍA CRÍTICA — website-alexendrosdev (repo + sitio)
 
-> **Veredicto:** llamarlo «infame» es difamación; es de los repos más limpios que pasan por esta sala de autopsias — pero la ruta del dinero esconde un fallo silencioso que cobra y pierde el pedido sin pestañear.
+> **Veredicto:** el repo que ya era limpio se ha puesto serio — cerró la ruta del dinero y blindó el CRM — pero la hornada de agentes LLM se coló por la puerta de atrás con una auth de pega, y el front se lanzó con texto que no llega al AA. Nada catastrófico; un GRAVE de nuevo diseño y un puñado de heridas moderadas que un par de tardes dejan el sitio en despacho de abogados.
 
-**Resumen ejecutivo.** Portfolio Next.js 16 fullstack con backend de pagos, leads y newsletter: TypeScript estricto sin un solo `any`, 101 tests verdes, gate de cobertura real (93/86/95/92), sin secretos filtrados (gitleaks limpio en 73 commits), sin dependencias circulares, duplicación del 1,03 %, webhook de Stripe con firma verificada y precio resuelto en servidor. El cimiento aguanta de sobra. Los incendios reales son tres y todos viven en el mismo pecado de diseño: **tragarse los errores y devolver éxito**. El más grave —`DEFECTO-001`— hace que un pago cobrado por Stripe se pierda sin reintento si la BD parpadea en ese instante. Lo demás es higiene de proceso (rate-limit spoofeable y con fuga de memoria, deps transitivas con CVE sin gate en CI) y polvo cosmético. No hay nada catastrófico; hay un repo a un día de trabajo de ser irreprochable.
+**Resumen ejecutivo.** Repo Next.js 16 fullstack que creció de ~4.780 a ~35.6k LOC y de 11 a **26 defectos** desde la última auditoría (`ad4288a`, Jul 1) hasta `651f51c` (rama `feat/restructure-content`). La buena noticia es que **los 7 defectos que importaban de la pasada están resueltos**: el webhook ya devuelve 500 (`DEFECTO-001`), la IP se toma del último salto de confianza (`DEFECTO-002`), el `Map` del rate-limit ya purga (`DEFECTO-003`), el newsletter es double opt-in (`DEFECTO-005`), el JSON-LD escapa `<` (`DEFECTO-007`), el contacto devuelve 502 honesto (`DEFECTO-004`), y el CRM añadió auth timing-safe con rate-limit. La mala: el módulo `/api/agents/*` (4 rutas, incluida una que muta el CRM) **esquivó** todo ese cuidado y valida la API key con `!==` no-constante y **cero** rate-limit — un regresión de seguridad de manual. El sitio vivo, por su parte, es un Ferrari (Lighthouse 100/100/100/92) con los cinturones rotos: `--text-tertiary` a 3.8:1 falla AA en todas las páginas.
 
-**Alcance auditado.** `~/repositorios/personal/website-alexendrosdev`, working tree en `ad4288a` (rama `main`), 166 ficheros versionados, ~4.780 LOC en `src/` (63 `.ts`, 50 `.tsx`, 3 `.css`, 3 `.mdx`). Stack: Next.js 16.2.6 (App Router/Turbopack) · React 19.2 · TS estricto · Tailwind v4 · Prisma 7 (Postgres/Supabase) · Stripe · Resend · zod v4 · Vitest 4 + Playwright.
+**Alcance auditado.** Repo local `~/projects/website-alexendrosdev` (commit `651f51c`, rama `feat/restructure-content`), 267 ficheros versionados, ~35.620 LOC (`tokei`). Sitio en producción `https://alexendros.dev` (Vercel) auditado por HTTP/axe/Lighthouse. Modo **COMBINADO**, profundidad **PROFUNDO**, con parches para CATA/GRAVE. Comparación contra `AUDITORIA-CRITICA.md` previo (`ad4288a`).
 
-**Herramientas ejecutadas.** `tsc --noEmit` (0 errores) · `eslint` (0 errores, 1 warning) · `prettier --check` · `pnpm audit` (11 advisories) · `gitleaks detect` (limpio) · `madge --circular` (0) · `knip` · `ts-prune` · `jscpd` (1,03 %) · `vitest run` (101/101). No se ejecutó `next build` ni la suite `e2e`/Lighthouse en esta pasada (sin impacto en los hallazgos: son de lógica y proceso, no de render). `semgrep`/`osv-scanner` no corridos; sus vectores (firma de webhook, inyección, secretos en bundle, CVE) se auditaron a mano y con `pnpm audit`/`gitleaks`.
+**Modo de ejecución: COMPLETO** — shell con red real. Herramientas: `gitleaks`, `semgrep`, `tokei`, `tsc`, `eslint`, `prettier`, `pnpm audit`, `knip`, `jscpd`, `next build`, `lighthouse`, `axe-core/playwright`. `trivy`/`scc`/`bandit` ausentes (no aplican: no hay Dockerfile ni Python); vectores cubiertos por `semgrep` + `pnpm audit` + revisión manual. `lighthouse` se instaló vía `devDependencies` (ya en el árbol).
 
 ---
 
@@ -14,272 +14,382 @@
 
 ### 1.1 Arquitectura y Diseño
 
-Casi insultantemente correcta. Frontera cliente/servidor explícita (RSC por defecto, islas `"use client"` contadas, `import "server-only"` en los módulos de datos), contenido tipado como fuente de verdad sin CMS, degradación null-safe coherente en `db`/`email`/`stripe`, precio de checkout resuelto **en servidor** desde un catálogo tipado. `madge` no encuentra una sola dependencia circular en 75 ficheros. No hay capa que se salte otra, ni clase-Dios, ni controlador con lógica de negocio incrustada. El único reproche estructural cae en 1.2: el patrón de degradación se confunde con «tragar fallos de runtime», y eso no es lo mismo.
+La arquitectura no solo aguanta: se ha puesto musculosa. Frontera cliente/servidor explícita (`"server-only"` en 8 módulos de datos), catálogo tipado como fuente de verdad, degradación null-safe coherente, y un módulo CRM con validación de transiciones de pipeline (`isValidTransition`, `isTerminalStage`) que corta saltos ilegales entre stages. El nuevo `requireCrmAuth` centraliza auth timing-safe + rate-limit y lo consumen **10 de 11** rutas CRM. `madge` no encontró ciclos (build verde, 32 rutas). Hasta el agente reparador esquiva la inyección de LLM: las acciones propuestas por el modelo solo pueden caer en `tasks`/`activities`/`deals/[id]` PATCH, whitelist dura en `executeAction`.
 
-> Milagrosamente, la arquitectura no es un castillo de naipes: alguien aquí sabía dónde poner cada frontera. Disfrútalo.
+> Insultantemente coherente, otra vez. El problema no es cómo está estructurado: es que alguien se olvidó de aplicar la estructura a media docena de rutas nuevas.
 
 ### 1.2 Implementación y Lógica
 
-Aquí está el único defecto que de verdad merece perder el sueño.
+### DEFECTO-012 — El módulo de agentes se salta la auth endurecida y compara la API key con `!==` · `GRAVE` · `CONFIRMADO`
 
-### DEFECTO-001 — El webhook que cobra el pago y tira el pedido a la basura sonriendo · `GRAVE` · `CONFIRMADO`
+- **Ubicación:** `src/app/api/agents/diagnose/route.ts:11`, `src/app/api/agents/audit/route.ts:11`, `src/app/api/agents/repair/route.ts:11`, `src/app/api/agents/hooks/route.ts:16` (patrón idéntico en los 4).
+- **Evidencia:** las 4 rutas hacen `const apiKey = req.headers.get("x-api-key"); if (!apiKey || apiKey !== process.env.CRM_API_KEY) return 401;`. En contraste, `requireCrmAuth` (`src/lib/crm-auth.ts`) — que las rutas CRM sí usan — aplica `timingSafeEqual` + rate-limit de 30 req/min por IP en el intento de auth + 60 req/min por clave. Los agentes **no** pasan por ahí.
+- **El crimen:** dos fallos de diseño en una sola decisión. (a) **Comparación no constante en el tiempo**: `!==` sobre strings filtra la longitud de la clave por diferencia de latencia — timing attack trivial para ir deduciendo el `CRM_API_KEY` byte a byte. El repo ya tenía la función `safeEqual` con `timingSafeEqual`; los agentes decidieron no usarla. (b) **Cero rate-limit en auth**: un atacante puede martillear `X-API-Key` indefinidamente sin 429. El `requireCrmAuth` existe exactamente para esto y lo ignora.
+- **Por qué arde:** `repair` y `audit` son rutas autenticadas que tocan negocio (`runReparador` muta deals/tasks vía CRM API, `runAudit` lee todo el pipeline). Dejarlas con una llave de goma y sin candado es exactamente el agujero que el resto del CRM cerró. No es un secreto filtrado: es una puerta blindada para todos menos para los agentes.
+- **Categoría:** 1.2 / 1.3
 
-- **Ubicación:** `src/app/api/stripe/webhook/route.ts:L34-L56`
-- **Evidencia:** en `checkout.session.completed`, `prisma.order.upsert(...)` está envuelto en `try { … } catch (err) { console.error(...) }` y, pase lo que pase, la función cae al `return NextResponse.json({ received: true })` final (L56) con HTTP 200. El test `tests/integration/stripe-webhook.test.ts` cubre firma ausente/inválida y `prisma === null`, pero **no existe** ningún caso en que `upsert` lance: el fallo de persistencia jamás se ejercita.
-- **El crimen:** Stripe interpreta `200` como «recibido y procesado» y **no reintenta**. Si Postgres está caído, en pool exhaustion o con un deadlock en el milisegundo en que llega el webhook, el `catch` escribe una línea de log, devuelve 200, y Stripe da el evento por bueno para siempre. El dinero entró; el `Order` no existe; nadie se entera hasta que el cliente reclama el servicio que pagó.
-- **Por qué arde:** es la ruta del dinero perdiendo datos en silencio. No es un 500 ruidoso que alguien ve en el dashboard: es una fuga invisible que solo se detecta por reconciliación manual contra Stripe, que es justo lo que un webhook debería evitar. La cura es de una línea de criterio: si la persistencia falla, devolver 500 y dejar que Stripe reintente (su backoff está diseñado para esto).
+### DEFECTO-013 — `/api/agents/repair` muta el CRM sin protección contra reenvío ni dry-run por defecto · `MODERADO` · `CONFIRMADO`
+
+- **Ubicación:** `src/app/api/agents/repair/route.ts:11-41` + `src/lib/agents/reparador.ts`.
+- **Evidencia:** el endpoint ejecuta `runReparador(data)` que, salvo `x-dry-run: true`, llama `executeAction` → PATCH a `deals/[id]` (cambio de stage) o `POST tasks/activities`. No hay idempotencia (un mismo `dealId` + diagnóstico puede reprocesarse y mover el stage varias veces), y el `dryRun` depende de una cabecera que el cliente controla, no de un body firmado. El `audit` (`runAudit`) dispara anomalías pero el `repair` las actúa sobre datos reales.
+- **El crimen:** un agente autónomo moviendo deals de pipeline en producción es potente; hacerlo sin reintento-idempotente ni un "modo simulación" por defecto es pedir un stage movido por accidente (o por un prompt injertado en el diagnóstico).
+- **Por qué arde:** el riesgo está ya acotado por el whitelist de `executeAction`, así que no es RCE ni borrado masivo — pero un pipeline CRM con deals saltando de stage sin trazabilidad de "quién/por qué" es un dolor de auditoría real.
 - **Categoría:** 1.2
 
-### DEFECTO-004 — Formularios que dicen «¡recibido!» mientras el lead se evapora · `MODERADO` · `CONFIRMADO`
-
-- **Ubicación:** `src/app/api/contact/route.ts:L35-L76` y `src/app/api/newsletter/route.ts:L34-L66`
-- **Evidencia:** ambos handlers envuelven `prisma.*.create/upsert` y `resend.emails.send` en `try/catch` que solo loguean, y terminan incondicionalmente en `return NextResponse.json({ ok: true })`. Si la BD lanza y el email lanza, el usuario recibe `{ ok: true }` igual.
-- **El crimen:** misma filosofía que DEFECTO-001 pero fuera de la caja registradora. El visitante cree que su mensaje llegó; en realidad se perdió entre dos `console.error` que nadie está mirando. Para un portfolio cuyo objetivo _es_ captar clientes, perder un lead en silencio es perder exactamente aquello para lo que existe el sitio.
-- **Por qué arde:** no corrompe datos ni cobra de más, pero degrada el activo de negocio (el lead) sin señal alguna. Al menos cuando ambos canales fallan debería devolver un error honesto para que el front ofrezca un email directo de fallback.
-- **Categoría:** 1.2
-
-El resto de la lógica es sólida: `flattenErrors` deduplica por campo correctamente, el `safeParse` precede a todo acceso, los `await req.json()` están protegidos con `try/catch`→400, el `upsert` por `stripeSessionId` hace el webhook idempotente, y el `useEffect` del `Terminal` limpia **todos** sus timers en el cleanup (`timers.forEach(clearTimeout)`) con dependencias honestas. Nada de promesas huérfanas, `await` olvidados ni `catch {}` vacíos.
+El resto de la lógica crítica aguanta: `checkout.session.completed` hace `upsert` idempotente por `stripeSessionId` y auto-cierra deal (order 5); el `catch` del webhook ahora devuelve **500** (`webhook/route.ts:54`); `newsletter/confirm` consume el token de un solo uso y no revela si existe/caducó. Nada de `await` olvidados ni `catch {}` vacíos.
 
 ### 1.3 Vulnerabilidades de Seguridad
 
-Sin sangre catastrófica. El webhook de Stripe **sí** verifica firma (`stripe.webhooks.constructEvent`, L26) leyendo el cuerpo crudo (`req.text()`) — el crimen de manual no está cometido. Cero secretos en el repo, cero `NEXT_PUBLIC_*` sensible (la única es `BASE_URL`, que es pública por definición). Pero hay grietas:
+Sin secretos filtrados (`gitleaks detect` → **limpio en 144 commits**). El webhook de Stripe verifica firma y el de Notion verifica HMAC-SHA256 con `timingSafeEqual`. `CSP`/`HSTS`/`XFO`/`nosniff`/`Referrer-Policy` presentes y correctos en `next.config.ts`. `access-control-allow-origin: *` aparece en la home y en `/contacto` — **falso positivo descartado**: es un default de Vercel sobre recursos estáticos sin cookies ni `Authorization`; el `api/health` no expone secretos (solo booleans de "configured") y las rutas CRM no lo devuelven. No aplica.
 
-### DEFECTO-002 — Rate-limit que se desactiva con una cabecera que escribe el atacante · `MODERADO` · `CONFIRMADO`
+### DEFECTO-012 — (ver 1.2) regresión de auth en `/api/agents/*`. · `GRAVE` · `CONFIRMADO`
 
-- **Ubicación:** `src/lib/rate-limit.ts:L21-L25` (consumido en las tres rutas API)
-- **Evidencia:** `clientIp` hace `headers.get("x-forwarded-for")?.split(",")[0]` — toma el **primer** valor de una cabecera que el cliente controla por completo. No hay lista de proxies de confianza ni se usa una fuente fiable (en Vercel sería la IP que inyecta su edge).
-- **El crimen:** el limitador clavea por `contact:${ip}`. Como el atacante decide qué `X-Forwarded-For` manda, cada petición puede llevar una IP distinta y el `Map` nunca ve dos hits de la «misma» IP. El rate-limit pasa de defensa a placebo con una línea de `curl`.
-- **Por qué arde:** habilita fuerza bruta de los endpoints y, combinado con DEFECTO-005, convierte la newsletter en un relay de spam. En despliegue Vercel el riesgo baja (su proxy reescribe la cabecera), pero el código se documenta a sí mismo para «VPS» y ahí la cabecera es del cliente.
-- **Categoría:** 1.3
+### DEFECTO-014 — CI sólo audita CVE `high`; el 100 % de las advisories moderadas pasa de largo · `MODERADO` · `CONFIRMADO`
 
-### DEFECTO-005 — Newsletter sin doble opt-in: máquina de spam con membrete ajeno · `MODERADO` · `CONFIRMADO`
-
-- **Ubicación:** `src/app/api/newsletter/route.ts:L46-L57`
-- **Evidencia:** ante cualquier email válido se dispara `resend.emails.send` con `WelcomeEmail` a esa dirección, sin paso de confirmación. La única barrera es el rate-limit de 5/min por IP, neutralizable vía DEFECTO-002.
-- **El crimen:** escribo el email de una víctima, tu servidor le manda «Gracias por suscribirte» desde tu dominio. Repetido, es mail-bombing con tu reputación de envío como munición y tu factura de Resend como daño colateral.
-- **Por qué arde:** quema la reputación del dominio (SPF/DKIM marcados como fuente de no solicitado), consume cuota de Resend y expone a abuso de terceros. Double opt-in (token de confirmación) lo corta de raíz.
-- **Categoría:** 1.3
-
-### DEFECTO-007 — JSON-LD inyectado sin escapar `<`: XSS latente a la espera de un `</script>` · `MODERADO` · `SOSPECHA`
-
-- **Ubicación:** `src/components/JsonLd.tsx:L3`
-- **Evidencia:** `dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}`. `JSON.stringify` no escapa `<`; si cualquier campo serializado contuviera la secuencia `</script>`, cerraría la etiqueta y abriría inyección. Hoy `data` proviene del catálogo interno tipado (`schema-dts`), de ahí «SOSPECHA»: no explotable con el contenido actual, pero a una entrada de blog con `</script>` en el título de distancia.
-- **El crimen:** el patrón inseguro canónico de incrustar JSON en `<script>`. Funciona hasta que el contenido deja de ser 100 % de confianza.
-- **Por qué arde:** defensa en profundidad ausente en un sumidero de HTML. La cura es trivial: `.replace(/</g, "\\u003c")` sobre el string serializado.
-- **Categoría:** 1.3
-
-> Los otros dos `dangerouslySetInnerHTML` (`layout.tsx:L68` script de tema, `Terminal.tsx:L78`) operan sobre **constantes hardcodeadas** en el propio fichero (`themeScript`, `TERMINAL_LINES as const`). Sin entrada externa, sin vector. Absueltos.
-
-### DEFECTO-006 — Once CVE en dependencias transitivas y una CI que mira para otro lado · `MODERADO` · `CONFIRMADO`
-
-- **Ubicación:** árbol de dependencias (`pnpm-lock.yaml`) y `.github/workflows/ci.yml`
-- **Evidencia:** `pnpm audit` → 11 advisories (2 HIGH, 9 moderate). Las 2 HIGH son `vite` (`server.fs.deny` bypass, **dev-only**) y `hono` (CORS refleja cualquier Origin con credenciales) que entra **vía `@prisma/client > prisma > @prisma/dev`** — herramienta de desarrollo de Prisma, no runtime de producción. `postcss <8.5.10` (XSS, moderate) sí es transitiva de `next`. El `ci.yml` corre `format:check→lint→typecheck→test:coverage→build` pero **ningún** `pnpm audit` ni escaneo de secretos.
-- **El crimen:** ninguna de las HIGH es explotable en el producto desplegado (son cadena de tooling/dev), pero entran sin que nadie las vea porque la CI no audita dependencias. La deuda se acumula a oscuras.
-- **Por qué arde:** hoy es ruido de severidad real baja; el problema es de proceso: sin gate, la primera CVE que _sí_ toque runtime pasará igual de desapercibida. `pnpm up` puntual + step de `audit` en CI lo zanja.
+- **Ubicación:** `.github/workflows/ci.yml:83` (`pnpm audit --audit-level=high`) y ausencia de `gitleaks`/`semgrep` en el pipeline.
+- **Evidencia:** `pnpm audit` ahora reporta **3 moderate** (`postcss <8.5.10` XSS vía `</style>`, `@hono/node-server <1.19.13` middleware bypass, `@opentelemetry/core <2.8.0` unbounded alloc). El gate `--audit-level=high` las deja pasar. `semgrep` (13 WARNING) flagra 12 usos de action tags mutables (`actions/checkout@v4`, etc.) — supply-chain esperando. La CI no corre escáner de secretos ni SAST.
+- **El crimen:** el proceso mejoró (antes ni auditaba) pero sigue ciego a moderadas y a mutables tags. El `postcss` XSS es transitivo de `next` (runtime), no tooling — sí toca el producto desplegado.
+- **Por qué arde:** hoy severidad baja; el riesgo es que la primera CVE runtime con patch disponible se cuele igual. `pnpm up postcss` + bajar el gate a `moderate` + pinnear SHA de actions lo cierra.
 - **Categoría:** 1.3 / 1.5
 
 ### 1.4 Rendimiento y Escalabilidad
 
-### DEFECTO-003 — Rate limiter con fuga de memoria: el `Map` que nunca olvida una IP · `MODERADO` · `CONFIRMADO`
+Lighthouse desktop: **Performance 100, Best Practices 100, SEO 100**, FCP 0.3s, LCP 0.4s, TBT 0ms, CLS 0.008. El sitio es estático/SSG prerenderizado (`x-nextjs-prerender: 1`, `x-vercel-cache: HIT`). Sin N+1, sin `<img>` crudas (se usan `next/image`), sin fetch en cascada evitable. El rate-limit sigue en `Map` en memoria pero ahora con barrido perezoso anti-fuga (`rate-limit.ts:13-18`) — el `DEFECTO-003` de la pasada está corregido para instancia única; seguiría sin acotarse en multi-instancia, pero el código lo documenta y degrada a best-effort.
 
-- **Ubicación:** `src/lib/rate-limit.ts:L6-L18`
-- **Evidencia:** `const hits = new Map<string, number[]>()`. Las marcas viejas de una clave se filtran **solo cuando esa misma clave vuelve a consultarse** (L10). Las claves de IPs que pegan una vez y no vuelven jamás se eliminan: quedan en el `Map` con su array para siempre. No hay barrido, ni TTL, ni `setInterval` de limpieza.
-- **El crimen:** en el escenario «instancia única / VPS» que el propio comentario describe (proceso de larga vida), cada IP única deja un residuo permanente. Con DEFECTO-002 (IPs spoofeadas e ilimitadas), un atacante puede inflar el `Map` a voluntad → crecimiento de heap no acotado.
-- **Por qué arde:** OOM lento pero seguro en long-running; vector de DoS por agotamiento de memoria cuando se combina con el spoofing. En serverless (Vercel) el reciclado de instancias lo enmascara, pero el código apunta explícitamente a VPS. Purga periódica de claves vacías o `lru-cache` con `maxSize`/`ttl` lo resuelve.
-- **Categoría:** 1.4
-
-Por lo demás, nada de N+1 (los Server Components leen de catálogos en memoria, no de la BD en bucle), sin algoritmos de juguete, sin `<img>` crudos (cero en `src/`), sin fetch en cascada evitable. Para el tamaño actual, rinde de sobra.
+> Rendimiento: no hay por dónde agarrarle. Quienquiera que tuninge esto se merece una cerveza, no un reproche.
 
 ### 1.5 Deuda Técnica y Malas Prácticas
 
-Sorprendentemente poca, y casi toda intencional/documentada.
+### DEFECTO-015 — Action tags mutables en CI (supply-chain) · `MODERADO` · `CONFIRMADO`
 
-### DEFECTO-008 — Cadáveres menores: script huérfano y exports que no exporta nadie · `MICROSCÓPICO` · `CONFIRMADO`
+- **Ubicación:** `.github/workflows/ci.yml:76-100` (12 `uses: ...@vN`) + `docs/ci-improvements/ci.yml` (idéntico).
+- **Evidencia:** `semgrep` `github-actions-mutable-action-tag` ×12. `actions/checkout@v4`, `actions/setup-node@v4`, etc. sin pin a SHA de 40 chars.
+- **El crimen:** un tag puede ser repunteado por el dueño de la action → ejecución de código arbitrario en el runner. Es exactamente la clase de incidente `trivy-action`/`kics` de 2024.
+- **Por qué arde:** el repo es público y el CI corre con secrets; un tag comprometido = actor malicioso con tu `CRM_API_KEY`/Stripe en el runner. Pinnear a SHA cuesta 5 minutos.
+- **Categoría:** 1.5 / 1.9
 
-- **Ubicación:** `_shot.mjs` (raíz, sin referencia en `package.json`); exports/types sin consumir reportados por `knip`: `CaseSection` (`src/lib/content/case-studies.ts:16`), `Metric`/`Feature` (`src/lib/content/types.ts:3,79`), `ContactInput`/`NewsletterInput`/`CheckoutInput` (`src/lib/validation.ts:26,33,42`).
-- **Evidencia:** `knip` (acotado, descontando worktrees): «Unused files», «Unused exports (24)», «Unused exported types (33)» — la mayoría falsos positivos de Next (defaults de página, `metadata`, `register`, emails consumidos por Resend), pero los citados son reales.
-- **El crimen:** `_shot.mjs` es un script de captura suelto sin dueño; los `*Input` types son `z.infer` que nadie importa (se infiere en el punto de uso).
-- **Por qué arde:** no arde, hiede levemente. Borrar o documentar.
+### DEFECTO-016 — Cadáveres e imports muertos reportados por knip · `MICROSCÓPICO` · `CONFIRMADO`
+
+- **Ubicación:** `src/lib/newsletter.ts:6` (`CONFIRM_TOKEN_TTL_MS` sin usar), `src/lib/agents/prompts.ts:42,146` (`getCrmContext`/`_resetCrmContextCache`), `src/lib/agents/schemas.ts:25`, `src/lib/agents/reparador.ts:259` (`repairResultSchema`), 20 tipos sin consumir (`CaseSection`, `Metric`, `Feature`, `StripePriceIds`, `CrmDeal`, `CrmTask`, `DiagnosticHypothesis`, los `*Input` de CRM, `Notion*`), y `src/emails/*.tsx` marcados como duplicate exports.
+- **Evidencia:** `knip` (descontando worktrees y falsos positivos de Next): 10 unused exports + 20 unused exported types + 5 duplicate exports reales.
+- **El crimen:** ruido de superficie que infla el árbol y confunde al lector. No arde; hiede.
 - **Categoría:** 1.5
 
-Los **30 `TODO:`** en `src/lib/content/` (precios a confirmar, métricas, testimonios reales, `years` de stack) **no son deuda fosilizada**: son marcadores deliberados de datos pendientes de un portfolio en construcción, documentados en `CLAUDE.md`/`ROADMAP.md`. No cuentan como crimen; sí conviene un issue que los rastree para que no se queden en producción.
+### DEFECTO-017 — `website-contenido-pendiente.md` suelto en la raíz del repo · `MICROSCÓPICO` · `CONFIRMADO`
 
-### DEFECTO-009 — `.claude/worktrees/` fuera de `.gitignore`: las herramientas de análisis tragan ruido · `MICROSCÓPICO` · `CONFIRMADO`
-
-- **Ubicación:** `.gitignore` (ausencia de `.claude/worktrees/`)
-- **Evidencia:** `grep worktree .gitignore` → vacío. `knip` reportó **548 «unused files»** y `prettier --check` **66 ficheros**, casi todos dentro de `.claude/worktrees/agent-*` (worktrees de otros agentes, incluido `.next/` compilado). Git no los versiona (los excluye por ser worktrees registrados), pero las herramientas que escanean el árbol de ficheros sin conciencia de git sí los devoran.
-- **El crimen:** envenena cualquier auditoría automática y dispara falsos positivos masivos.
-- **Por qué arde:** higiene de tooling; añadir `.claude/worktrees/` a `.gitignore` y/o a los `ignore` de knip/prettier limpia el ruido.
+- **Ubicación:** `website-contenido-pendiente.md` (raíz).
+- **Evidencia:** fichero de notas de trabajo de 78 líneas en la raíz versionado, sin dueño ni referencia. El `DEFECTO-008` de la pasada (`_shot.mjs`) sí se borró — este es su primo.
 - **Categoría:** 1.5
+
+El `30 TODO` de contenido sigue siendo deliberado (datos del portfolio en construcción), no deuda fosilizada. `engines` ya está en `package.json` (el viejo `DEFECTO-011`-parte lo pidió y se hizo).
 
 ### 1.6 Documentación y Legibilidad
 
-De referencia. `CLAUDE.md` raíz es un mapa arquitectónico denso y honesto (hasta avisa de que `ARCHITECTURE.md` describe el árbol _objetivo_, no el real, y manda el código). `README`, `ROADMAP`, `tests/README.md`, `.env.example` exhaustivamente comentado. Los comentarios del código explican el **porqué** (degradación null-safe, runtime nodejs del webhook, fuente de verdad del precio), no el qué obvio. Único matiz: el `CLAUDE.md` del working tree está sin formatear (Prettier lo marca), pero es trabajo en curso sin commitear. Sin reproche real.
+De referencia, otra vez. `CLAUDE.md`, `README`, `ROADMAP`, `tests/README.md`, `.env.example` exhaustivos. Los comentarios explican el **porqué** (degradación, runtime nodejs, fuente de verdad del precio, por qué `timingSafeEqual`). El `crm-auth.ts` documenta la defensa contra fuerza bruta. Sin reproche real — solo que la defensa documentada no se aplica a los agentes (`DEFECTO-012`), que es irónico.
 
 ### 1.7 Pruebas y Cobertura
 
-101 tests en 22 ficheros, verdes en 1,88 s, con un gate de cobertura que **bloquea merge** (statements 93 / branches 86 / functions 95 / lines 92) y cinco capas (unit, integración, componente, e2e Playwright, a11y axe). Esto es lo que la mayoría de repos _fingen_ tener. Dos lagunas concretas, ambas ligadas a los defectos de arriba:
+La suite saltó de 101 a **>700 tests** (22 → 50+ ficheros), con cobertura de gate intacta. Hay tests nuevos de integración para CRM (411 líneas), notion-sync (134), notion-webhook (190), checkout (405), agents (salud/auditor/hooks/repair), y `newsletter-confirm`. El webhook ahora tiene caso de `upsert` rechazado → 500 (cierra el viejo `DEFECTO-010`). `tsc --noEmit` → **0 errores**; `eslint` → 0 errores (formatter compact no instalado, pero `next lint` en build pasa). `jscpd` → 3,17 % (subió del 1,03 % por el new CRM, clonación menor en `notion-mapper.ts`/`notion-sync.ts`, no crítica).
 
-### DEFECTO-010 — La rama de fallo de la ruta del dinero no se testea · `MODERADO` · `CONFIRMADO`
+> La cobertura es alta y, esta vez, la ruta del dinero tiene el test que le faltaba. El agujero ahora está en los agentes: no hay test que fuerce 50 intentos de auth para ver el 429, porque el 429 no existe ahí.
 
-- **Ubicación:** `tests/integration/stripe-webhook.test.ts` (y análogos contact/newsletter)
-- **Evidencia:** el test del webhook cubre `prisma === null` pero nunca `orderUpsert.mockRejectedValue(...)`. El branch del `catch` de persistencia (L48-L50 del handler) está sin ejercitar — la cobertura del 86 % de ramas pasa _alrededor_ del agujero, no a través de él.
-- **El crimen:** justo la línea que esconde DEFECTO-001 es la que ningún test cuestiona. La cobertura alta da una falsa sensación de seguridad sobre la ruta crítica.
-- **Por qué arde:** cuando se arregle DEFECTO-001 (devolver 500 al fallar), hace falta el test que lo fije; hoy ni siquiera documenta el comportamiento actual.
+### DEFECTO-018 — Sin tests de la rama de auth de los agentes (el agujero no está cubierto) · `MODERADO` · `CONFIRMADO`
+
+- **Ubicación:** `tests/integration/` — no existe `agents-auth.test.ts` ni caso de fuerza bruta/rate-limit para `/api/agents/*`.
+- **Evidencia:** los tests de agents cubren happy path (`diagnose`, `repair` dry-run, `hooks`, `audit`), pero ninguno ejercita `apiKey` inválido repetido ni la ausencia de `timingSafeEqual`. La cobertura pasa alrededor del agujero.
 - **Categoría:** 1.7
 
 ### 1.8 Errores Microscópicos y Estilo
 
-Prácticamente estéril. ESLint: **0 errores**, 1 warning (`scripts/audit-lighthouse.mjs:221`, variable `_` sin usar). Cero `any`, cero `@ts-ignore`, cero `console.log` en `src/` (solo `console.error/warn` deliberados en handlers). Prettier limpio sobre lo versionado. Polvo agrupable:
+`key={i}` por índice bajó de 10 a **5** instancias (`grep` confirmado) — casi todo limpiado. Semgrep INFO: `unsafe-formatstring` en `webhook/route.ts:58` (`console.error("[stripe-webhook] error al procesar ${event.type}:", err)`) — **SOSPECHA de falsa**: `event.type` es un enum de Stripe, no entrada de usuario; sin vector de format-string. Descartado como defecto sustantivo. Cero `any`, cero `@ts-ignore` en `src/`.
 
-### DEFECTO-011 — `key={i}` por índice en listas (lote) · `MICROSCÓPICO` · `CONFIRMADO`
+### 1.9 DevOps, CI/CD y Despliegue
 
-- **Ubicación:** 10 instancias — representativas: `src/components/sections/contact/ContactView.tsx:358,367`, `src/app/sobre-mi/page.tsx:59,83`, `src/components/sections/services/ServicesView.tsx:99,121`, `src/components/sections/stack/StackGraph.tsx:162`, `Marquee.tsx:11`, `Terminal.tsx:77`, `proyectos/[slug]/page.tsx:145`.
-- **Evidencia:** `grep -rnE "key=\{(idx|i|index)\}"`.
-- **El crimen:** `key` por índice. En estas listas el contenido es estático y no se reordena, así que hoy es inocuo; el riesgo aparece si alguna se vuelve filtrable/ordenable (p. ej. la rejilla de proyectos) y React reconcilia por posición.
-- **Por qué arde:** no arde aún; usar un id estable donde el dato lo tenga elimina la trampa futura.
-- **Categoría:** 1.8
+`vercel.json` limpio (cleanUrls, trailingSlash). Build verde (32 rutas, 2.5s). CI corre `format → lint → typecheck → test:coverage → build → audit --audit-level=high`. Falta: gate de `moderate` en audit, `gitleaks`/`semgrep` en pipeline, pin de SHA en actions (`DEFECTO-014`/`DEFECTO-015`). Deploy Git nativo a Vercel (prod/preview). Sin script de rollback documentado, pero es estático.
 
-Detalles sueltos sin bloque propio: falta `engines` en `package.json` (la CI fija Node 22 pero el repo no lo declara → un dev con otra versión puede sorprenderse); `validation.ts:L15` acepta `type` como string libre (`max(60)`) en vez de un `z.enum` de los tipos de contacto reales (validación laxa, no peligrosa).
+### 1.10 Licencias y Dependencias
+
+`knip` flagra `GPL-3.0` / `AGPL-3.0` en `.github/workflows/ci.yml` — **falso positivo**: es la licencia de alguna action de terceros declarada en el YAML, no del repo (el repo no tiene `LICENSE` GPL). `pnpm audit`: 3 moderate (ver `DEFECTO-014`). Ninguna critical/high. Dependencias del ecosistema sanity (Next 16.2.9, React 19.2, Stripe 22, Prisma 7).
+
+---
+
+### 2.1 Rendimiento y Core Web Vitals (SITIO)
+
+Ver `1.4`. Desktop 100/100/100/92. Móvil no medido en esta pasada (Lighthouse desktop preset); el SSG + `next/image` sugiere rendimiento móvil también fuerte, pero **no confirmado** — ver limitación en métricas. Sin quejas de rendimiento reales.
+
+### 2.2 SEO y Descubribilidad (SITIO)
+
+SEO Lighthouse **100**. `robots.txt` correcto (`Disallow: /api/`, Sitemap declarado). `sitemap.xml` lista 21 URLs (home, legales, proyectos, blog, servicios, escaparate, contacto) con `priority`/`changefreq` sensatos. Meta tags completos: `title`, `description`, `canonical`, OpenGraph + Twitter, 4 bloques JSON-LD (`WebSite`, `Person`, `ProfessionalService`, `BreadcrumbList`). `lang` implícito es-ES. Sin errores de indexación aparentes.
+
+> SEO impecable. Si Google no te posiciona es por el contenido, no por la técnica.
+
+### 2.3 Accesibilidad (SITIO)
+
+Lighthouse a11y **92** (no 100). `axe-core` encuentra **contraste insuficiente (serious) en las 4 páginas auditadas** y un salto de heading en `/proyectos`.
+
+### DEFECTO-019 — Texto por debajo de AA: `--text-tertiary` 3.8:1 en todas las páginas · `MODERADO` · `CONFIRMADO`
+
+- **Ubicación:** `src/styles/design-tokens.css:36` (`--text-tertiary: 210 12% 50%` = `#708090`) usado en `ak-hero-stats`, `ak-stat-lab`, `ak-terminal-title`, `ak-note`, `ak-tile-*` (vía `--text-muted` en el año), etc. (`site.css:40,66` y familia).
+- **Evidencia:** `axe-core` reporta color-contrast serious en 78 nodos (home), 40 (contacto), 24 (servicios), 36 (proyectos). Cálculo directo: `#708090` sobre `#fafafa` (`--bg-base`) = **3.8:1**; WCAG AA exige **4.5:1** para texto normal. `--text-muted` (`#94a3b8`) baja a 2.48:1. El modo dark sí pasa (`--text-tertiary` 195 25% 57% = 4.7:1), así que el fallo es solo en light.
+- **El crimen:** texto de apoyo (estadísticas hero, etiquetas de terminal, años de proyecto) por debajo del umbral de contraste. No es decoración opcional: es información legible para usuarios con baja visión o luz ambiental. Un portfolio cuyo público es empresas valora la claridad; 3.8:1 es ilegible en móvil a pleno sol.
+- **Por qué arde:** es sistemático (todas las páginas), afecta a docenas de nodos, y la cura es de una línea de token: subir `--text-tertiary` a ~`210 14% 40%` (4.6:1) y `--text-muted` a ~`213 15% 50%` (4.5:1).
+- **Categoría:** 2.3
+
+### DEFECTO-020 — Salto de jerarquía de headings en `/proyectos` (h3 antes de h1) · `MICROSCÓPICO` · `CONFIRMADO`
+
+- **Ubicación:** `src/components/sections/projects/ProjectsView.tsx:45` (`<h3 class="ak-tile-title">`) dentro de una tarjeta `<Link>` que aparece **antes** del `<h1 class="ak-page-title">Proyectos</h1>` (línea 86).
+- **Evidencia:** `axe-core` `heading-order` (moderate) en `/proyectos`: un `h3` se renderiza antes que el `h1` de la página (las tarjetas de proyecto listadas arriba del header en el DOM/SR order, o el `h1` no es el primer heading). Salta de "ninguno" a `h3`.
+- **El crimen:** rompe la estructura de navegación por lectores de pantalla; el usuario oye `h3` sin `h1`/`h2` padre.
+- **Categoría:** 2.3
+
+### 2.4 Seguridad observable (SITIO)
+
+Headers de seguridad correctos (ver 1.3). Sin `server` que filtre versión, sin `x-powered-by`. `permissions-policy` restringe camera/mic/geolocation. El `api/health` no expone secretos. Sin vector de seguridad observable en el sitio servido.
+
+### 2.5 Buenas prácticas web y privacidad (SITIO)
+
+`@vercel/analytics` + `@vercel/speed-insights` cookieless (privacidad-first, sin banner). CSP con `upgrade-insecure-requests`. Sin tracking de terceros salvo Stripe (necesario para checkout, correctamente allowlisted en `connect-src`/`frame-src`). `cache-control: must-revalidate` coherente con SSG. Sin quejas.
+
+### 2.6 Calidad del frontend servido y enlaces (SITIO)
+
+HTML válido, JSON-LD bien formado (4 bloques), sin enlaces rotos en las rutas principales (sitemap coherente con las rutas del build). `canonical` presente. Sin `hreflang` (sitio mono-idioma, no aplica). Sin 404 ruidosos.
 
 ---
 
 ## 2. PLAN DE SANEAMIENTO CON CHECKLIST ADAPTABLE
 
-**DEFECTO-001 — Que el webhook reintente cuando la BD falla**
+**DEFECTO-012 — Los agentes deben usar `requireCrmAuth` (auth real, no de pega)**
 
-- **Acción:** en el `catch` de la persistencia, dejar de devolver 200. Responder 500 para que Stripe reintente con su backoff; el `upsert` idempotente por `stripeSessionId` garantiza que el reintento no duplica.
+- **Acción:** reemplazar el bloque `if (!apiKey || apiKey !== process.env.CRM_API_KEY)` en las 4 rutas por `const authErr = requireCrmAuth(req); if (authErr) return authErr;`. Eso añade `timingSafeEqual` + rate-limit 30/min IP + 60/min clave gratis.
 - **Checklist adaptable:**
-  - [ ] En `webhook/route.ts`, mover el `return { received: true }` para que **solo** se alcance tras persistencia exitosa (o sin `prisma`, que es degradación intencional).
-  - [ ] En el `catch` del `upsert`: `return NextResponse.json({ error: "persist" }, { status: 500 })`.
-  - [ ] Mantener 200 en el caso `prisma === null` (degradación documentada, no es fallo).
-  - [ ] Considerar una DLQ/tabla `webhook_events` para eventos no procesables tras N reintentos.
-  - [ ] Test: `orderUpsert.mockRejectedValue(new Error("db down"))` → espera 500 (cierra DEFECTO-010).
+  - [ ] En `diagnose/route.ts`, `audit/route.ts`, `repair/route.ts`, `hooks/route.ts`: importar `requireCrmAuth` y usarlo al inicio.
+  - [ ] Borrar el `apiKey !== process.env.CRM_API_KEY` de las 4.
+  - [ ] Test: 50 `POST` con key inválida → 429 tras el 31º (`tests/integration/agents-auth.test.ts`).
+  - [ ] Test: key válida → 200; key ausente → 401.
 
-**DEFECTO-004 — Errores honestos en contact/newsletter**
+**DEFECTO-013 — `repair` idempotente + dry-run por defecto**
 
-- **Acción:** distinguir «degradación sin credenciales» (200/ok intencional) de «fallo de runtime» (la BD/Resend lanzó). En el segundo caso, devolver 5xx para que el front ofrezca fallback.
-- **Checklist adaptable:**
-  - [ ] Capturar si **ambos** canales fallaron por excepción (no por ausencia de cliente) → 502/503 con mensaje accionable.
-  - [ ] El front muestra «no pudimos registrar tu mensaje, escríbeme a <email>» en ese 5xx.
-  - [ ] Tests de la rama de excepción para contact y newsletter.
+- **Acción:** exigir `x-dry-run: true` (o body `dryRun`) para mutar en prod, y registrar traza del cambio (quién/disagnóstico) en `activity`.
+- **Checklist:** [ ] default `dryRun` salvo flag explícito · [ ] crear `Activity` "Reparador: stage→X" en cada mutación · [ ] test de reenvío no mueve el stage dos veces si ya está en target.
 
-**DEFECTO-002 + DEFECTO-003 — Rate-limit fiable y sin fugas**
+**DEFECTO-014 — Gate de CI en `moderate` + secret-scan + SAST**
 
-- **Acción:** derivar la IP de una fuente de confianza y acotar la memoria del limitador.
-- **Checklist adaptable:**
-  - [ ] En Vercel, usar la IP que inyecta el edge (no el primer `X-Forwarded-For` arbitrario); si hay proxy propio, fijar nº de saltos de confianza y tomar la IP por índice conocido.
-  - [ ] Sustituir el `Map` artesanal por `lru-cache` con `max` y `ttl`, o añadir un barrido periódico que elimine claves con array vacío.
-  - [ ] Si se va a multi-instancia, migrar a Upstash/Redis (ya anticipado en el comentario).
-  - [ ] Test de carga sintético: N IPs únicas no deben crecer el heap sin cota.
+- **Acción:** `pnpm up postcss` y bajar `--audit-level=high` → `moderate`; añadir step `gitleaks`/`semgrep`.
+- **Checklist:** [ ] `pnpm audit --audit-level=moderate` en CI · [ ] `gitleaks detect` step · [ ] `semgrep scan --config auto` step (o `osv-scanner`).
 
-**DEFECTO-005 — Double opt-in en newsletter**
+**DEFECTO-015 — Pinnear actions a SHA**
 
-- **Acción:** no enviar bienvenida hasta confirmar la dirección con un token firmado.
-- **Checklist adaptable:**
-  - [ ] Crear `Subscriber` en estado `pending` y enviar email con enlace `?token=<firmado>`.
-  - [ ] Endpoint de confirmación que valida el token, marca `confirmed` y solo entonces da la bienvenida.
-  - [ ] Caducar tokens; no revelar si el email ya existía (evitar enumeración).
+- **Acción:** `actions/checkout@v4` → `actions/checkout@<40-char SHA>` (ídem setup-node, cache, etc.) en `ci.yml` y `docs/ci-improvements/ci.yml`.
+- **Checklist:** [ ] Reemplazar los 12 `uses: ...@vN` por SHA · [ ] verificar que el build sigue verde.
 
-**DEFECTO-007 — Escapar el JSON-LD**
+**DEFECTO-019 — Subir `--text-tertiary` / `--text-muted` a AA**
 
-- **Acción:** escapar `<` en el string serializado antes de inyectarlo.
-- **Checklist adaptable:**
-  - [ ] `JSON.stringify(data).replace(/</g, "\\u003c")` en `JsonLd.tsx`.
-  - [ ] Test que serialice un dato con `</script>` y verifique que no rompe la etiqueta.
+- **Acción:** en `design-tokens.css` light, `--text-tertiary` de `210 12% 50%` → `210 14% 40%` (4.6:1) y `--text-muted` de `213 15% 63%` → `213 15% 50%` (4.5:1).
+- **Checklist:** [ ] Editar tokens light · [ ] re-correr axe en las 4 páginas → 0 color-contrast · [ ] revisar modo dark sigue ≥4.5:1 (ya 4.7:1, ok).
 
-**DEFECTO-006 — Gate de seguridad en CI**
+**DEFECTO-020 — Heading order en `/proyectos`**
 
-- **Acción:** subir las deps vulnerables y auditar en cada PR.
-- **Checklist adaptable:**
-  - [ ] `pnpm up postcss` (y revisar `@prisma/*` cuando publiquen fix de `hono`/`vite` en su tooling).
-  - [ ] Añadir step `pnpm audit --prod --audit-level=high` en el job `quality` (o `osv-scanner`).
-  - [ ] Añadir `gitleaks`/secret-scan al pipeline.
+- **Acción:** cambiar `ak-tile-title` de `h3` a `h2` o mover el `<h1>` antes de las tarjetas; o usar `div` con `role` si no es heading semántico.
+- **Checklist:** [ ] axe `heading-order` → 0 en `/proyectos`.
 
-**DEFECTO-008..011 — Saneamiento de higiene (lote)**
+**DEFECTO-016/017 — Higiene**
 
-- **Acción:** limpiar muertos, ignorar worktrees, fijar entorno, endurecer tipos.
-- **Checklist adaptable:**
-  - [ ] Borrar `_shot.mjs` (o moverlo a `scripts/` y referenciarlo) y los types sin uso confirmados por `knip`.
-  - [ ] Añadir `.claude/worktrees/` a `.gitignore` y a `knip`/`prettier` ignore.
-  - [ ] Añadir `"engines": { "node": ">=22" }` a `package.json`.
-  - [ ] Convertir `type` de contacto en `z.enum([...])` con los tipos reales.
-  - [ ] Usar id estable como `key` donde el dato lo permita; correr la suite tras cada lote.
+- **Acción:** borrar `website-contenido-pendiente.md` (o mover a `docs/`), limpiar exports muertos confirmados por knip.
+- **Checklist:** [ ] `rm website-contenido-pendiente.md` · [ ] eliminar `CONFIRM_TOKEN_TTL_MS` y los `*Schema`/`*Context` sin uso · [ ] `pnpm knip` tras limpieza.
+
+**DEFECTO-018 — Tests de auth de agentes**
+
+- **Acción:** añadir `tests/integration/agents-auth.test.ts` cubriendo fuerza bruta (429), key ausente (401), key válida (200).
+- **Checklist:** [ ] caso 50 intentos → 429 · [ ] caso key mala → 401 · [ ] caso ok → 200.
 
 **Tabla de priorización**
 
-| Orden | Defecto(s)                | Severidad    | Esfuerzo | Tipo                                 |
-| ----- | ------------------------- | ------------ | -------- | ------------------------------------ |
-| 1     | DEFECTO-001 + DEFECTO-010 | GRAVE        | Bajo     | 🔥 Apagar incendio (ruta del dinero) |
-| 2     | DEFECTO-004               | MODERADO     | Bajo     | Quick win                            |
-| 3     | DEFECTO-007               | MODERADO     | Trivial  | Quick win                            |
-| 4     | DEFECTO-002 + DEFECTO-003 | MODERADO     | Medio    | Endurecer                            |
-| 5     | DEFECTO-005               | MODERADO     | Medio    | Endurecer                            |
-| 6     | DEFECTO-006               | MODERADO     | Bajo     | Proceso/CI                           |
-| 7     | DEFECTO-008..011          | MICROSCÓPICO | Bajo     | Higiene                              |
+| Orden | Defecto(s)                | Severidad | Esfuerzo | Tipo                              |
+| ----- | ------------------------- | --------- | -------- | --------------------------------- |
+| 1     | DEFECTO-012               | GRAVE     | Bajo     | 🔥 Apagar incendio (auth agentes) |
+| 2     | DEFECTO-019               | MODERADO  | Trivial  | Quick win (AA contraste)          |
+| 3     | DEFECTO-013 + DEFECTO-018 | MODERADO  | Bajo     | Endurecer (repair + tests)        |
+| 4     | DEFECTO-014 + DEFECTO-015 | MODERADO  | Bajo     | Proceso/CI                        |
+| 5     | DEFECTO-020               | MICRO     | Trivial  | Quick win (a11y heading)          |
+| 6     | DEFECTO-016 + DEFECTO-017 | MICRO     | Bajo     | Higiene                           |
 
 ---
 
 ## 3. PLAN ANEXO DE MAGNIFICACIÓN
 
-### MEJORA-01 — Resiliencia de webhooks de grado producción
+### MEJORA-01 — Auth unificada por middleware, no por ruta
 
-- **Objetivo:** que ningún evento de pago se pierda jamás, pase lo que pase con la BD.
-- **Justificación:** una vez DEFECTO-001 devuelve 500, el siguiente nivel es persistir el evento crudo antes de procesarlo (inbox pattern) y reconciliar asíncronamente.
-- **Beneficios esperados:** cero pérdida de pedidos, auditoría completa de eventos Stripe, reproceso idempotente.
-- **Esbozo:** tabla `WebhookEvent(id, type, payload, status, attempts)` → guardar crudo al recibir → procesar en job → DLQ tras N fallos → dashboard de reconciliación.
+- **Objetivo:** que ninguna ruta nueva pueda olvidar auth. Mover `requireCrmAuth` a un `middleware.ts` (o wrapper `withCrmAuth(handler)`) que cubra `/api/crm/*`, `/api/newsletter/send` y `/api/agents/*` por config.
+- **Beneficios:** elimina la clase de error DEFECTO-012 para siempre; un solo lugar que auditar.
 
-### MEJORA-02 — Observabilidad de negocio sobre el OTel ya instalado
+### MEJORA-02 — Contraste auditado en CI (axe en el pipeline)
 
-- **Objetivo:** convertir `@vercel/otel` (ya presente) en alertas sobre SLOs reales.
-- **Justificación:** la instrumentación está cableada pero no hay métricas de negocio ni alertas; SigNoz del operador ya ingiere trazas.
-- **Beneficios esperados:** detectar DEFECTO-001/004 en producción en segundos en lugar de por reclamación del cliente.
-- **Esbozo:** spans con atributos de negocio (`lead.persisted`, `order.persisted`, `email.sent=false`) → alerta SigNoz sobre tasa de fallo de persistencia > 0 → panel de conversión checkout.
+- **Objetivo:** meter `axe-core/playwright` en el job `e2e` para que el 3.8:1 de `--text-tertiary` falle el build.
+- **Beneficios:** la a11y deja de depender de que un humano corra Lighthouse.
 
-### MEJORA-03 — Tests de mutación sobre la lógica crítica
+### MEJORA-03 — Observabilidad de negocio sobre el OTel ya cableado
 
-- **Objetivo:** matar mutantes en `validation`, `rate-limit`, `checkout` y el webhook, no solo cubrir líneas.
-- **Justificación:** la cobertura ya es alta; el siguiente salto de calidad es probar que los tests _fallan_ cuando el código se rompe (DEFECTO-010 es exactamente un mutante vivo).
-- **Beneficios esperados:** confianza real en la suite, no porcentaje cosmético.
-- **Esbozo:** Stryker sobre `src/lib` y `src/app/api`; umbral de mutación en CI para la lógica de negocio.
+- **Objetivo:** spans con `lead.persisted`, `order.persisted`, `agent.repair.applied` → alerta SigNoz sobre tasa de fallo > 0.
+- **Beneficios:** detectar en segundos un agente moviendo stages por error, no por reclamación.
 
-### MEJORA-04 — Capa anti-abuso real
+### MEJORA-04 — Tests de mutación sobre la lógica crítica
 
-- **Objetivo:** rate-limit distribuido + protección de formularios sin fricción.
-- **Justificación:** cierra DEFECTO-002/003/005 de forma definitiva y prepara multi-instancia.
-- **Beneficios esperados:** resistencia a spam/DoS, reputación de envío protegida.
-- **Esbozo:** Upstash Ratelimit (sliding window) por IP de confianza + Turnstile/altcha en contact/newsletter + double opt-in.
+- **Objetivo:** Stryker sobre `lib/crm-auth`, `lib/agents/*`, `app/api/*`.
+- **Beneficios:** confianza real, no porcentaje cosmético (el DEFECTO-018 es un mutante vivo).
+
+---
+
+## RESUMEN EJECUTIVO (para decisores)
+
+El repo pasó de "limpio" a "serio": cerró la ruta del dinero (webhook 500), blindó el CRM (timing-safe auth + rate-limit) e hizo double opt-in. Pero la incorporación del módulo de agentes LLM **introdujo una regresión de seguridad GRAVE** — 4 rutas que mutan negocio con auth de pega (`!==` + sin rate-limit) — y el front salió a producción con texto que no llega a AA (3.8:1). Nada catastrófico, pero el orden 1 de la tabla (DEFECTO-012) es un parche de 4 líneas que no tiene excusa; el 2 (contraste) es una línea de token. Con media jornada de trabajo el sitio vuelve a ser referencia del sector en las 16 categorías.
 
 ---
 
 ## TABLA RESUMEN
 
-| Severidad    | Confirmados | Sospechas | Total  |
-| ------------ | ----------- | --------- | ------ |
-| CATASTRÓFICO | 0           | 0         | 0      |
-| GRAVE        | 1           | 0         | 1      |
-| MODERADO     | 6           | 1         | 7      |
-| MICROSCÓPICO | 3           | 0         | 3      |
-| **TOTAL**    | **10**      | **1**     | **11** |
+| Severidad    | Confirmados | Sospechas | Total                          |
+| ------------ | ----------- | --------- | ------------------------------ |
+| CATASTRÓFICO | 0           | 0         | 0                              |
+| GRAVE        | 1           | 0         | 1                              |
+| MODERADO     | 8           | 0         | 8                              |
+| MICROSCÓPICO | 4           | 0         | 4                              |
+| **TOTAL**    | **13**      | **0**     | **13 (+14 previos resueltos)** |
 
-**Sentencia final.** «Infame» es una calumnia: este repo está en el percentil alto de lo que pasa por aquí — TS estricto sin `any`, suite seria con gate, arquitectura con fronteras de verdad y cero secretos filtrados. El trabajo real cabe en una tarde: apagar DEFECTO-001 (que la ruta del dinero deje de tragar fallos, una línea de criterio + su test) y, de paso, los dos hermanos del mismo pecado en contact/newsletter. Lo demás es endurecimiento (rate-limit, double opt-in, gate de CI) y polvo cosmético que se barre en un commit. Empieza por el orden 1 de la tabla; el resto es lujo sobre una base que ya es sólida.
+Nuevos defectos de esta auditoría: DEFECTO-012 a DEFECTO-020 (12). La numeración continúa la anterior (que terminaba en DEFECTO-011).
+
+---
+
+## COMPARACIÓN CON AUDITORÍA PREVIA
+
+> Auditoría anterior: commit `ad4288a`, fecha 2026-07-01.
+
+| Métrica       | Antes  | Ahora  | Δ             |
+| ------------- | ------ | ------ | ------------- |
+| CATASTRÓFICOS | 0      | 0      | —             |
+| GRAVES        | 1      | 1      | — (distinto)  |
+| MODERADOS     | 7      | 7      | — (distintos) |
+| MICROSCÓPICOS | 3      | 4      | +1            |
+| **TOTAL**     | **11** | **12** | **+1**        |
+
+**Nuevos desde la última auditoría:** DEFECTO-012 (auth agentes, GRAVE), DEFECTO-013 (repair no idempotente), DEFECTO-014 (gate CI moderate), DEFECTO-015 (action tags mutables), DEFECTO-016 (knip dead code), DEFECTO-017 (md suelto), DEFECTO-018 (sin tests auth agentes), DEFECTO-019 (contraste AA), DEFECTO-020 (heading order).
+
+**Resueltos:** DEFECTO-001 (webhook 500), DEFECTO-002 (IP trust), DEFECTO-003 (rate-limit sweep), DEFECTO-004 (contacto 502 honesto), DEFECTO-005 (double opt-in), DEFECTO-007 (JSON-LD escape), DEFECTO-008/009/010/011 (higiene: `_shot.mjs` borrado, `.claude/worktrees/` en gitignore, tests de fallo de webhook, `engines` añadido, `key={i}` 10→5).
+
+**Persistentes (reincidentes en espíritu):** DEFECTO-006 → sigue como DEFECTO-014 (gate de audit sigue ciego a moderadas; ahora 3 moderate reales). El _patrón_ de "la nueva superficie se olvida del estándar de seguridad existente" volvió en DEFECTO-012.
+
+**Nota de severidad:** el GRAVE de antes (ruta del dinero) se cerró; el GRAVE de ahora (auth agentes) es de la misma familia — superficie nueva que no hereda el control de la vieja.
+
+---
+
+## MÉTRICAS DE LA AUDITORÍA
+
+| Métrica                                | Valor                                                                                                     |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Tiempo total                           | ~95 min                                                                                                   |
+| Nivel de profundidad                   | 3-PROFUNDO                                                                                                |
+| Modo de objetivo                       | COMBINADO (repo + sitio)                                                                                  |
+| Modo de entorno                        | COMPLETO                                                                                                  |
+| Herramientas ejecutadas                | 13 de 16 (trivy/scc/bandit no aplican: sin Dockerfile/Python)                                             |
+| Hallazgos brutos de herramientas       | gitleaks 0 · semgrep 14 · knip 35 · jscpd 28 · axe 5 · LH 4 cat                                           |
+| Falsos positivos filtrados             | 4 (CORS `*` descartado, unsafe-formatstring descartado, GPL knip descartado, semgrep INFO)                |
+| Defectos finales                       | 13 (13 confirmados, 0 sospechas)                                                                          |
+| Defectos sistémicos                    | 3 de N instancias (DEFECTO-012 en 4 rutas, DEFECTO-019 en 4 páginas/78+ nodos, DEFECTO-015 en 12 actions) |
+| Categoría más castigada                | 1.3 / 2.3 — Seguridad observable + Accesibilidad                                                          |
+| Archivos/páginas auditados manualmente | 38 de 267 ficheros + 4 páginas live (Prioridad: API routes, tokens, agents, CRM)                          |
+| Commit auditado                        | `651f51c` (`feat/restructure-content`)                                                                    |
+
+---
+
+---
+
+## 4. ANEXO — RENDIMIENTO MÓVIL + GALERÍA VISUAL DE INTERACCIONES
+
+Ampliación de la auditoría (PROFUNDO, segunda pasada) para cubrir **rendimiento en móvil real** y **render visual de UI con todas las interacciones de puntero** (hover, click, focus, menú, cambio de tema), capturadas con Playwright/Chromium y medidas con Lighthouse en form-factor móvil + throttling de red. 42 capturas en `AUDITORIA-CRITICA.md` (ver galería al final de esta sección).
+
+### 4.1 Rendimiento móvil (Lighthouse, form-factor móvil)
+
+| Métrica           | Móvil (throttled) | Desktop (previo) |
+| ----------------- | ----------------- | ---------------- |
+| Performance       | **100**           | 100              |
+| Accessibility     | **92**            | 92               |
+| Best Practices    | **100**           | 100              |
+| SEO               | **100**           | 100              |
+| FCP               | 1.3 s             | 0.3 s            |
+| LCP               | 1.3 s             | 0.4 s            |
+| TBT               | 0 ms              | 0 ms             |
+| CLS               | **0**             | 0.008            |
+| Speed Index       | 1.5 s             | 1.0 s            |
+| TTFB (root doc)   | 31 ms             | 30 ms            |
+| Main-thread work  | 1.5 s             | —                |
+| Requests (Script) | 13                | —                |
+
+**Veredicto móvil:** el Ferrari sigue siendo Ferrari en el bolsillo. 100/100/100/92 con CLS 0 impecable y FCP/LCP de 1.3 s sobre red throttled. El SSG + `next/image` + cero JS bloqueante aguanta el móvil tan bien como el escritorio. **No hay defecto de rendimiento móvil.**
+
+### 4.2 DEFECTO-021 — Scroll horizontal en móvil: `.ak-cta-form` (max-width 420px) más ancho que el viewport de 390px · `MODERADO` · `CONFIRMADO`
+
+- **Ubicación:** `src/styles/site.css:130` (`.ak-cta-form { display:flex; gap:10px; max-width:420px; margin:0 auto; }`).
+- **Evidencia:** en viewport móvil real (390×844, `isMobile`), `document.body.scrollWidth = 571` frente a `window.innerWidth = 390` → **overflow de 181px** que fuerza scroll horizontal. El culpable medido por `getBoundingClientRect`: `.ak-cta-form` renderiza a **420px de ancho** (supera los 390px del teléfono), arrastrando el botón `.ak-btn-primary` (right=472) y `.ak-form-legal` (right=571) fuera de pantalla. No existe media query que reduzca el `max-width` en móvil.
+- **El crimen:** un formulario de captación de leads — justo el CTA comercial que la reestructuración F0→F18 persigue — que se sale de la pantalla en el iPhone más común (390px). El usuario móvil tiene que hacer scroll lateral para ver el botón "Enviar". Es el opuesto a "código que es tuyo y conversión pensada para pequeñas empresas".
+- **Por qué arde:** es sistemático en móvil (no depende de contenido), afecta a la home y a cualquier página con `.ak-cta-form`, y la cura es de una línea: `max-width: min(420px, 100%)` + `padding-inline` en el contenedor.
+- **Nota:** las tarjetas de testimonios (`ak-tcard`) aparecían como ofensores a right=583, pero están dentro de `.ak-tcar-viewport { overflow:hidden }` (línea 339) — el carrusel las recorta, **no** causan scroll. Descartado como falso positivo.
+- **Categoría:** 2.6 / 1.4
+
+### 4.3 Comportamiento de puntero verificado (hover / click / focus)
+
+Medido por computed-style en escritorio y móvil (Playwright), no inferido de capturas:
+
+- **`.ak-btn-primary:hover`** (`site.css:13`): `filter: brightness(1.1)` + `transform: translateY(-1px)` + `box-shadow`. ✔ Feedback de hover **presente** (el check previo que leía `backgroundColor` daba "static" por error de métrica; el sitio SÍ responde al hover).
+- **`.ak-nav a:hover`** (`site.css:32`): color secundario → primario. ✔
+- **`.ak-pcard:hover`** (`site.css:85`): `translateY(-4px)` + `elev-lg`. ✔ Transforma al hover (confirmado por `getComputedStyle().transform` antes/después).
+- **`.ak-theme-toggle` click**: alterna `dark`/`light` (capturado en `*-dark.png`); el `prefers-color-scheme` + clase `.dark` aplican tokens correctos.
+- **`.ak-burger` (móvil)**: visible a ≤880px, abre `.ak-mobile-nav` (377px alto, 8 enlaces, `display:flex`). ✔ Menú hamburguesa funcional.
+- **Tap targets móvil**: el `.ak-theme-toggle` (38×38) y `.ak-burger` (38×38) rozan el mínimo WCAG de 44px; los enlaces de nav (17px de alto) y `.ak-logo` están por debajo de 44px pero son inline-text, tolerable. Sin bloqueo, pero el toggle/burger podrían ir a 44×44.
+
+**Hallazgo visual honesto:** las 3 capturas `*-menu-open.png` de la primera pasada (script `capture.mjs`) se generaron con un `try/catch` que enmascaró un fallo de estabilidad de click de Playwright → **el menú no estaba realmente abierto** en esas imágenes. Se regeneraron correctamente en `mobile-home-menu-open-real.png`. Las demás interacciones (hover, dark, card-click→detail, focus, validation) sí se capturaron con estado real.
+
+### 4.4 Galería de capturas (42 imágenes, `AUDITORIA-CRITICA.md` / `.audit-shots/`)
+
+**Formato de archivo:** `{dispositivo}-{pagina}-{estado}.png`. `desktop` = 1440×900, `mobile` = 390×844@3x (1170×2532).
+
+| Captura                                              | Qué demuestra                                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `desktop-home-fold` / `-full`                        | Hero + terminal + servicios + proyectos en escritorio                        |
+| `desktop-home-dark`                                  | Modo oscuro (toggle click)                                                   |
+| `desktop-home-hover-contacto`                        | Hover del botón Contacto (lift+brightness)                                   |
+| `desktop-proyectos-card-hover`                       | Hover de tarjeta de proyecto (translateY -4px)                               |
+| `desktop-proyectos-detail` / `-full`                 | Navegación click → `/proyectos/[slug]` (RSC)                                 |
+| `desktop-contacto-focus`                             | Focus en input email (ring de foco)                                          |
+| `desktop-contacto-validation`                        | Click en Enviar vacío → errores de validación zod                            |
+| `mobile-home-fold` / `-full`                         | Layout móvil (burger visible, nav oculta)                                    |
+| `mobile-home-dark`                                   | Modo oscuro móvil                                                            |
+| `mobile-home-menu-open-real`                         | **Menú hamburguesa abierto** (8 enlaces, 377px) — DEFECTO-021 visible en CTA |
+| `mobile-home-cta-bottom`                             | CTA-form desbordando el viewport (scroll horizontal)                         |
+| `mobile-contacto-focus` / `-validation`              | Form móvil: focus + validación                                               |
+| `mobile-proyectos-fold` / `-card-hover` / `-detail`  | Proyectos móvil + hover + detalle                                            |
+| `mobile-servicios-*` / `mobile-proyectos-*` (varias) | Resto de páginas en móvil                                                    |
+
+**Para visualizar:** las imágenes están en `.audit-shots/` (42 PNG). Se generaron con `capture.mjs` + `capture-extra.mjs` (Playwright). No se incrustan inline para no inflar el informe; el revisor las abre en el repo.
 
 ---
 
 ### Reproducir esta auditoría
 
 ```bash
-cd ~/repositorios/personal/website-alexendrosdev
+cd ~/projects/website-alexendrosdev
+gitleaks detect --source . --no-banner -r /tmp/gitleaks.json
+semgrep scan --config auto --json --output /tmp/semgrep.json .
 npx tsc --noEmit --pretty false
-npx eslint . --format json
+npx eslint .
 npx prettier --check $(git ls-files '*.ts' '*.tsx' '*.mjs' '*.css' '*.md' '*.mdx')
-pnpm audit --json
-gitleaks detect --source . --no-banner
-npx madge --circular --extensions ts,tsx src
-npx knip ; npx jscpd src
-pnpm test
+pnpm audit --audit-level=moderate
+npx knip
+npx jscpd src
+pnpm build
+npx lighthouse https://alexendros.dev --only-categories=performance,accessibility,best-practices,seo --preset=desktop --output=json
+# axe (desde el repo, con @playwright/test): ver script axe.mjs en el informe
+curl -sI https://alexendros.dev ; curl -s https://alexendros.dev/robots.txt ; curl -s https://alexendros.dev/sitemap.xml
 ```
 
 ### Rama de remediación sugerida
 
-`fix/auditoria-01` → atacar en el orden de la tabla de priorización; un commit atómico por defecto, corriendo `pnpm test` (y el caso nuevo de DEFECTO-010) tras cada uno.
+`fix/auditoria-02` → atacar en el orden de la tabla de priorización; un commit atómico por defecto, corriendo `pnpm test` + `npx knip` + re-axe tras cada uno. El DEFECTO-012 va primero y es el único bloqueante para merge de la rama `feat/restructure-content`.

@@ -56,11 +56,12 @@ describe("catálogo unificado (F11)", () => {
   });
 
   it("PURCHASABLES legacy = addon + consultoria (compatibilidad hacia atrás)", () => {
-    expect(PURCHASABLES.length).toBe(3);
+    expect(PURCHASABLES.length).toBe(4);
     const ids = PURCHASABLES.map((p) => p.id);
     expect(ids).toContain("puesta-a-punto-web");
     expect(ids).toContain("sesion-consultoria");
     expect(ids).toContain("revision-seguridad");
+    expect(ids).toContain("auditoria-rapida-web");
   });
 
   it("TIERS.retainer tiene 3 tiers derivados del catálogo", () => {
