@@ -15,7 +15,7 @@ on:
           - ubuntu-latest
           - self-hosted
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 6 * * *"
 
 # Cancela ejecuciones en curso de la misma rama cuando llega un push nuevo.
 concurrency:
@@ -74,10 +74,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level=high
       - run: npx license-checker --production --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
@@ -95,10 +96,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: pnpm/action-setup@v4
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm e2e
