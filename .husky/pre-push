@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# Pre-push: valida que el código pase typecheck, lint y tests antes de llegar a CI.
+# Detiene el push si cualquier comando falla.
+
+set -e
+
+echo "▸ typecheck..."
+pnpm typecheck
+
+echo "▸ lint..."
+pnpm lint
+
+echo "▸ test:coverage..."
+pnpm test:coverage
+
+echo "✓ pre-push OK"
