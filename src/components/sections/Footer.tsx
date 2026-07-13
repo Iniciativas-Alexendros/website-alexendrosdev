@@ -49,9 +49,6 @@ export function Footer() {
           </Link>
           {/* CV PDF — próximamente */}
           {/* Uses / setup — próximamente */}
-          <a className="ak-footer-lk" href="/feed.xml">
-            RSS
-          </a>
         </div>
         <div>
           <div className="ak-footer-ct">Newsletter</div>

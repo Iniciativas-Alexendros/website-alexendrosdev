@@ -7,7 +7,7 @@ export function Hero() {
     <section className="ak-hero-c" data-screen-label="hero">
       <span className="ak-note" data-reveal>
         <span className="ak-status-dot" />
-        Disponible · media jornada
+        Disponible para proyectos
       </span>
       <h1 className="ak-display" data-reveal data-reveal-delay="1">
         Desarrollo de plataformas, webs y <em>apps</em> a medida en Valencia.

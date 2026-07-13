@@ -35,10 +35,9 @@ test("el formulario de contacto se envía", async ({ page }) => {
   await expect(page.getByText(/Mensaje enviado/)).toBeVisible();
 });
 
-test("el escaparate redirige al catálogo de servicios", async ({ page }) => {
-  await page.goto("/escaparate");
-  await expect(page).toHaveURL(/\/servicios$/);
-  await expect(page.getByRole("heading", { name: "Planes claros", level: 1 })).toBeVisible();
+test("/escaparate devuelve 404", async ({ page }) => {
+  const res = await page.goto("/escaparate");
+  expect(res?.status()).toBe(404);
 });
 
 test("la home no tiene violaciones de accesibilidad críticas", async ({ page }) => {

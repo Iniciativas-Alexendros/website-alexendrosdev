@@ -1,16 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
-  makeBlogPostingJsonLd,
   makeBreadcrumbJsonLd,
   makeCreativeWorkJsonLd,
   makePersonJsonLd,
   makeProfessionalServiceJsonLd,
   makeWebSiteJsonLd,
 } from "@/lib/seo/jsonld";
-import { postConMeta, postSinMeta, proyectoConRepo, proyectoSinRepo } from "../fixtures/content";
+import { proyectoConRepo, proyectoSinRepo } from "../fixtures/content";
 
-// schema-dts tipa cada propiedad como unión muy amplia; para las aserciones
-// accedemos al objeto plano resultante como Record.
 const plain = (x: object) => x as unknown as Record<string, unknown>;
 
 describe("generadores JSON-LD", () => {
@@ -33,18 +30,6 @@ describe("generadores JSON-LD", () => {
     expect(String(j.url)).toContain("/servicios");
   });
 
-  it("BlogPosting prioriza metaDescription y enlaza el post", () => {
-    const j = plain(makeBlogPostingJsonLd(postConMeta));
-    expect(j.description).toBe(postConMeta.metaDescription);
-    expect(j.headline).toBe(postConMeta.title);
-    expect(String(j.url)).toContain(postConMeta.id);
-  });
-
-  it("BlogPosting genera descripción de respaldo sin meta ni desc", () => {
-    const j = plain(makeBlogPostingJsonLd(postSinMeta));
-    expect(String(j.description)).toContain(postSinMeta.title);
-  });
-
   it("SoftwareApplication añade codeRepository y usa liveUrl cuando existen", () => {
     const j = plain(makeCreativeWorkJsonLd(proyectoConRepo));
     expect(j.codeRepository).toBe(proyectoConRepo.repoUrl);
@@ -61,7 +46,7 @@ describe("generadores JSON-LD", () => {
     const j = plain(
       makeBreadcrumbJsonLd([
         { name: "Inicio", url: "https://alexendros.dev/" },
-        { name: "Blog", url: "https://alexendros.dev/blog" },
+        { name: "Servicios", url: "https://alexendros.dev/servicios" },
       ]),
     );
     const items = j.itemListElement as Array<{ position: number; name: string }>;

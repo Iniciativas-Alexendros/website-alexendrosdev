@@ -5,9 +5,7 @@ const ROUTES: { label: string; path: string }[] = [
   { label: "Sobre mí", path: "/sobre-mi" },
   { label: "Proyectos", path: "/proyectos" },
   { label: "Stack", path: "/stack" },
-  { label: "Blog", path: "/blog" },
   { label: "Servicios", path: "/servicios" },
-  { label: "Escaparate", path: "/escaparate" },
 ];
 
 for (const { label, path } of ROUTES) {
