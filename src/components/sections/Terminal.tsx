@@ -115,7 +115,7 @@ export function Terminal({ title = "~/whoami.sh" }: { title?: string }) {
         </div>
         {TERMINAL_LINES.slice(1).map((l, idx) =>
           phase > idx && l.segments ? (
-            <div key={idx} className="ak-terminal-line ak-tl-fade">
+            <div key={`terminal-${idx}`} className="ak-terminal-line ak-tl-fade">
               {l.segments.map((s, sidx) => (
                 <span key={sidx} className={s.type === "text" ? undefined : `ak-${s.type}`}>
                   {s.text}

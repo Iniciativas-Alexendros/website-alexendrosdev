@@ -19,7 +19,7 @@ export function NewsletterEmail({ subject, body }: NewsletterEmailProps) {
         <Container style={{ padding: "24px", maxWidth: "560px" }}>
           <Heading style={{ fontSize: "20px", color: "#1a2332", marginTop: 0 }}>{subject}</Heading>
           {body.split("\n\n").map((paragraph, i) => (
-            <Text key={i} style={{ color: "#4a5568", lineHeight: 1.6 }}>
+            <Text key={`para-${i}`} style={{ color: "#4a5568", lineHeight: 1.6 }}>
               {paragraph}
             </Text>
           ))}

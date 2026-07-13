@@ -151,13 +151,13 @@ export function StackGraph() {
           style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${scale})` }}
         >
           <svg className="ak-graph-svg" width={W} height={H}>
-            {edges.map((e, i) => {
+            {edges.map((e) => {
               const a = node(e.from)!;
               const b = node(e.to)!;
               const isHot = active === e.cat;
               return (
                 <line
-                  key={i}
+                  key={`${e.from}-${e.to}`}
                   className={`ak-edge ${isHot ? "hot" : ""}`.trim()}
                   x1={a.x}
                   y1={a.y}

@@ -142,7 +142,7 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
               <section key={s.id}>
                 <h2 id={s.id}>{s.title}</h2>
                 {s.blocks.map((b, i) => (
-                  <Block key={i} block={b} />
+                  <Block key={`${s.id}-block-${i}`} block={b} />
                 ))}
               </section>
             ))}

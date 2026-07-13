@@ -8,7 +8,7 @@ export function Marquee({ items = TECH }: { items?: string[] }) {
       <div className="ak-marquee-fade-r" />
       <div className="ak-marquee-track">
         {row.map((it, i) => (
-          <span key={i} className="ak-marquee-item">
+          <span key={`${it}-${i}`} className="ak-marquee-item">
             {it}
             <span className="ak-marquee-sep">·</span>
           </span>

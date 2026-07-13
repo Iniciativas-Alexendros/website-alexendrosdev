@@ -56,7 +56,7 @@ function TimelineCard({ it }: { it: TimelineEntry }) {
       <div className="ak-tl2-org">{it.org}</div>
       <ul className="ak-tl2-list">
         {it.bullets.map((b, i) => (
-          <li key={i}>{b}</li>
+          <li key={`${it.role}-bullet-${i}`}>{b}</li>
         ))}
       </ul>
       {it.link && (

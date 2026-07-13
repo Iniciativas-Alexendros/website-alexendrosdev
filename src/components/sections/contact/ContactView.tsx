@@ -374,8 +374,8 @@ function Calendar() {
         {MONTHS[now.getMonth()]} {now.getFullYear()} · zona horaria detectada
       </div>
       <div className="ak-cal-dow">
-        {["L", "M", "X", "J", "V", "S", "D"].map((d, i) => (
-          <span key={i}>{d}</span>
+        {["L", "M", "X", "J", "V", "S", "D"].map((d) => (
+          <span key={d}>{d}</span>
         ))}
       </div>
       <div className="ak-cal-grid">

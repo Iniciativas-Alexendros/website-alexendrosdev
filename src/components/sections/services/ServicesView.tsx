@@ -111,7 +111,7 @@ function Comparison() {
           <div key={feat} className="ak-cmp-row ak-cmp-body">
             <span className="ak-cmp-feat">{feat}</span>
             {cells.map((on, i) => (
-              <span key={i} className="ak-cmp-cell">
+              <span key={`${feat}-cell-${i}`} className="ak-cmp-cell">
                 {on ? (
                   <Icon name="check" size={16} className="yes" />
                 ) : (
