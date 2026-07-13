@@ -122,16 +122,17 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-      - name: Install Vercel CLI (pinned)
+      - name: Install Vercel CLI 54.21.0 (pinned)
         # Fijado a 54.x: vercel@55.0.0 introduce una regresión
         # ("Could not retrieve Project Settings" en CI, OK localmente).
         # Issue upstream: vercel/vercel#10874
-        run: pnpm add -g vercel@54.21.0
+        # Usamos `npm install -g` con `unsafe-perm` porque el global bin dir
+        # de pnpm en este runner no está en PATH. `npm -g` instala a
+        # /usr/local/bin que sí está en PATH por defecto en runners GH.
+        run: npm install -g vercel@54.21.0 --unsafe-perm
       - name: Deploy to production (Vercel)
         # --scope apunta al team. Sin él, vercel CLI puede fallar al
         # resolver el org si el token pertenece a un team y no a una
