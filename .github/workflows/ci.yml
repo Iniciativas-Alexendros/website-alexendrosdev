@@ -85,7 +85,7 @@ jobs:
         env:
           GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
       - name: Semgrep — SAST
-        uses: semgrep/semgrep-action@fcd5b5fff67b03ec9a34d8b9b4e530f3642a22
+        uses: semgrep/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1 (archived, immutable)
         with:
           config: >-
             p/security-audit
