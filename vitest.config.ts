@@ -36,6 +36,13 @@ export default defineConfig({
           environmentOptions: { jsdom: { url: "http://localhost:3000" } },
           include: ["tests/component/**/*.test.tsx"],
           setupFiles: ["tests/setup.component.ts"],
+          // React 19 exporta `act` solo en el bundle development. Si el runner
+          // se invoca con NODE_ENV=production, el shim de @testing-library/react
+          // (`react-dom-test-utils.production.js → React.act`) falla con
+          // "React.act is not a function" y 30 tests component rompen. Forzamos
+          // `test` aquí (vitest lo inyecta antes de cargar el bundle de React)
+          // para que el árbol cargado por jsdom sea el dev, no el production.
+          env: { NODE_ENV: "test" },
         },
       },
     ],
