@@ -26,6 +26,9 @@ test.describe("/servicios", () => {
 
   test("el CTA de un plan lleva a contacto", async ({ page }) => {
     await page.goto("/servicios");
+    // El CTA "Empezar" solo aparece en modo retainer (en modo proyecto es "Pedir
+    // presupuesto"). Forzamos retainer para que el test sea estable.
+    await page.getByRole("tab", { name: "Retainer mensual" }).click();
     await page.getByRole("link", { name: "Empezar" }).first().click();
     await expect(page).toHaveURL(/\/contacto$/);
   });
