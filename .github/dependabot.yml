@@ -5,8 +5,8 @@ updates:
     schedule:
       interval: weekly
       day: monday
-      time: '09:00'
-      timezone: 'Europe/Madrid'
+      time: "09:00"
+      timezone: "Europe/Madrid"
     open-pull-requests-limit: 5
     labels:
       - dependencies
@@ -19,18 +19,18 @@ updates:
       - dependency-name: react-dom
         update-types: [version-update:semver-major]
     commit-message:
-      prefix: 'chore(deps)'
-      prefix-development: 'chore(deps-dev)'
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
-      time: '09:00'
-      timezone: 'Europe/Madrid'
+      time: "09:00"
+      timezone: "Europe/Madrid"
     labels:
       - dependencies
       - github-actions
       - automated
     commit-message:
-      prefix: 'ci(deps)'
+      prefix: "ci(deps)"

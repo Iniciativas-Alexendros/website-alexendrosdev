@@ -1,0 +1,92 @@
+[
+  {
+    "id": "DEFECTO-012",
+    "severidad": "GRAVE",
+    "categoria": "1.3",
+    "ubicacion": "src/app/api/agents/{diagnose,audit,repair,hooks}/route.ts",
+    "titulo": "Auth de pega en modulo agentes (!== + sin rate-limit)",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-013",
+    "severidad": "MODERADO",
+    "categoria": "1.2",
+    "ubicacion": "src/app/api/agents/repair/route.ts",
+    "titulo": "Repair muta CRM sin idempotencia ni dry-run por defecto",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-014",
+    "severidad": "MODERADO",
+    "categoria": "1.3",
+    "ubicacion": ".github/workflows/ci.yml",
+    "titulo": "CI ciega a CVE moderadas (gate solo high)",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-015",
+    "severidad": "MODERADO",
+    "categoria": "1.5",
+    "ubicacion": ".github/workflows/ci.yml",
+    "titulo": "Action tags mutables en CI (supply-chain)",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-016",
+    "severidad": "MICROSCOPICO",
+    "categoria": "1.5",
+    "ubicacion": "src/lib/newsletter.ts + src/lib/agents/*",
+    "titulo": "Dead code reportado por knip",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-017",
+    "severidad": "MICROSCOPICO",
+    "categoria": "1.5",
+    "ubicacion": "website-contenido-pendiente.md",
+    "titulo": "MD suelto en raiz",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-018",
+    "severidad": "MODERADO",
+    "categoria": "1.7",
+    "ubicacion": "tests/integration/",
+    "titulo": "Sin tests de auth de agentes",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-019",
+    "severidad": "MODERADO",
+    "categoria": "2.3",
+    "ubicacion": "src/styles/design-tokens.css",
+    "titulo": "Contraste --text-tertiary 3.8:1 < AA",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-020",
+    "severidad": "MICROSCOPICO",
+    "categoria": "2.3",
+    "ubicacion": "src/components/sections/projects/ProjectsView.tsx",
+    "titulo": "Heading order h3 antes de h1",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  },
+  {
+    "id": "DEFECTO-021",
+    "severidad": "MODERADO",
+    "categoria": "2.6",
+    "ubicacion": "src/styles/site.css:130",
+    "titulo": "Scroll horizontal movil: .ak-cta-form max-width 420px > viewport 390px",
+    "confianza": "ALTA",
+    "estado": "confirmado"
+  }
+]

@@ -7,11 +7,13 @@ Nos comprometemos a mantener un entorno de participación abierto, acogedor y li
 ## Estándares
 
 **Comportamiento positivo:**
+
 - Lenguaje inclusivo y respetuoso
 - Aceptar críticas constructivas
 - Centrarse en lo mejor para el proyecto
 
 **Comportamiento inaceptable:**
+
 - Lenguaje o imágenes sexualizadas
 - Trolling, insultos o ataques personales
 - Acoso público o privado

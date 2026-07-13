@@ -2,9 +2,9 @@
 
 ## Versiones soportadas
 
-| Versión | Soporte |
-| ------- | ------- |
-| latest (main) | Activo |
+| Versión       | Soporte |
+| ------------- | ------- |
+| latest (main) | Activo  |
 
 ## Reportar una vulnerabilidad
 
