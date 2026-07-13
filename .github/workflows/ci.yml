@@ -107,47 +107,10 @@ jobs:
         env:
           CI: "true"
 
-  # Despliegue a producción SOLO tras pasar quality + e2e. El auto-deploy de
-  # Vercel desde Git está desactivado (gitProviderOptions.createDeployments),
-  # por lo que este job es el único que promociona a prod.
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [quality, e2e]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Clean .vercel local link
-        # El CLI de Vercel prioriza `.vercel/repo.json` (link local) sobre
-        # `--project` y `VERCEL_PROJECT_ID`. Si ese link está stale o
-        # corrupto, el deploy falla con "Could not retrieve Project
-        # Settings" incluso con --project. Lo borramos para forzar al
-        # CLI a usar las env vars del job.
-        run: rm -rf .vercel
-      - name: Install Vercel CLI 54.21.0 (pinned)
-        # Fijado a 54.x: vercel@55.0.0 introduce una regresión
-        # ("Could not retrieve Project Settings" en CI, OK localmente).
-        # Issue upstream: vercel/vercel#10874
-        # Usamos `npm install -g` con `unsafe-perm` porque el global bin dir
-        # de pnpm en este runner no está en PATH. `npm -g` instala a
-        # /usr/local/bin que sí está en PATH por defecto en runners GH.
-        run: npm install -g vercel@54.21.0 --unsafe-perm
-      - name: Deploy to production (Vercel)
-        # Sin --scope: el CLI resuelve el team desde VERCEL_ORG_ID.
-        # Con --project: el CLI no necesita "link" local y lee el project
-        # directamente del server, evitando el "Retrieving project…" que
-        # falla con "Could not retrieve Project Settings" en CI sin
-        # `.vercel/project.json` local.
-        # Pasar VERCEL_TOKEN por env (no --token) para que el CLI lo lea
-        # nativamente sin exponerlo en argv.
-        run: vercel deploy --prod --yes --project "$VERCEL_PROJECT_ID"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  # Deploy a producción:
+  # Vercel auto-deploy (gitProviderOptions.createDeployments=enabled) se
+  # encarga del deploy en cada push a main. El CI solo valida quality+e2e;
+  # no hace deploy porque añadir un job aquí generaba doble deploy y
+  # duplicaba tiempo de build. La protección contra pushes rotos sigue
+  # activa via branch protection (ruleset: quality+e2e required).
+  # Ver docs/devops/deploy.md para más contexto.
