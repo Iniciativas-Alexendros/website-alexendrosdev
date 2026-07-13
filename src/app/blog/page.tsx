@@ -15,6 +15,7 @@ export default async function BlogPage() {
   return (
     <div className="ak-container">
       <section className="ak-section" style={{ paddingBottom: 0 }}>
+        <h1 className="ak-page-title">Blog</h1>
         <SectionHead
           eyebrow="blog"
           title="Notas de ingeniería"

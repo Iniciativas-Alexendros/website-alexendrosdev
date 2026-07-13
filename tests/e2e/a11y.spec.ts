@@ -1,12 +1,10 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-// Cobertura de accesibilidad en las rutas clave: ninguna debe tener
-// violaciones de impacto crítico ni serio (axe-core / WCAG 2.1 AA).
-// El blog se añadió en F7; sus rutas entran en el barrido.
-// Fijamos colorScheme=light (predeterminado del sitio) para que la
-// comprobación de contraste sea determinista y no dependa del
-// prefiers-color-scheme del navegador headless (que suele ser dark).
+// Fijamos colorScheme=light (predeterminado del sitio) SOLO para
+// este spec, para que la comprobación de contraste sea determinista y no
+// dependa del prefiers-color-scheme del navegador headless (suele ser dark).
+test.use({ colorScheme: "light" });
 const ROUTES = [
   "/",
   "/sobre-mi",
