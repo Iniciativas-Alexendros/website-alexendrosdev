@@ -122,10 +122,21 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+      - name: Install Vercel CLI (pinned)
+        # Fijado a 54.x: vercel@55.0.0 introduce una regresión
+        # ("Could not retrieve Project Settings" en CI, OK localmente).
+        # Issue upstream: vercel/vercel#10874
+        run: pnpm add -g vercel@54.21.0
       - name: Deploy to production (Vercel)
-        run: npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+        # --scope apunta al team. Sin él, vercel CLI puede fallar al
+        # resolver el org si el token pertenece a un team y no a una
+        # cuenta personal. Pasar VERCEL_TOKEN por env (no --token) para
+        # que el CLI lo lea nativamente sin exponerlo en argv.
+        run: vercel deploy --prod --yes --scope alexendros-team
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
