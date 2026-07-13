@@ -4,6 +4,9 @@
 
 set -e
 
+echo "▸ branch name..."
+bash .husky/branch-name-check.sh
+
 echo "▸ typecheck..."
 pnpm typecheck
 

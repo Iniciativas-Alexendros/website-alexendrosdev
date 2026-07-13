@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+# Post-merge: hace housekeeping automático tras cada merge.
+# - Reinstala dependencias si el lockfile cambió
+# - Sugiere borrar la rama merged si estás en main
+
+set -e
+
+# Solo aplica tras merge (no tras checkout ni rebase)
+if [ "$GIT_REFLOG_ACTION" != "merge" ] && [ "$GIT_REFLOG_ACTION" != "pull" ]; then
+  exit 0
+fi
+
+MERGE_HEAD=$(git rev-parse MERGE_HEAD 2>/dev/null || true)
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# 1. Lockfile check
+if git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null | grep -q "pnpm-lock.yaml"; then
+  echo "▸ lockfile cambió en merge → pnpm install"
+  pnpm install --frozen-lockfile 2>/dev/null || pnpm install --no-frozen-lockfile
+fi
+
+# 2. Sugerir borrar rama fuente (solo en main/develop)
+case "$CURRENT_BRANCH" in
+  main|develop)
+    if [ -n "$MERGE_HEAD" ]; then
+      MERGED_BRANCH=$(git name-rev --name-only "$MERGE_HEAD" 2>/dev/null | sed 's/remotes\/origin\///' || true)
+      if [ -n "$MERGED_BRANCH" ] && [ "$MERGED_BRANCH" != "main" ] && [ "$MERGED_BRANCH" != "develop" ]; then
+        echo ""
+        echo "💡 Rama merged: $MERGED_BRANCH"
+        echo "   Para borrarla local:  git branch -d $MERGED_BRANCH"
+        echo "   Para borrarla remote:  git push origin --delete $MERGED_BRANCH"
+        echo ""
+      fi
+    fi
+    ;;
+esac
