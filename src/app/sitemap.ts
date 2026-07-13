@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { PROJECTS, SITE } from "@/lib/content";
+import { getPosts } from "@/lib/content/posts";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE.url;
   const staticRoutes = [
     "",
@@ -10,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/stack",
     "/servicios",
     "/contacto",
+    "/blog",
     "/legal/privacidad",
     "/legal/aviso-legal",
     "/legal/condiciones",
@@ -28,5 +30,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...pages, ...projects];
+  const posts = await getPosts();
+  const postPages: MetadataRoute.Sitemap = posts.map((p) => ({
+    url: `${base}/blog/${p.id}`,
+    changeFrequency: "monthly",
+    priority: 0.6,
+    lastModified: p.date,
+  }));
+
+  return [...pages, ...projects, ...postPages];
 }

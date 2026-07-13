@@ -11,7 +11,6 @@ import type {
   BlogPosting,
   SoftwareApplication,
   ProfessionalService,
-  SearchAction,
 } from "schema-dts";
 import type { Post, Project } from "@/lib/content/types";
 
@@ -27,14 +26,6 @@ export function makeWebSiteJsonLd(): WithContext<WebSite> {
     description:
       "Desarrollo plataformas, webs y aplicaciones a medida en Valencia. Tecnología moderna, código que es tuyo.",
     inLanguage: "es-ES",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/blog?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    } as unknown as SearchAction,
   };
 }
 
