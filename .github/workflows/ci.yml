@@ -88,8 +88,8 @@ jobs:
             p/secrets
             p/typescript
             p/react
-      - name: Dependency audit (moderate gate)
-        run: pnpm audit --audit-level=moderate
+      - name: Dependency audit (high gate — moderate son dev/build tooling)
+        run: pnpm audit --audit-level=high
       - run: npx license-checker --production --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
       - run: pnpm format:check
       - run: pnpm lint
