@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireCrmAuth } from "@/lib/crm-auth";
 import { crmContactSchema, flattenErrors } from "@/lib/validation";
+import { syncContactToNotion } from "@/lib/crm/notion-sync";
 
 export async function GET(req: Request) {
   const authErr = requireCrmAuth(req);

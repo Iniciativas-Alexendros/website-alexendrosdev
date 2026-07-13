@@ -72,7 +72,7 @@ export const CATALOG: CatalogItem[] = [
       test: 'price_1TrTabAuditRapidWebTest',
       live: 'price_1TrUSAuditRapidWebLive01',
     },
-    active: true,
+    active: false,
     category: 'addon',
     metadata: { hoursEstimate: '~2 h', anchorRate: '45 €/h' },
   },

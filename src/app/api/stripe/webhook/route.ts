@@ -37,18 +37,19 @@ export async function POST(req: Request) {
   }
 
   try {
+    const eventId = event.id;
     switch (event.type) {
       case "checkout.session.completed":
-        await handleCheckoutCompleted(event.data.object);
+        await handleCheckoutCompleted(event.data.object, eventId);
         break;
       case "invoice.paid":
-        await handleInvoicePaid(event.data.object);
+        await handleInvoicePaid(event.data.object, eventId);
         break;
       case "customer.subscription.updated":
         await handleSubscriptionUpdated(event.data.object);
         break;
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(event.data.object);
+        await handleSubscriptionDeleted(event.data.object, eventId);
         break;
       default:
         // Evento desconocido: acusar sin procesar
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
 
 // ─── Handlers ────────────────────────────────────────────────────────────────
 
-async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session, eventId: string) {
   // Upsert Order (idempotente)
   await prisma!.order.upsert({
     where: { stripeSessionId: session.id },
@@ -100,13 +101,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
           type: "NOTE",
           title: "Pago recibido. Deal cerrado ganado automáticamente.",
           dealId,
+          description: `event:${eventId}`,
         },
       });
     }
   }
 }
 
-async function handleInvoicePaid(invoice: Stripe.Invoice) {
+async function handleInvoicePaid(invoice: Stripe.Invoice, eventId: string) {
   const stripeInvoiceId = invoice.id;
   if (!stripeInvoiceId) return;
 
@@ -152,14 +154,20 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     },
   });
 
-  // Activity NOTE
-  await prisma!.activity.create({
-    data: {
-      type: "NOTE",
-      title: `Factura Stripe pagada: ${invoice.currency?.toUpperCase() ?? "EUR"} ${((invoice.amount_paid ?? 0) / 100).toFixed(2)}`,
-      dealId: dealId ?? undefined,
-    },
+  // Activity NOTE — idempotente por eventId
+  const existingActivity = await prisma!.activity.findFirst({
+    where: { dealId: dealId ?? undefined, description: { contains: eventId } },
   });
+  if (!existingActivity) {
+    await prisma!.activity.create({
+      data: {
+        type: "NOTE",
+        title: `Factura Stripe pagada: ${invoice.currency?.toUpperCase() ?? "EUR"} ${((invoice.amount_paid ?? 0) / 100).toFixed(2)}`,
+        dealId: dealId ?? undefined,
+        description: `event:${eventId}`,
+      },
+    });
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
@@ -193,26 +201,41 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   });
 }
 
-async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription, eventId: string) {
   const subData = subscription as unknown as { canceled_at: number | null };
 
-  await prisma!.subscription.update({
+  const canceledAt = subData.canceled_at ? new Date(subData.canceled_at * 1000) : new Date();
+
+  const updated = await prisma!.subscription.upsert({
     where: { stripeSubscriptionId: subscription.id },
-    data: {
+    update: { status: "canceled", canceledAt },
+    create: {
+      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: String(subscription.customer),
       status: "canceled",
-      canceledAt: subData.canceled_at ? new Date(subData.canceled_at * 1000) : new Date(),
+      contactId: undefined,
+      canceledAt,
+      currentPeriodStart: new Date(),
+      currentPeriodEnd: new Date(),
     },
   });
 
-  // Task HIGH: follow-up por cancelación
-  const sub = await prisma!.subscription.findUnique({
-    where: { stripeSubscriptionId: subscription.id },
-  });
-  await prisma!.task.create({
-    data: {
-      title: "Contactar por cancelación de suscripción",
-      priority: "HIGH",
-      contactId: sub?.contactId ?? undefined,
+  // Task HIGH: follow-up por cancelación — idempotente por eventId
+  const existingTask = await prisma!.task.findFirst({
+    where: {
+      contactId: updated.contactId ?? undefined,
+      title: { contains: "cancelación de suscripción" },
+      description: { contains: eventId },
     },
   });
+  if (!existingTask) {
+    await prisma!.task.create({
+      data: {
+        title: "Contactar por cancelación de suscripción",
+        priority: "HIGH",
+        contactId: updated.contactId ?? undefined,
+        description: `event:${eventId}`,
+      },
+    });
+  }
 }

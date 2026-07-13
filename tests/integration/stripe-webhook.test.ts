@@ -10,7 +10,9 @@ const mocks = vi.hoisted(() => {
   const dealUpdate = vi.fn();
   const dealFindFirst = vi.fn();
   const activityCreate = vi.fn();
+  const activityFindFirst = vi.fn();
   const taskCreate = vi.fn();
+  const taskFindFirst = vi.fn();
   const pipelineStageFindFirst = vi.fn();
   return {
     state: {
@@ -25,8 +27,8 @@ const mocks = vi.hoisted(() => {
           findUnique: typeof subscriptionFindUnique;
         };
         deal: { update: typeof dealUpdate; findFirst: typeof dealFindFirst };
-        activity: { create: typeof activityCreate };
-        task: { create: typeof taskCreate };
+        activity: { create: typeof activityCreate; findFirst: typeof activityFindFirst };
+        task: { create: typeof taskCreate; findFirst: typeof taskFindFirst };
         pipelineStage: { findFirst: typeof pipelineStageFindFirst };
       },
     },
@@ -39,7 +41,9 @@ const mocks = vi.hoisted(() => {
     dealUpdate,
     dealFindFirst,
     activityCreate,
+    activityFindFirst,
     taskCreate,
+    taskFindFirst,
     pipelineStageFindFirst,
   };
 });
@@ -80,8 +84,8 @@ function buildPrisma() {
       findUnique: mocks.subscriptionFindUnique,
     },
     deal: { update: mocks.dealUpdate, findFirst: mocks.dealFindFirst },
-    activity: { create: mocks.activityCreate },
-    task: { create: mocks.taskCreate },
+    activity: { create: mocks.activityCreate, findFirst: mocks.activityFindFirst },
+    task: { create: mocks.taskCreate, findFirst: mocks.taskFindFirst },
     pipelineStage: { findFirst: mocks.pipelineStageFindFirst },
   };
 }
@@ -115,6 +119,7 @@ const completedWithDealEvent = {
 };
 
 const invoicePaidEvent = {
+  id: "evt_invoice_456",
   type: "invoice.paid",
   data: {
     object: {
@@ -142,6 +147,7 @@ const subscriptionUpdatedEvent = {
 };
 
 const subscriptionDeletedEvent = {
+  id: "evt_sub_789",
   type: "customer.subscription.deleted",
   data: {
     object: {
@@ -169,14 +175,15 @@ beforeEach(() => {
   mocks.dealUpdate.mockReset();
   mocks.dealFindFirst.mockReset();
   mocks.activityCreate.mockReset();
+  mocks.activityFindFirst.mockReset();
   mocks.taskCreate.mockReset();
+  mocks.taskFindFirst.mockReset();
   mocks.pipelineStageFindFirst.mockReset();
   vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
 describe("POST /api/stripe/webhook", () => {
-  // Tests existentes (sin cambios)
   it("acusa recibo sin procesar si falta cliente o secreto (degradación)", async () => {
     mocks.state.stripe = null;
     const res = await post("raw", { "stripe-signature": "sig" });
@@ -216,7 +223,7 @@ describe("POST /api/stripe/webhook", () => {
     expect(mocks.orderUpsert).not.toHaveBeenCalled();
   });
 
-  it("responde 500 si la persistencia falla (el pago ya se cobró → Stripe debe reintentar)", async () => {
+  it("responde 500 si la persistencia falla", async () => {
     mocks.constructEvent.mockReturnValue(completedEvent);
     mocks.state.prisma = buildPrisma();
     mocks.orderUpsert.mockRejectedValue(new Error("db down"));
@@ -231,6 +238,7 @@ describe("POST /api/stripe/webhook", () => {
     mocks.state.prisma = buildPrisma();
     mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-1" });
     mocks.dealFindFirst.mockResolvedValue({ id: "deal-1" });
+    mocks.activityFindFirst.mockResolvedValue(null);
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(200);
     expect(mocks.invoiceUpsert).toHaveBeenCalledWith(
@@ -263,13 +271,14 @@ describe("POST /api/stripe/webhook", () => {
   it("T4.3: customer.subscription.deleted → subscription.cancelled + task.create", async () => {
     mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
     mocks.state.prisma = buildPrisma();
-    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-1" });
+    mocks.subscriptionUpsert.mockResolvedValue({ contactId: "contact-1" });
+    mocks.taskFindFirst.mockResolvedValue(null);
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(200);
-    expect(mocks.subscriptionUpdate).toHaveBeenCalledWith(
+    expect(mocks.subscriptionUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { stripeSubscriptionId: "sub_stripe_123" },
-        data: expect.objectContaining({ status: "canceled" }),
+        update: expect.objectContaining({ status: "canceled" }),
       }),
     );
     expect(mocks.taskCreate).toHaveBeenCalledWith(
@@ -327,8 +336,6 @@ describe("POST /api/stripe/webhook", () => {
     expect(res.status).toBe(500);
   });
 
-  // ─── DEFECTO-010 — ramas de fallo de subscription y dealId ──────────
-
   it("responde 500 si subscription.updated falla al persistir", async () => {
     mocks.constructEvent.mockReturnValue(subscriptionUpdatedEvent);
     mocks.state.prisma = buildPrisma();
@@ -340,7 +347,7 @@ describe("POST /api/stripe/webhook", () => {
   it("responde 500 si subscription.deleted falla al actualizar la subscription", async () => {
     mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
     mocks.state.prisma = buildPrisma();
-    mocks.subscriptionUpdate.mockRejectedValue(new Error("db down"));
+    mocks.subscriptionUpsert.mockRejectedValue(new Error("db down"));
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(500);
   });
@@ -348,7 +355,8 @@ describe("POST /api/stripe/webhook", () => {
   it("responde 500 si subscription.deleted falla al crear la task de cancelación", async () => {
     mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
     mocks.state.prisma = buildPrisma();
-    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-1" });
+    mocks.subscriptionUpsert.mockResolvedValue({ contactId: "contact-1" });
+    mocks.taskFindFirst.mockResolvedValue(null);
     mocks.taskCreate.mockRejectedValue(new Error("db down"));
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(500);
