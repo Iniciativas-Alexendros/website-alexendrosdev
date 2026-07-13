@@ -326,4 +326,51 @@ describe("POST /api/stripe/webhook", () => {
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(500);
   });
+
+  // ─── DEFECTO-010 — ramas de fallo de subscription y dealId ──────────
+
+  it("responde 500 si subscription.updated falla al persistir", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionUpdatedEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionUpsert.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
+
+  it("responde 500 si subscription.deleted falla al actualizar la subscription", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionUpdate.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
+
+  it("responde 500 si subscription.deleted falla al crear la task de cancelación", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-1" });
+    mocks.taskCreate.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
+
+  it("responde 500 si checkout con dealId falla al buscar pipelineStage", async () => {
+    mocks.constructEvent.mockReturnValue(completedWithDealEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.pipelineStageFindFirst.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
+
+  it("responde 500 si checkout con dealId falla al actualizar el deal", async () => {
+    mocks.constructEvent.mockReturnValue(completedWithDealEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.pipelineStageFindFirst.mockResolvedValue({
+      id: "stage-cerrado-ganado",
+      order: 5,
+    });
+    mocks.dealUpdate.mockRejectedValue(new Error("db down"));
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(500);
+  });
 });

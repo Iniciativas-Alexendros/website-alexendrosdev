@@ -106,3 +106,26 @@ jobs:
       - run: pnpm e2e
         env:
           CI: "true"
+
+  # Despliegue a producción SOLO tras pasar quality + e2e. El auto-deploy de
+  # Vercel desde Git está desactivado (gitProviderOptions.createDeployments),
+  # por lo que este job es el único que promociona a prod.
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [quality, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Deploy to production (Vercel)
+        run: npx vercel deploy --prod --yes --token "$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
