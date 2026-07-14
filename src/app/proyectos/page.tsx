@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProjectsView } from "@/components/sections/projects/ProjectsView";
+import { ProjectsList } from "@/components/sections/projects/ProjectsList";
 
 export const metadata: Metadata = {
   title: "Proyectos",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProjectsPage() {
-  return <ProjectsView />;
+  return <ProjectsList />;
 }

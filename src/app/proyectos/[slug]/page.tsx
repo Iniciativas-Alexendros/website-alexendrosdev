@@ -1,32 +1,10 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
-import type { CaseBlock } from "@/lib/content";
+import type { CaseBlock } from "@/lib/content/case-studies";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { JsonLd } from "@/components/JsonLd";
 import { makeCreativeWorkJsonLd, makeBreadcrumbJsonLd } from "@/lib/seo/jsonld";
-
-export function generateStaticParams() {
-  return PROJECTS.map((p) => ({ slug: p.id }));
-}
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const p = getProject(slug);
-  if (!p) return {};
-  const description = p.metaDescription ?? p.desc.slice(0, 155);
-  return {
-    title: p.title,
-    description,
-    openGraph: { title: p.title, description, type: "article" },
-  };
-}
 
 function Block({ block }: { block: CaseBlock }) {
   switch (block.type) {
@@ -60,7 +38,7 @@ function Block({ block }: { block: CaseBlock }) {
     case "quote":
       return (
         <blockquote>
-          “{block.text}” — {block.author}
+          &ldquo;{block.text}&rdquo; &mdash; {block.author}
         </blockquote>
       );
     default:
@@ -71,7 +49,17 @@ function Block({ block }: { block: CaseBlock }) {
 export default async function ProjectCasePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = getProject(slug);
-  if (!p) notFound();
+  if (!p) {
+    return (
+      <div className="ak-container">
+        <h1 className="ak-page-title">Proyecto no encontrado</h1>
+        <p className="ak-page-lead">El proyecto solicitado no existe.</p>
+        <Button variant="secondary" href="/proyectos">
+          Volver a proyectos
+        </Button>
+      </div>
+    );
+  }
 
   const study = getCaseStudy(p);
   const idx = PROJECTS.findIndex((x) => x.id === p.id);
@@ -79,7 +67,7 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
   const next = PROJECTS[(idx + 1) % PROJECTS.length];
 
   return (
-    <div className="ak-container">
+    <div className="ak-container ak-detail-page">
       <JsonLd data={makeCreativeWorkJsonLd(p)} />
       <JsonLd
         data={makeBreadcrumbJsonLd([
@@ -88,19 +76,21 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           { name: p.title, url: `https://alexendros.dev/proyectos/${p.id}` },
         ])}
       />
+
       <Link className="ak-back" href="/proyectos">
         <Icon name="arrow-left" size={15} />
         Proyectos
       </Link>
-      <section className="ak-detail-hero">
+
+      <header className="ak-detail-hero">
         <div className="ak-detail-meta">
           <span>{p.category}</span>
-          <span>·</span>
+          <span>&middot;</span>
           <span>{p.year}</span>
         </div>
         <h1 className="ak-detail-title">{p.title}</h1>
         <p className="ak-detail-sum">{study.summary}</p>
-        {(p.liveUrl ?? p.repoUrl) && (
+        {(p.liveUrl || p.repoUrl) && (
           <div className="ak-detail-actions">
             {p.liveUrl && (
               <Button variant="primary" href={p.liveUrl} target="_blank" rel="noopener noreferrer">
@@ -121,80 +111,83 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
             )}
           </div>
         )}
-      </section>
+      </header>
 
-      <div className="ak-ph ak-ph-grad ak-hero-shot" data-reveal>
-        <span className="ak-ph-label">imagen principal del producto</span>
+      <div className="ak-ph ak-hero-shot" data-reveal>
+        <img
+          src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
+          alt=""
+          className="ak-hero-img"
+          loading="eager"
+        />
       </div>
 
-      <section className="ak-section" style={{ paddingTop: 36 }}>
-        <div className="ak-case-grid">
-          <article className="ak-prose">
-            <div className="ak-case-metrics">
-              {p.metrics.map((m) => (
-                <div key={m.l} className="ak-case-metric">
-                  <b>{m.v}</b>
-                  <span>{m.l}</span>
-                </div>
+      <section className="ak-case-layout" data-reveal data-reveal-delay="1">
+        <article className="ak-prose">
+          <div className="ak-case-metrics">
+            {p.metrics.map((m) => (
+              <div key={m.l} className="ak-case-metric">
+                <b>{m.v}</b>
+                <span>{m.l}</span>
+              </div>
+            ))}
+          </div>
+
+          {study.sections.map((s) => (
+            <section key={s.id} id={s.id}>
+              <h2>{s.title}</h2>
+              {s.blocks.map((b, i) => (
+                <Block key={`${s.id}-block-${i}`} block={b} />
+              ))}
+            </section>
+          ))}
+
+          <div className="ak-stack-showcase">
+            <h3>Stack</h3>
+            <div className="ak-pcard-tags">
+              {p.tags.map((t) => (
+                <span key={t} className="ak-tag">
+                  {t}
+                </span>
               ))}
             </div>
-            {study.sections.map((s) => (
-              <section key={s.id}>
-                <h2 id={s.id}>{s.title}</h2>
-                {s.blocks.map((b, i) => (
-                  <Block key={`${s.id}-block-${i}`} block={b} />
-                ))}
-              </section>
-            ))}
-          </article>
+          </div>
+        </article>
 
-          <aside className="ak-case-side">
-            <div className="ak-meta-card">
-              <div className="ak-meta-item">
-                <span className="k">Rol</span>
-                <span className="v">{study.role}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Duración</span>
-                <span className="v">{study.duration}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Año</span>
-                <span className="v">{p.year}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Categoría</span>
-                <span className="v">{p.category}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Cliente</span>
-                <span className="v">{study.client}</span>
-              </div>
+        <aside className="ak-case-side">
+          <div className="ak-meta-card">
+            <div className="ak-meta-item">
+              <span className="k">Rol</span>
+              <span className="v">{study.role}</span>
             </div>
-            <div className="ak-meta-card">
-              <div className="ak-side-group-t" style={{ marginBottom: 10 }}>
-                Stack
-              </div>
-              <div className="ak-pcard-tags">
-                {p.tags.map((t) => (
-                  <span key={t} className="ak-tag">
-                    {t}
-                  </span>
-                ))}
-              </div>
+            <div className="ak-meta-item">
+              <span className="k">Duración</span>
+              <span className="v">{study.duration}</span>
             </div>
-          </aside>
-        </div>
+            <div className="ak-meta-item">
+              <span className="k">Año</span>
+              <span className="v">{p.year}</span>
+            </div>
+            <div className="ak-meta-item">
+              <span className="k">Categoría</span>
+              <span className="v">{p.category}</span>
+            </div>
+            <div className="ak-meta-item">
+              <span className="k">Cliente</span>
+              <span className="v">{study.client}</span>
+            </div>
+          </div>
+        </aside>
       </section>
 
       <section className="ak-section" style={{ paddingTop: 0 }}>
         <div className="ak-relnav">
           <Link className="prev" href={`/proyectos/${prev.id}`}>
-            <div className="dir">← Anterior</div>
+            <div className="dir">&larr; Anterior</div>
             <div className="t">{prev.title}</div>
           </Link>
           <Link className="next" href={`/proyectos/${next.id}`}>
-            <div className="dir">Siguiente →</div>
+            <div className="dir">Siguiente &rarr;</div>
             <div className="t">{next.title}</div>
           </Link>
         </div>
