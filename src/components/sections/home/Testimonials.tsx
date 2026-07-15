@@ -8,8 +8,17 @@ interface Testimonial {
   quote: string;
   author: string;
   role: string;
-  company: string;
+  url?: string;
   avatarSeed: string;
+}
+
+function slugify(input: string) {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 const TESTIMONIALS: Testimonial[] = CONTENT_TESTIMONIALS.filter(
@@ -18,8 +27,8 @@ const TESTIMONIALS: Testimonial[] = CONTENT_TESTIMONIALS.filter(
   quote: t.quote,
   author: t.name,
   role: t.role || "",
-  company: "",
-  avatarSeed: "avatar-default",
+  url: t.url,
+  avatarSeed: `avatar-${slugify(t.name)}`,
 }));
 
 function subscribeReduced(cb: () => void) {
@@ -57,9 +66,12 @@ function TestimonialCard({ t }: { t: Testimonial }) {
         />
         <div>
           <span className="ak-tcard-name">{t.author}</span>
-          <span className="ak-tcard-role">
-            {t.role} &middot; {t.company}
-          </span>
+          {t.role && <span className="ak-tcard-role">{t.role}</span>}
+          {t.url && (
+            <a className="ak-tcard-link" href={t.url} target="_blank" rel="noopener noreferrer">
+              <Icon name="arrow-up-right" size={12} />
+            </a>
+          )}
         </div>
       </div>
     </article>

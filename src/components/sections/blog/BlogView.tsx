@@ -34,20 +34,24 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
     return result;
   }, [allPosts, selectedTag, query]);
 
-  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const featuredPost = allPosts[0];
+  const otherPosts = useMemo(() => {
+    return allPosts.slice(1).filter((p) => {
+      if (selectedTag !== "all" && p.tag !== selectedTag) return false;
+      if (query.trim()) {
+        const needle = query.trim().toLowerCase();
+        return [p.title, p.desc, p.tag].filter(Boolean).join(" ").toLowerCase().includes(needle);
+      }
+      return true;
+    });
+  }, [allPosts, selectedTag, query]);
 
-  // Reset page when filters change
-  useEffect(() => {
-    queueMicrotask(() => setCurrentPage(1));
-  }, [selectedTag, query]);
+  const totalPages = Math.ceil(otherPosts.length / POSTS_PER_PAGE);
 
   const paginatedPosts = useMemo(() => {
     const start = (currentPage - 1) * POSTS_PER_PAGE;
-    return filteredPosts.slice(start, start + POSTS_PER_PAGE);
-  }, [filteredPosts, currentPage]);
-
-  const featuredPost = allPosts[0];
-  const otherPosts = allPosts.slice(1);
+    return otherPosts.slice(start, start + POSTS_PER_PAGE);
+  }, [otherPosts, currentPage]);
 
   return (
     <div className="ak-blog-page">
@@ -106,14 +110,14 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
           </div>
         </div>
 
-        {filteredPosts.length === 0 && (
+        {allPosts.length === 0 && (
           <p className="ak-empty" role="status">
             Sin artículos para los filtros actuales
           </p>
         )}
       </Reveal>
 
-      {filteredPosts.length > 0 && otherPosts.length > 0 && (
+      {otherPosts.length > 0 && (
         <Reveal delay={0.2} className="ak-section">
           <ul className="ak-post-grid" role="list">
             {paginatedPosts.map((p, i) => (

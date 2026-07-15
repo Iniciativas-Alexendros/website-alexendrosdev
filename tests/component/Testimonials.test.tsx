@@ -5,9 +5,8 @@ import { Testimonials } from "@/components/sections/home/Testimonials";
 vi.mock("@/lib/content", () => ({
   TESTIMONIALS: Array.from({ length: 5 }, (_, n) => ({
     quote: `Cita ${n}`,
-    author: `Persona ${n}`,
+    name: `Persona ${n}`,
     role: `Rol ${n}`,
-    company: `Empresa ${n}`,
     avatarSeed: `avatar-${n}`,
   })),
 }));
