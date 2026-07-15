@@ -68,14 +68,13 @@ export function HomeServices() {
         </header>
 
         <div className="ak-srv-list" role="list">
-          {SERVICES.map((service, i) => (
+          {SERVICES.map((service) => (
             <Link
               key={service.slug}
               href={`/servicios#${service.slug}`}
               className="ak-srv-row"
               role="listitem"
             >
-              <span className="ak-srv-idx">{String(i + 1).padStart(2, "0")}</span>
               <div className="ak-srv-main">
                 <h3 className="ak-srv-name">{service.name}</h3>
                 <p className="ak-srv-sub">{service.description}</p>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Icon } from "@/components/ui";
+import { Button } from "@/components/ui";
 
 export function Hero() {
   return (
@@ -42,9 +42,6 @@ export function Hero() {
             <span className="ak-stat-num">0</span>
             <span className="ak-stat-lab">Ataduras</span>
           </div>
-        </div>
-        <div className="ak-scroll-cue" aria-hidden="true">
-          <Icon name="arrow-down" size={20} />
         </div>
       </div>
     </section>

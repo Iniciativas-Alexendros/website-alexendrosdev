@@ -93,10 +93,7 @@ export function HomeFeaturedProjects() {
                 />
               </div>
               <div className="ak-zz-body">
-                <div className="ak-zz-idx">
-                  <b>{String(i + 1).padStart(2, "0")}</b>
-                  <span>{project.category}</span>
-                </div>
+                <span className="ak-zz-cat">{project.category}</span>
                 <h3 className="ak-zz-title">{project.title}</h3>
                 <p className="ak-zz-desc">{project.description}</p>
                 <div className="ak-zz-tags">

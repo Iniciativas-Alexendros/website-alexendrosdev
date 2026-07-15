@@ -359,20 +359,6 @@ main {
   letter-spacing: 0.05em;
   color: hsl(var(--text-tertiary));
 }
-.ak-scroll-cue {
-  margin-top: 36px;
-  color: hsl(var(--text-muted));
-  animation: bob 2.2s ease-in-out infinite;
-}
-@keyframes bob {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(7px);
-  }
-}
 
 /* ============================================================
    TERMINAL BAND (Home)
