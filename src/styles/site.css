@@ -924,34 +924,13 @@ main {
 
 /* ============================================================
    IMAGE / MEDIA PLACEHOLDERS (use picsum seeds in components)
+   ============================================================
+   Placeholder gradients removed — all images use picsum.photos/seed/*
+   See: src/components/sections/home/HomeFeaturedProjects.tsx
+        src/components/sections/projects/ProjectsList.tsx
+        src/components/sections/blog/BlogView.tsx
+        src/app/proyectos/[slug]/page.tsx
    ============================================================ */
-.ak-ph {
-  position: relative;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  background:
-    linear-gradient(
-      135deg,
-      hsl(var(--primary-400) / 0.14),
-      hsl(var(--success) / 0.14)
-    ),
-    repeating-linear-gradient(
-      45deg,
-      hsl(var(--border-subtle) / 0.5) 0 12px,
-      transparent 12px 24px
-    );
-  border: 1px solid hsl(var(--border-subtle));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ak-ph-label {
-  font: 500 12px var(--font-mono);
-  color: hsl(var(--text-tertiary));
-  background: hsl(var(--bg-base) / 0.7);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-}
 .ak-avatar {
   border-radius: var(--radius-full);
   background: linear-gradient(
@@ -1391,13 +1370,6 @@ main {
 }
 .ak-prose figure {
   margin: 24px 0;
-}
-.ak-ph-label {
-  font: 500 12px var(--font-mono);
-  color: hsl(var(--text-tertiary));
-  background: hsl(var(--bg-base) / 0.7);
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
 }
 .ak-figcaption {
   font-size: var(--fs-body-sm);
@@ -2541,4 +2513,30 @@ main {
   .ak-comparison {
     min-width: 100%;
   }
+}
+
+/* ============================================================
+   HERO IMAGE (project detail)
+   ============================================================ */
+.ak-hero-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: var(--radius-2xl);
+  border: 1px solid hsl(var(--border-subtle));
+  margin: 32px 0;
+}
+
+/* ============================================================
+   PROSE SHOT (figure images in case study)
+   ============================================================ */
+.ak-prose-shot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: var(--radius-xl);
+  border: 1px solid hsl(var(--border-subtle));
+  margin: 0;
 }

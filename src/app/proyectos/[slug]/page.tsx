@@ -29,9 +29,12 @@ function Block({ block }: { block: CaseBlock }) {
     case "figure":
       return (
         <figure>
-          <div className="ak-ph ak-prose-shot">
-            <span className="ak-ph-label">{block.label}</span>
-          </div>
+          <img
+            src={`https://picsum.photos/seed/${block.label?.replace(/\s+/g, "-").toLowerCase() ?? "shot"}/1200/675`}
+            alt={block.caption ?? ""}
+            className="ak-prose-shot"
+            loading="lazy"
+          />
           <figcaption>{block.caption}</figcaption>
         </figure>
       );
@@ -114,14 +117,12 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
       </header>
 
       <Reveal>
-        <div className="ak-ph ak-hero-shot">
-          <img
-            src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
-            alt=""
-            className="ak-hero-img"
-            loading="eager"
-          />
-        </div>
+        <img
+          src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
+          alt={p.title}
+          className="ak-hero-img"
+          loading="eager"
+        />
       </Reveal>
 
       <Reveal delay={0.06}>
