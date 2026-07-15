@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/sections/Header";
 import { Footer } from "@/components/sections/Footer";
-import { RevealController } from "@/components/providers/RevealController";
 import { isComingSoon } from "@/lib/flags";
 import { JsonLd } from "@/components/JsonLd";
 import { makeWebSiteJsonLd, makePersonJsonLd } from "@/lib/seo/jsonld";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist",
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -50,7 +55,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "es_ES",
     url: SITE_URL,
-    images: [{ url: OG_IMAGE, alt: "Alexendros — Desarrollo de plataformas, webs y apps" }],
+    images: [
+      {
+        url: OG_IMAGE,
+        alt: "Alexendros — Desarrollo de plataformas, webs y apps",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
@@ -76,7 +86,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${geist.variable} ${geistMono.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -90,7 +100,6 @@ export default function RootLayout({
           <main>{children}</main>
           {!holding && <Footer />}
         </div>
-        <RevealController />
         <Analytics />
         <SpeedInsights />
       </body>

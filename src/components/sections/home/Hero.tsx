@@ -1,42 +1,49 @@
-import { HERO_STATS } from "@/lib/content";
-import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
+"use client";
+
+import { Button } from "@/components/ui";
 
 export function Hero() {
   return (
-    <section className="ak-hero-c" data-screen-label="hero">
-      <span className="ak-note" data-reveal>
-        <span className="ak-status-dot" />
-        Disponible · media jornada
-      </span>
-      <h1 className="ak-display" data-reveal data-reveal-delay="1">
-        Desarrollo de plataformas, webs y <em>apps</em> a medida en Valencia.
-      </h1>
-      <p className="ak-hero-c-lead" data-reveal data-reveal-delay="2">
-        Diseño y desarrollo el producto digital que necesitas —desde una web hasta una plataforma
-        completa— con tecnología moderna y código que de verdad es tuyo. Trabajo desde Valencia para
-        empresas nuevas y pequeñas de toda España: rápido, fiable y seguro desde el primer día.
-      </p>
-      <div className="ak-hero-c-cta" data-reveal data-reveal-delay="2">
-        <Button variant="primary" href="/proyectos">
-          Ver mi trabajo
-        </Button>
-        <Button variant="secondary" href="/contacto">
-          <Icon name="calendar" size={16} style={{ marginRight: 8 }} />
-          Agenda una llamada
-        </Button>
-      </div>
-      <div className="ak-hero-c-stats" data-reveal data-reveal-delay="3">
-        {HERO_STATS.map(([n, l]) => (
-          <div key={l} className="ak-stat" style={{ alignItems: "center" }}>
-            <span className="ak-stat-num">{n}</span>
-            <span className="ak-stat-lab">{l}</span>
+    <section className="ak-hero-c" aria-labelledby="hero-title">
+      <div className="ak-container">
+        <h1
+          id="hero-title"
+          className="ak-display"
+          style={{ maxWidth: "16ch", margin: "22px auto 0" }}
+        >
+          Desarrollo de plataformas, webs y <em>apps</em> a medida.
+        </h1>
+        <p className="ak-hero-c-lead">
+          Ayudo a empresas nuevas y pequeñas de toda España a lanzar productos digitales con
+          tecnología moderna, código que es tuyo y precios pensados para ti.
+        </p>
+        <div className="ak-hero-c-cta">
+          <Button variant="primary" size="lg" href="/proyectos">
+            Ver mi trabajo
+          </Button>
+          <Button variant="secondary" size="lg" href="/contacto">
+            Agenda una llamada
+          </Button>
+        </div>
+        <div className="ak-hero-c-stats">
+          <div className="ak-stat" style={{ alignItems: "center" }}>
+            <span className="ak-stat-num">5</span>
+            <span className="ak-stat-lab">Proyectos</span>
           </div>
-        ))}
+          <div className="ak-stat" style={{ alignItems: "center" }}>
+            <span className="ak-stat-num">4</span>
+            <span className="ak-stat-lab">Lenguajes</span>
+          </div>
+          <div className="ak-stat" style={{ alignItems: "center" }}>
+            <span className="ak-stat-num">100%</span>
+            <span className="ak-stat-lab">Tuyo</span>
+          </div>
+          <div className="ak-stat" style={{ alignItems: "center" }}>
+            <span className="ak-stat-num">0</span>
+            <span className="ak-stat-lab">Ataduras</span>
+          </div>
+        </div>
       </div>
-      <a href="#proyectos" className="ak-scroll-cue" aria-label="Bajar">
-        <Icon name="arrow-down" size={22} />
-      </a>
     </section>
   );
 }

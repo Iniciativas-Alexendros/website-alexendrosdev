@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { act, render, screen } from "../helpers/render";
+import { act, render } from "../helpers/render";
 import { Terminal } from "@/components/sections/Terminal";
 
 afterEach(() => {
@@ -16,20 +16,21 @@ describe("Terminal", () => {
       removeEventListener: () => {},
     } as unknown as MediaQueryList);
 
-    const { container } = render(<Terminal title="~/whoami.sh" />);
-    expect(screen.getByText("~/whoami.sh")).toBeInTheDocument();
-    expect(container.textContent).toContain("cat ~/whoami.json");
-    expect(container.textContent).toContain("open_to_work");
+    const { container } = render(<Terminal />);
+    act(() => {});
+    expect(container.textContent).toContain("alexendros");
+    expect(container.textContent).toContain("developer");
   });
 
   it("teclea el comando y revela las líneas con el tiempo (sin reduced-motion)", () => {
     vi.useFakeTimers();
     const { container } = render(<Terminal />);
-    // Tras avanzar el reloj, el comando se ha tecleado y las líneas aparecen.
-    act(() => {
-      vi.advanceTimersByTime(3500);
-    });
-    expect(container.textContent).toContain("cat ~/whoami.json");
-    expect(container.textContent).toContain("open_to_work");
+    for (let i = 0; i < 100; i++) {
+      act(() => {
+        vi.advanceTimersByTime(60);
+      });
+    }
+    expect(container.textContent).toContain("alexendros");
+    expect(container.textContent).toContain("developer");
   });
 });

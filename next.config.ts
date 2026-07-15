@@ -10,6 +10,10 @@ import type { NextConfig } from "next";
 //   bootstrap/flight y el script de tema (layout.tsx) es inline. Hasear todos
 //   esos hashes es frágil (rompe la hidratación); para una web estática
 //   auto-alojada esto es la política correcta y funcional.
+// - En dev se añade `'unsafe-eval'` para que React (HMR) pueda reconstruir
+//   stacks; en producción nunca se usa eval().
+const isDev = process.env.NODE_ENV !== "production";
+
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -26,11 +30,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://va.vercel-scripts.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https:",
       "font-src 'self' data:",
-      "connect-src 'self' https://api.stripe.com",
+      "connect-src 'self' https://api.stripe.com https://vitals.vercel-insights.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "object-src 'none'",
       "base-uri 'self'",

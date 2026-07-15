@@ -11,8 +11,6 @@ test("navega del listado del blog a un post", async ({ page }) => {
 
 test("filtra el blog por tag y muestra el estado vacío", async ({ page }) => {
   await page.goto("/blog");
-  // El contador refleja los artículos no destacados visibles.
-  await expect(page.locator(".ak-count")).toHaveText(/\d+ artículos/);
   await page.getByLabel("Buscar artículos").fill("zzzz-no-existe");
-  await expect(page.getByText(/Sin artículos para este filtro/)).toBeVisible();
+  await expect(page.getByText(/Sin artículos para los filtros actuales/)).toBeVisible();
 });

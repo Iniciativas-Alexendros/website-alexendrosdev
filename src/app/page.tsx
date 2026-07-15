@@ -3,7 +3,7 @@ import { Terminal } from "@/components/sections/Terminal";
 import { Marquee } from "@/components/sections/Marquee";
 import { Icon } from "@/components/ui/Icon";
 import { Hero } from "@/components/sections/home/Hero";
-import { HomeProjects } from "@/components/sections/home/HomeProjects";
+import { HomeFeaturedProjects } from "@/components/sections/home/HomeFeaturedProjects";
 import { HomeServices } from "@/components/sections/home/HomeServices";
 import { Testimonials } from "@/components/sections/home/Testimonials";
 import { HomeCTA } from "@/components/sections/home/HomeCTA";
@@ -24,7 +24,7 @@ export default function HomePage() {
       <div style={{ height: 36 }} />
       <Marquee />
       <div className="ak-container">
-        <HomeProjects />
+        <HomeFeaturedProjects />
       </div>
       <HomeServices />
       {TESTIMONIALS.length > 0 && <Testimonials />}

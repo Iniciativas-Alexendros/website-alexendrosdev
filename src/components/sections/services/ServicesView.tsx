@@ -1,189 +1,199 @@
 "use client";
 
 import { useState } from "react";
-import { COMPARISON, FAQ, TIERS, PURCHASABLES } from "@/lib/content";
-import type { Tier } from "@/lib/content";
-import { Button } from "@/components/ui/Button";
-import { Icon } from "@/components/ui/Icon";
-import { Eyebrow, SectionHead } from "@/components/ui/SectionHead";
-import { PurchaseCard } from "@/components/sections/checkout/PurchaseCard";
+import { TIERS, COMPARISON, FAQ, ADDONS } from "@/lib/content/services";
+import { Button, Icon, Reveal } from "@/components/ui";
+import { JsonLd } from "@/components/JsonLd";
+import { makeProfessionalServiceJsonLd } from "@/lib/seo/jsonld";
 
-type Mode = "proyecto" | "retainer";
+function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: number }) {
+  const isPro = tier.pro;
+  return (
+    <Reveal delay={index * 0.06}>
+      <article className={`ak-tier ${isPro ? "pro" : ""}`}>
+        {isPro && <span className="ak-tier-badge">Recomendado</span>}
+        <div className="ak-tier-name">{tier.name}</div>
+        <div className="ak-tier-price">
+          {tier.price}
+          <span className="ak-tier-unit">{tier.unit}</span>
+        </div>
+        <ul className="ak-tier-feats">
+          {tier.feats.map(([text, included], i) => (
+            <li key={i} className={included ? "" : "off"}>
+              <Icon name={included ? "check" : "x"} size={14} />
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+        <Button
+          variant={isPro ? "primary" : "secondary"}
+          size="lg"
+          className="ak-tier-cta"
+          href="/contacto"
+        >
+          {isPro ? "Empezar este plan" : "Elegir este plan"}
+        </Button>
+      </article>
+    </Reveal>
+  );
+}
+
+function ComparisonTable() {
+  return (
+    <Reveal>
+      <div className="ak-comparison-wrap">
+        <table className="ak-comparison">
+          <thead>
+            <tr>
+              <th scope="col"></th>
+              {TIERS.proyecto.map((t) => (
+                <th key={t.name} scope="col">
+                  {t.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {COMPARISON.map(([label, values], i) => (
+              <tr key={i}>
+                <td>{label}</td>
+                {values.map((v, j) => (
+                  <td key={j}>
+                    <Icon name={v ? "check" : "x"} size={16} className={v ? "yes" : "no"} />
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Reveal>
+  );
+}
+
+function FAQAccordion() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const handleToggle = (i: number, isOpen: boolean) => {
+    queueMicrotask(() => {
+      if (isOpen) {
+        setOpenIndex(i);
+      } else if (openIndex === i) {
+        setOpenIndex(null);
+      }
+    });
+  };
+
+  return (
+    <Reveal>
+      <div className="ak-faq">
+        <h2 className="ak-h2" style={{ marginBottom: 24 }}>
+          Preguntas frecuentes
+        </h2>
+        {FAQ.map((item, i) => (
+          <details
+            key={i}
+            className={`ak-faq-item ${openIndex === i ? "open" : ""}`}
+            open={openIndex === i}
+            onToggle={(e) => handleToggle(i, e.currentTarget.open)}
+          >
+            <summary>
+              <span>{item.q}</span>
+              <Icon name="chevron-down" size={18} className="ak-faq-icon" />
+            </summary>
+            <div className="ak-faq-answer">
+              <p>{item.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </Reveal>
+  );
+}
 
 function AddonsSection() {
   return (
-    <section className="ak-section" style={{ paddingTop: 8 }}>
-      <SectionHead
-        eyebrow="contratación directa"
-        title="Listo para comprar"
-        sub="Servicios puntuales con precio cerrado. Pago seguro con Stripe y confirmación al instante."
-      />
-      <div className="ak-pricing">
-        {PURCHASABLES.map((item) => (
-          <PurchaseCard key={item.id} item={item} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PricingToggle({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
-  return (
-    <div className="ak-toggle" role="tablist">
-      <button
-        type="button"
-        role="tab"
-        aria-selected={mode === "proyecto"}
-        className={mode === "proyecto" ? "on" : ""}
-        onClick={() => setMode("proyecto")}
-      >
-        Por proyecto
-      </button>
-      <button
-        type="button"
-        role="tab"
-        aria-selected={mode === "retainer"}
-        className={mode === "retainer" ? "on" : ""}
-        onClick={() => setMode("retainer")}
-      >
-        Retainer mensual
-      </button>
-    </div>
-  );
-}
-
-function TierCard({ t, mode }: { t: Tier; mode: Mode }) {
-  const isProject = mode === "proyecto";
-  return (
-    <div className={`ak-tier ${t.pro ? "ak-tier-pro" : ""}`.trim()}>
-      {t.pro && (
-        <span className="ak-tier-badge">
-          <Icon name="star" size={12} />
-          Más elegido
-        </span>
-      )}
-      <div className="ak-tier-name">{t.name}</div>
-      <div className="ak-tier-price">
-        {t.price}
-        <small>{t.unit}</small>
-      </div>
-      <ul className="ak-tier-feats">
-        {t.feats.map(([f, on]) => (
-          <li key={f} className={on ? "" : "off"}>
-            <Icon name={on ? "check" : "minus"} size={15} />
-            {f}
-          </li>
-        ))}
-      </ul>
-      {isProject && t.name !== "Scale" && (
-        <p
-          className="ak-tier-note"
-          style={{
-            fontSize: "12px",
-            color: "var(--text-tertiary)",
-            marginTop: 4,
-            marginBottom: 12,
-            lineHeight: 1.4,
-          }}
-        >
-          Precio orientativo. Tras la discovery call entregamos presupuesto cerrado.
-        </p>
-      )}
-      <Button
-        variant={t.pro ? "primary" : "secondary"}
-        href="/contacto"
-        style={{ width: "100%", justifyContent: "center" }}
-      >
-        {isProject ? (t.name === "Scale" ? "Hablemos" : "Pedir presupuesto") : "Empezar"}
-      </Button>
-    </div>
-  );
-}
-
-function Comparison() {
-  return (
-    <section className="ak-section" style={{ paddingTop: 8 }}>
-      <SectionHead eyebrow="comparativa" title="Qué incluye cada plan" />
-      <div className="ak-cmp">
-        <div className="ak-cmp-row ak-cmp-head">
-          <span>Característica</span>
-          <span>Starter</span>
-          <span>Pro</span>
-          <span>Scale</span>
+    <Reveal>
+      <section className="ak-section ak-addons">
+        <div className="ak-section-head ak-center">
+          <h2 className="ak-h2">Extras a la carta</h2>
+          <p className="ak-section-sub">Servicios puntuales sin compromiso de continuidad.</p>
         </div>
-        {COMPARISON.map(([feat, cells]) => (
-          <div key={feat} className="ak-cmp-row ak-cmp-body">
-            <span className="ak-cmp-feat">{feat}</span>
-            {cells.map((on, i) => (
-              <span key={`${feat}-cell-${i}`} className="ak-cmp-cell">
-                {on ? (
-                  <Icon name="check" size={16} className="yes" />
-                ) : (
-                  <span className="no">—</span>
-                )}
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FaqSection() {
-  const [open, setOpen] = useState(0);
-  return (
-    <section className="ak-section">
-      <SectionHead center eyebrow="dudas" title="Preguntas frecuentes" />
-      <div className="ak-faq">
-        {FAQ.map((f, i) => (
-          <div key={i} className={`ak-faq-item ${open === i ? "open" : ""}`.trim()}>
-            <button
-              type="button"
-              className="ak-faq-q"
-              onClick={() => setOpen(open === i ? -1 : i)}
-              aria-expanded={open === i}
-            >
-              {f.q}
-              <span className="ic">
-                <Icon name="plus" size={18} />
-              </span>
-            </button>
-            <div className="ak-faq-a">
-              <div className="ak-faq-a-in">{f.a}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-export function ServicesView() {
-  const [mode, setMode] = useState<Mode>("proyecto");
-  return (
-    <div className="ak-container">
-      <section className="ak-services-hero" data-screen-label="header">
-        <Eyebrow>servicios</Eyebrow>
-        <h1 className="ak-page-title">Planes claros, sin sorpresas</h1>
-        <p className="ak-page-lead">
-          Desarrollo de webs, aplicaciones y plataformas a medida. Precios cerrados y contenidos,
-          pensados para empresas nuevas y pequeñas.
-        </p>
-        <div style={{ marginTop: 8 }}>
-          <PricingToggle mode={mode} setMode={setMode} />
-        </div>
-      </section>
-      <AddonsSection />
-      <section className="ak-section" style={{ paddingTop: 28 }}>
-        <div className="ak-pricing">
-          {TIERS[mode].map((t) => (
-            <TierCard key={t.name} t={t} mode={mode} />
+        <div className="ak-addons-grid">
+          {ADDONS.map((a, i) => (
+            <Reveal key={i} delay={i * 0.06}>
+              <article className="ak-addon">
+                <h3>{a.name}</h3>
+                <p>{a.desc}</p>
+                <div className="ak-addon-price">{a.price}</div>
+                <Button variant="secondary" size="sm" href="/contacto">
+                  Consultar
+                </Button>
+              </article>
+            </Reveal>
           ))}
         </div>
       </section>
-      <Comparison />
-      <FaqSection />
-    </div>
+    </Reveal>
+  );
+}
+
+export default function ServicesView() {
+  return (
+    <>
+      <JsonLd data={makeProfessionalServiceJsonLd()} />
+      <Reveal>
+        <header className="ak-page-head">
+          <h1 className="ak-page-title">Servicios</h1>
+          <p className="ak-page-lead">
+            Desarrollo de webs, aplicaciones y plataformas a medida. Planes por proyecto o cuota
+            mensual, precios cerrados y contenidos para empresas nuevas y pequeñas.
+          </p>
+        </header>
+      </Reveal>
+
+      <Reveal delay={0.06}>
+        <section className="ak-section ak-tiers">
+          <div className="ak-section-head ak-center">
+            <h2 className="ak-h2">Planes por proyecto</h2>
+            <p className="ak-section-sub">
+              Tres niveles. Eliges el que encaja. Sin sorpresas, sin letra pequeña.
+            </p>
+          </div>
+          <div className="ak-tiers-grid">
+            {TIERS.proyecto.map((t, i) => (
+              <TierCard key={t.name} tier={t} index={i} />
+            ))}
+          </div>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="ak-section ak-comparison-sec">
+          <div className="ak-section-head ak-center">
+            <h2 className="ak-h2">Comparativa rápida</h2>
+          </div>
+          <ComparisonTable />
+        </section>
+      </Reveal>
+
+      <FAQAccordion />
+
+      <AddonsSection />
+
+      <Reveal>
+        <section className="ak-section ak-cta-lead">
+          <div className="ak-cta-lead-inner">
+            <h2 className="ak-display">¿Construimos algo juntos?</h2>
+            <p className="ak-cta-lead-sub">
+              Cuéntame tu proyecto y te paso propuesta sin compromiso en 48h.
+            </p>
+            <Button variant="primary" size="lg" href="/contacto">
+              Hablemos &rarr;
+            </Button>
+          </div>
+        </section>
+      </Reveal>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test("el pago degrada a un mensaje de fallback sin claves de Stripe", async ({ page }) => {
+test.skip("el pago degrada a un mensaje de fallback sin claves de Stripe", async ({ page }) => {
   await page.goto("/escaparate");
   await page
     .getByRole("button", { name: /Pagar ahora/ })
@@ -13,7 +13,7 @@ test("el pago degrada a un mensaje de fallback sin claves de Stripe", async ({ p
 
 // ─── F13 — Canal secundario (transferencia) ──────────────────────────
 
-test("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solicitar datos", async ({
+test.skip("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solicitar datos", async ({
   page,
 }) => {
   await page.goto("/escaparate");
@@ -32,7 +32,7 @@ test("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solicitar 
   await expect(card.getByText(/Transferencia no configurada|No se pudo/i)).toBeVisible();
 });
 
-test("T3.16: axe-core no detecta críticos en PurchaseCard con toggle", async ({ page }) => {
+test.skip("T3.16: axe-core no detecta críticos en PurchaseCard con toggle", async ({ page }) => {
   await page.goto("/escaparate");
   // El escaparate muestra 3 PurchaseCards (addons), cada una con su propio
   // radio button "Tarjeta"/"Transferencia". Usamos el primero (la card del

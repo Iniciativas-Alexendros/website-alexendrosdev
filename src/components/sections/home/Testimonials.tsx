@@ -1,140 +1,179 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { TESTIMONIALS } from "@/lib/content";
-import { Eyebrow } from "@/components/ui/SectionHead";
-import { Icon } from "@/components/ui/Icon";
+import { useState, useSyncExternalStore } from "react";
+import { TESTIMONIALS as CONTENT_TESTIMONIALS } from "@/lib/content";
+import { Icon } from "@/components/ui";
 
-const PER_VIEW = 3;
+interface Testimonial {
+  quote: string;
+  author: string;
+  role: string;
+  url?: string;
+  avatarSeed: string;
+}
 
-// Filtra entradas pendiente del operador: las ranuras con prefijo
-// `__PENDIENTE__:` no se renderizan hasta que el operador complete la cita, el
-// nombre y el rol. Ver `src/lib/content/testimonials.ts`.
-function visibleTestimonials() {
-  return TESTIMONIALS.filter(
-    (t) =>
-      !t.quote.startsWith("__PENDIENTE__:") &&
-      !t.name.startsWith("__PENDIENTE__:") &&
-      !t.role.startsWith("__PENDIENTE__:"),
+function slugify(input: string) {
+  return input
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+const TESTIMONIALS: Testimonial[] = CONTENT_TESTIMONIALS.filter(
+  (t) => !t.quote.startsWith("__PENDIENTE__"),
+).map((t) => ({
+  quote: t.quote,
+  author: t.name,
+  role: t.role || "",
+  url: t.url,
+  avatarSeed: `avatar-${slugify(t.name)}`,
+}));
+
+function subscribeReduced(cb: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getReduced() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function subscribeWidth(cb: () => void) {
+  const mq = window.matchMedia("(min-width: 880px)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getPerView() {
+  return window.innerWidth < 880 ? 1 : 3;
+}
+
+function TestimonialCard({ t }: { t: Testimonial }) {
+  return (
+    <article className="ak-tcard" role="listitem">
+      <span className="ak-tcard-mark">&ldquo;</span>
+      <p className="ak-tcard-quote">{t.quote}</p>
+      <div className="ak-tcard-author">
+        <span
+          className="ak-avatar"
+          style={{
+            backgroundImage: `url(https://picsum.photos/seed/${t.avatarSeed}/100/100)`,
+          }}
+          aria-hidden="true"
+        />
+        <div>
+          <span className="ak-tcard-name">{t.author}</span>
+          {t.role && <span className="ak-tcard-role">{t.role}</span>}
+          {t.url && (
+            <a
+              className="ak-tcard-link"
+              href={t.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Visitar ${t.author}`}
+            >
+              <Icon name="arrow-up-right" size={12} />
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
 
 export function Testimonials() {
-  const data = visibleTestimonials();
-  const maxI = Math.max(0, data.length - PER_VIEW);
-  const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const isClient = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
+  const perView = useSyncExternalStore(subscribeWidth, getPerView, () => 3);
 
-  useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => setI((p) => (p >= maxI ? 0 : p + 1)), 4000);
-    return () => clearInterval(t);
-  }, [paused, maxI]);
+  const [index, setIndex] = useState(0);
 
-  const go = (n: number) => setI(Math.max(0, Math.min(maxI, n)));
+  const maxIndex = Math.max(0, TESTIMONIALS.length - perView);
+  const safeIndex = Math.min(index, maxIndex);
+
+  const goNext = () => setIndex((i) => (i >= maxIndex ? maxIndex : i + 1));
+  const goPrev = () => setIndex((i) => (i <= 0 ? 0 : i - 1));
+  const goTo = (i: number) => setIndex(Math.min(Math.max(0, i), maxIndex));
+
+  if (!isClient || isReduced) {
+    return (
+      <section className="ak-section" aria-labelledby="testimonials-heading">
+        <div className="ak-container">
+          <header className="ak-section-head ak-center">
+            <h2 id="testimonials-heading" className="ak-h2">
+              Testimonios
+            </h2>
+            <p className="ak-section-sub">Qu&eacute; dicen quienes ya han trabajado conmigo.</p>
+          </header>
+          <div className="ak-tcar-static" role="list">
+            {TESTIMONIALS.map((t, i) => (
+              <TestimonialCard key={i} t={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="ak-section ak-section-sunken">
-      <div className="ak-container-inner">
-        <div
-          className="ak-section-head"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            marginBottom: 28,
-          }}
-        >
-          <div>
-            <Eyebrow>código y proyectos verificables</Eyebrow>
-            <h2 className="ak-h2">Prueba en abierto</h2>
+    <section className="ak-section" aria-labelledby="testimonials-heading">
+      <div className="ak-container">
+        <header className="ak-section-head ak-center">
+          <h2 id="testimonials-heading" className="ak-h2">
+            Testimonios
+          </h2>
+          <p className="ak-section-sub">Qu&eacute; dicen quienes ya han trabajado conmigo.</p>
+        </header>
+
+        <div className="ak-tcar" role="region" aria-label="Carrusel de testimonios">
+          <div className="ak-tcar-viewport">
+            <div
+              className="ak-tcar-track"
+              role="list"
+              style={{
+                transform: `translateX(calc(-${safeIndex} * (100% + 20px) / ${perView}))`,
+              }}
+            >
+              {TESTIMONIALS.map((t, i) => (
+                <TestimonialCard key={i} t={t} />
+              ))}
+            </div>
           </div>
-          <div className="ak-tcar-nav">
+
+          <div className="ak-tcar-nav" aria-label="Navegaci&oacute;n carrusel">
             <button
-              type="button"
               className="ak-tcar-btn"
-              onClick={() => go(i - 1)}
-              disabled={i === 0}
-              aria-label="Anterior"
+              onClick={goPrev}
+              aria-label="Testimonio anterior"
+              disabled={safeIndex <= 0}
             >
               <Icon name="chevron-left" size={18} />
             </button>
             <button
-              type="button"
               className="ak-tcar-btn"
-              onClick={() => go(i + 1)}
-              disabled={i === maxI}
-              aria-label="Siguiente"
+              onClick={goNext}
+              aria-label="Siguiente testimonio"
+              disabled={safeIndex >= maxIndex}
             >
               <Icon name="chevron-right" size={18} />
             </button>
           </div>
-        </div>
-        <div
-          className="ak-tcar"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-        >
-          <div className="ak-tcar-viewport">
-            <div
-              className="ak-tcar-track"
-              style={{
-                transform: `translateX(calc(-${i} * (100% + 20px) / ${PER_VIEW}))`,
-              }}
-            >
-              {data.map((t, n) => {
-                const card = (
-                  <>
-                    <span className="ak-tcard-mark">{"</>"}</span>
-                    <blockquote className="ak-tcard-quote">{t.quote}</blockquote>
-                    <figcaption className="ak-tcard-author">
-                      <span
-                        className="ak-avatar"
-                        style={{
-                          width: 40,
-                          height: 40,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                        aria-hidden="true"
-                      >
-                        <Icon name="external-link" size={18} />
-                      </span>
-                      <span>
-                        <div className="ak-tcard-name">{t.name}</div>
-                        <div className="ak-tcard-role">{t.role}</div>
-                      </span>
-                    </figcaption>
-                  </>
-                );
-                return t.url ? (
-                  <a
-                    key={n}
-                    className="ak-tcard"
-                    href={t.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: "none" }}
-                  >
-                    {card}
-                  </a>
-                ) : (
-                  <figure key={n} className="ak-tcard">
-                    {card}
-                  </figure>
-                );
-              })}
-            </div>
-          </div>
-          <div className="ak-tcar-dots">
-            {Array.from({ length: maxI + 1 }).map((_, n) => (
+
+          <div className="ak-tcar-dots" aria-label="Indicadores">
+            {TESTIMONIALS.slice(0, maxIndex + 1).map((_, i) => (
               <button
-                key={n}
-                type="button"
-                className={`ak-tcar-dot ${n === i ? "on" : ""}`.trim()}
-                onClick={() => go(n)}
-                aria-label={`Ir a ${n + 1}`}
+                key={i}
+                className={`ak-tcar-dot ${i === safeIndex ? "on" : ""}`}
+                onClick={() => goTo(i)}
+                aria-label={`Ir al testimonio ${i + 1}`}
+                aria-current={i === safeIndex ? "true" : "false"}
               />
             ))}
           </div>

@@ -1,136 +1,76 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
-type Segment =
-  | { type: "text"; text: string }
-  | { type: "str"; text: string }
-  | { type: "kw"; text: string }
-  | { type: "cm"; text: string };
-
-type TerminalLine = { t: string; segments?: undefined } | { segments: Segment[]; t?: undefined };
-
-const TERMINAL_LINES: TerminalLine[] = [
-  { t: "cat ~/whoami.json" },
-  {
-    segments: [
-      { type: "str", text: '"role"' },
-      { type: "text", text: ": " },
-      { type: "str", text: '"Desarrollador de plataformas, webs y apps"' },
-      { type: "text", text: "," },
-    ],
-  },
-  {
-    segments: [
-      { type: "str", text: '"focus"' },
-      { type: "text", text: ": [" },
-      { type: "str", text: '"Webs"' },
-      { type: "text", text: ", " },
-      { type: "str", text: '"Aplicaciones"' },
-      { type: "text", text: ", " },
-      { type: "str", text: '"Plataformas"' },
-      { type: "text", text: "]," },
-    ],
-  },
-  {
-    segments: [
-      { type: "str", text: '"stack"' },
-      { type: "text", text: ": [" },
-      { type: "str", text: '"TypeScript"' },
-      { type: "text", text: ", " },
-      { type: "str", text: '"Next.js"' },
-      { type: "text", text: ", " },
-      { type: "str", text: '"React"' },
-      { type: "text", text: ", " },
-      { type: "str", text: '"Python"' },
-      { type: "text", text: "], " },
-      { type: "cm", text: "// y más" },
-    ],
-  },
-  {
-    segments: [
-      { type: "str", text: '"open_to_work"' },
-      { type: "text", text: ": " },
-      { type: "kw", text: "true" },
-      { type: "text", text: " " },
-      { type: "cm", text: "// abierto a proyectos" },
-    ],
-  },
+const FRAMES = [
+  '{"name": "alexendros", "role": "developer", "stack": ["TypeScript", "React", "Node", "Python", "Rust"]}',
+  '{"name": "alexendros", "role": "freelance", "location": "Valencia", "mode": "remote-first"}',
+  '{"name": "alexendros", "role": "builder", "philosophy": "clean code, fair price, your IP"}',
 ];
 
-export function Terminal({ title = "~/whoami.sh" }: { title?: string }) {
-  const [phase, setPhase] = useState(0); // 0 = escribiendo cmd, 1..n = revela líneas
-  const [cmd, setCmd] = useState("");
-  const reduced = useRef(false);
-  const firstLine = TERMINAL_LINES[0] as { t: string };
-  const full = firstLine.t;
+function subscribeReduced(cb: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getReduced() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+export function Terminal() {
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
 
   useEffect(() => {
-    reduced.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced.current) {
-      setCmd(full);
-      setPhase(TERMINAL_LINES.length + 1);
-      return;
+    const currentFrame = FRAMES[frameIndex];
+
+    if (isReduced) {
+      const timeout = setTimeout(() => {
+        setFrameIndex((i) => (i + 1) % FRAMES.length);
+      }, 2000);
+      return () => clearTimeout(timeout);
     }
-    let i = 0;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const type = () => {
-      if (i <= full.length) {
-        setCmd(full.slice(0, i));
-        i++;
-        timers.push(setTimeout(type, 55));
-      } else {
-        timers.push(setTimeout(() => revealLine(1), 350));
-      }
-    };
-    const revealLine = (n: number) => {
-      setPhase(n);
-      if (n < TERMINAL_LINES.length) timers.push(setTimeout(() => revealLine(n + 1), 260));
-      else timers.push(setTimeout(restart, 4200));
-    };
-    const restart = () => {
-      i = 0;
-      setCmd("");
-      setPhase(0);
-      timers.push(setTimeout(type, 400));
-    };
-    timers.push(setTimeout(type, 600));
-    return () => timers.forEach(clearTimeout);
-  }, [full]);
+
+    let timeout: ReturnType<typeof setTimeout>;
+    const speed = deleting ? 30 : 50;
+
+    if (!deleting && charIndex < currentFrame.length) {
+      timeout = setTimeout(() => setCharIndex((c) => c + 1), speed);
+    } else if (deleting && charIndex > 0) {
+      timeout = setTimeout(() => setCharIndex((c) => c - 1), speed / 2);
+    } else if (!deleting && charIndex === currentFrame.length) {
+      timeout = setTimeout(() => setDeleting(true), 1500);
+    } else if (deleting && charIndex === 0) {
+      timeout = setTimeout(() => {
+        setDeleting(false);
+        setFrameIndex((i) => (i + 1) % FRAMES.length);
+      }, 0);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [frameIndex, charIndex, deleting, isReduced]);
+
+  const currentFrame = FRAMES[frameIndex];
+  const displayText = isReduced ? currentFrame : currentFrame.slice(0, charIndex);
 
   return (
-    <div className="ak-terminal" data-reveal>
+    <div className="ak-terminal" role="region" aria-label="Terminal animada">
       <div className="ak-terminal-bar">
         <span className="ak-dot" style={{ background: "#ff5f57" }} />
-        <span className="ak-dot" style={{ background: "#febc2e" }} />
-        <span className="ak-dot" style={{ background: "#28c840" }} />
-        <span className="ak-terminal-title">{title}</span>
-        <span className="ak-terminal-meta mono">node v22</span>
+        <span className="ak-dot" style={{ background: "#ffbd2e" }} />
+        <span className="ak-dot" style={{ background: "#28ca42" }} />
+        <span className="ak-terminal-title">whoami.json</span>
+        <span className="ak-terminal-meta">~/.config/alexendros</span>
       </div>
-      <div className="ak-terminal-body">
-        <div className="ak-terminal-line">
-          <span className="ak-prompt">$ </span>
-          <span>{cmd}</span>
-          {phase === 0 && <span className="ak-cursor" />}
-        </div>
-        {TERMINAL_LINES.slice(1).map((l, idx) =>
-          phase > idx && l.segments ? (
-            <div key={`terminal-${idx}`} className="ak-terminal-line ak-tl-fade">
-              {l.segments.map((s, sidx) => (
-                <span key={sidx} className={s.type === "text" ? undefined : `ak-${s.type}`}>
-                  {s.text}
-                </span>
-              ))}
-            </div>
-          ) : null,
-        )}
-        {phase > TERMINAL_LINES.length - 1 && (
-          <div className="ak-terminal-line">
-            <span className="ak-prompt">$ </span>
-            <span className="ak-cursor" />
-          </div>
-        )}
-      </div>
+      <pre className="ak-terminal-body">
+        <span className="ak-prompt">$</span> <span className="ak-str">cat</span> whoami.json
+        <br />
+        <span className="ak-prompt">$</span> <span className="ak-kw">{displayText}</span>
+        <span className="ak-cursor" aria-hidden="true" />
+      </pre>
     </div>
   );
 }

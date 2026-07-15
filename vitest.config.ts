@@ -56,11 +56,13 @@ export default defineConfig({
       include: ["src/lib/**", "src/app/api/**"],
       exclude: ["src/lib/content/index.ts", "src/lib/content/types.ts", "**/*.d.ts"],
       // Umbrales (ver tabla F10.6 en ROADMAP.md). Bloquean el merge.
-      // F15: medido ≈ 86/73/90/88 con agentes IA. F16 objetivo: 85/80/85/85.
+      // F16 lock-in: 85/80/85/85. Branches en 74 — objetivo 80% requiere
+      // tests de error paths en F15 (reparador/auditor/diagnosticador)
+      // fuera del scope del redesign. Tracking issue abierta.
       thresholds: {
         statements: 85,
-        branches: 70,
-        functions: 88,
+        branches: 74,
+        functions: 85,
         lines: 85,
       },
     },

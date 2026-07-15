@@ -149,7 +149,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
           </span>
           <h3 style={{ margin: 0 }}>¡Mensaje enviado!</h3>
           <p className="ak-principle-body" style={{ margin: 0, maxWidth: "36ch" }}>
-            Gracias, {data.name || "—"}. Te respondo en menos de 24h.
+            Gracias{data.name ? `, ${data.name}` : ""}. Te respondo en menos de 24h.
           </p>
           <Button
             variant="secondary"
@@ -269,11 +269,11 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
             <div className="ak-review">
               <div className="ak-review-row">
                 <span className="lbl">Nombre</span>
-                <span className="val">{data.name || "—"}</span>
+                <span className="val">{data.name || "(sin nombre)"}</span>
               </div>
               <div className="ak-review-row">
                 <span className="lbl">Email</span>
-                <span className="val">{data.email || "—"}</span>
+                <span className="val">{data.email || "(sin email)"}</span>
               </div>
               <div className="ak-review-row">
                 <span className="lbl">Tipo</span>
@@ -282,7 +282,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
               <div className="ak-review-row">
                 <span className="lbl">Mensaje</span>
                 <span className="val" style={{ maxWidth: "60%" }}>
-                  {data.message || "—"}
+                  {data.message || "(sin mensaje)"}
                 </span>
               </div>
             </div>

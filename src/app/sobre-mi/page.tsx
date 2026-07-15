@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ABOUT_STATS, DAILY_STACK, PRINCIPLES, TIMELINE } from "@/lib/content";
 import type { TimelineEntry } from "@/lib/content";
 import { Button } from "@/components/ui/Button";
-import { Icon, type IconName } from "@/components/ui/Icon";
+import { Icon, type IconName, Reveal } from "@/components/ui";
 import { Eyebrow, SectionHead } from "@/components/ui/SectionHead";
 
 export const metadata: Metadata = {
@@ -14,23 +14,31 @@ export const metadata: Metadata = {
 function AboutIntro() {
   return (
     <section className="ak-about-hero" data-screen-label="intro">
-      <span className="ak-avatar" data-reveal />
-      <Eyebrow>sobre mí</Eyebrow>
-      <h1 className="ak-page-title" data-reveal data-reveal-delay="1">
-        Construyo el producto digital que tu negocio necesita
-      </h1>
-      <p className="ak-page-lead" data-reveal data-reveal-delay="2">
-        Soy Alejandro Domingo Agustí (Alexendros), desarrollador en Valencia. Diseño y construyo
-        webs, aplicaciones y plataformas a medida con tecnología moderna (Next.js, React,
-        TypeScript) y backend propio. Me importa entregar cosas que funcionen, sin sorpresas en la
-        factura, con código que es tuyo y construido de forma segura desde el primer día.
-      </p>
-      <div className="ak-about-cta" data-reveal data-reveal-delay="2">
-        {/* CV próximamente */}
-        <Button variant="secondary" href="/contacto">
-          Contacto
-        </Button>
-      </div>
+      <Reveal>
+        <span className="ak-avatar" />
+      </Reveal>
+      <Reveal delay={0.06}>
+        <Eyebrow>sobre mí</Eyebrow>
+      </Reveal>
+      <Reveal delay={0.12}>
+        <h1 className="ak-page-title">Construyo el producto digital que tu negocio necesita</h1>
+      </Reveal>
+      <Reveal delay={0.18}>
+        <p className="ak-page-lead">
+          Soy Alejandro Domingo Agustí (Alexendros), desarrollador en Valencia. Diseño y construyo
+          webs, aplicaciones y plataformas a medida con tecnología moderna (Next.js, React,
+          TypeScript) y backend propio. Me importa entregar cosas que funcionen, sin sorpresas en la
+          factura, con código que es tuyo y construido de forma segura desde el primer día.
+        </p>
+      </Reveal>
+      <Reveal delay={0.24}>
+        <div className="ak-about-cta">
+          {/* CV próximamente */}
+          <Button variant="secondary" href="/contacto">
+            Contacto
+          </Button>
+        </div>
+      </Reveal>
       <div className="ak-stat-row" style={{ justifyContent: "center", marginTop: 36 }}>
         {ABOUT_STATS.map(([n, l]) => (
           <div key={l} className="ak-stat" style={{ alignItems: "center" }}>
@@ -91,10 +99,10 @@ function TimelineAlt() {
         </span>
       </div>
       {TIMELINE.map((it, i) => (
-        <div key={i} className={`ak-tl2-item ${i % 2 ? "right" : "left"}`} data-reveal>
+        <Reveal key={i} delay={i * 0.06} className={`ak-tl2-item ${i % 2 ? "right" : "left"}`}>
           <span className="ak-tl2-dot" />
           <TimelineCard it={it} />
-        </div>
+        </Reveal>
       ))}
     </div>
   );
@@ -106,18 +114,15 @@ function Principles() {
       <SectionHead eyebrow="cómo trabajo" title="Principios" />
       <div className="ak-principles-3">
         {PRINCIPLES.map((p, i) => (
-          <div
-            key={p.title}
-            className="ak-principle"
-            data-reveal
-            data-reveal-delay={String((i % 3) + 1)}
-          >
-            <span className="ak-principle-ic">
-              <Icon name={p.icon as IconName} size={20} />
-            </span>
-            <h3 className="ak-principle-title">{p.title}</h3>
-            <p className="ak-principle-body">{p.body}</p>
-          </div>
+          <Reveal key={p.title} delay={(i % 3) * 0.1}>
+            <div className="ak-principle">
+              <span className="ak-principle-ic">
+                <Icon name={p.icon as IconName} size={20} />
+              </span>
+              <h3 className="ak-principle-title">{p.title}</h3>
+              <p className="ak-principle-body">{p.body}</p>
+            </div>
+          </Reveal>
         ))}
       </div>
     </section>

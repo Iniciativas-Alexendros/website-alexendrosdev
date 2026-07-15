@@ -1,30 +1,48 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderWithUser, screen } from "../helpers/render";
 import { Testimonials } from "@/components/sections/home/Testimonials";
 
-// El catálogo real de testimonios está vacío (placeholder). Inyectamos datos
-// para ejercitar la lógica del carrusel (límites, navegación, dots).
 vi.mock("@/lib/content", () => ({
   TESTIMONIALS: Array.from({ length: 5 }, (_, n) => ({
     quote: `Cita ${n}`,
     name: `Persona ${n}`,
     role: `Rol ${n}`,
+    avatarSeed: `avatar-${n}`,
   })),
 }));
 
+function mockMatchMedia() {
+  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => {
+    const matches = query === "(min-width: 880px)" ? true : false;
+    return {
+      matches,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+      onchange: null,
+    } as unknown as MediaQueryList;
+  });
+}
+
 describe("Testimonials (carrusel)", () => {
-  it("renderiza el encabezado y un dot por posición (maxI + 1)", () => {
-    renderWithUser(<Testimonials />);
-    expect(screen.getByRole("heading", { name: "Prueba en abierto" })).toBeInTheDocument();
-    // 5 testimonios, 3 por vista → maxI = 2 → 3 dots.
-    expect(screen.getByRole("button", { name: "Ir a 3" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Ir a 4" })).not.toBeInTheDocument();
+  beforeEach(() => {
+    mockMatchMedia();
   });
 
-  it("deshabilita «Anterior» al inicio y «Siguiente» al final", async () => {
+  it("renderiza el encabezado y un dot por posición (maxI + 1)", () => {
+    renderWithUser(<Testimonials />);
+    expect(screen.getByRole("heading", { name: "Testimonios" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ir al testimonio 3" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ir al testimonio 4" })).not.toBeInTheDocument();
+  });
+
+  it("deshabilita «Testimonio anterior» al inicio y «Siguiente testimonio» al final", async () => {
     const { user } = renderWithUser(<Testimonials />);
-    const prev = screen.getByRole("button", { name: "Anterior" });
-    const next = screen.getByRole("button", { name: "Siguiente" });
+    const prev = screen.getByRole("button", { name: "Testimonio anterior" });
+    const next = screen.getByRole("button", { name: "Siguiente testimonio" });
 
     expect(prev).toBeDisabled();
     expect(next).toBeEnabled();
@@ -37,7 +55,7 @@ describe("Testimonials (carrusel)", () => {
 
   it("salta a una posición concreta al pulsar su dot", async () => {
     const { user } = renderWithUser(<Testimonials />);
-    await user.click(screen.getByRole("button", { name: "Ir a 3" }));
-    expect(screen.getByRole("button", { name: "Siguiente" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Ir al testimonio 3" }));
+    expect(screen.getByRole("button", { name: "Siguiente testimonio" })).toBeDisabled();
   });
 });

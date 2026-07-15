@@ -2,12 +2,12 @@ import { test, expect } from "@playwright/test";
 
 // El Header debe navegar a cada ruta principal y renderizar su <h1>.
 const ROUTES: { label: string; path: string }[] = [
-  { label: "Sobre mí", path: "/sobre-mi" },
   { label: "Proyectos", path: "/proyectos" },
-  { label: "Stack", path: "/stack" },
-  { label: "Blog", path: "/blog" },
   { label: "Servicios", path: "/servicios" },
-  { label: "Escaparate", path: "/escaparate" },
+  { label: "Blog", path: "/blog" },
+  { label: "Stack", path: "/stack" },
+  { label: "Contacto", path: "/contacto" },
+  { label: "Sobre mí", path: "/sobre-mi" },
 ];
 
 for (const { label, path } of ROUTES) {

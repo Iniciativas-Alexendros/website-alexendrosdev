@@ -1,19 +1,25 @@
-import { Eyebrow } from "@/components/ui/SectionHead";
-import { NewsletterForm } from "@/components/sections/NewsletterForm";
+"use client";
+
+import { Button } from "@/components/ui";
 
 export function HomeCTA() {
   return (
-    <div className="ak-container">
-      <section className="ak-cta">
-        <div className="ak-cta-lead">
-          <Eyebrow>siguiente paso</Eyebrow>
-          <h2 className="ak-display">¿Construimos algo juntos?</h2>
-          <p className="ak-cta-sub">
-            Disponible para proyectos freelance y roles senior — respondo en menos de 24h.
+    <section className="ak-section ak-cta-lead" aria-labelledby="cta-heading">
+      <div className="ak-container">
+        <header className="ak-section-head ak-center">
+          <h2 id="cta-heading" className="ak-display">
+            ¿Construimos algo juntos?
+          </h2>
+          <p className="ak-section-sub">
+            Cuéntame tu proyecto y te paso propuesta sin compromiso en 48h.
           </p>
-          <NewsletterForm variant="cta" />
+        </header>
+        <div className="ak-hero-c-cta">
+          <Button variant="primary" size="lg" href="/contacto">
+            Hablemos <span aria-hidden="true">→</span>
+          </Button>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }
