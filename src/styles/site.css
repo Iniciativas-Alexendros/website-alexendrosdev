@@ -983,35 +983,9 @@ main {
 }
 
 /* ============================================================
-   REVEAL ANIMATION (CSS fallback, components use Motion whileInView)
+   REVEAL — handled by Framer Motion (Reveal component)
+   No CSS fallback needed; components import @/components/ui/Reveal
    ============================================================ */
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-[data-reveal] {
-  animation: rise 650ms var(--ease-in-out);
-}
-[data-reveal][data-reveal-delay='1'] {
-  animation-delay: 80ms;
-}
-[data-reveal][data-reveal-delay='2'] {
-  animation-delay: 160ms;
-}
-[data-reveal][data-reveal-delay='3'] {
-  animation-delay: 240ms;
-}
-@media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
-    animation: none;
-  }
-}
 
 /* ============================================================
    KEYFRAMES (referenced by CSS classes above)

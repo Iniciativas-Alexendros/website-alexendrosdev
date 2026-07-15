@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import type { Post } from "@/lib/content/posts";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, Reveal } from "@/components/ui";
 
 const POSTS_PER_PAGE = 6;
 
@@ -52,7 +52,7 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
   return (
     <div className="ak-blog-page">
       {featuredPost && (
-        <article className="ak-featured" data-reveal>
+        <Reveal className="ak-featured">
           <Link href={`/blog/${featuredPost.id}`} className="ak-featured-link">
             <div className="ak-featured-media">
               <img
@@ -75,10 +75,10 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
               </span>
             </div>
           </Link>
-        </article>
+        </Reveal>
       )}
 
-      <section className="ak-section ak-blog-filters" data-reveal data-reveal-delay="1">
+      <Reveal delay={0.1} className="ak-section ak-blog-filters">
         <div className="ak-filters-inner">
           <label className="ak-search" htmlFor="blog-search">
             <span className="sr-only">Buscar artículos</span>
@@ -111,25 +111,27 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
             Sin artículos para los filtros actuales
           </p>
         )}
-      </section>
+      </Reveal>
 
       {filteredPosts.length > 0 && otherPosts.length > 0 && (
-        <section className="ak-section" data-reveal data-reveal-delay="2">
+        <Reveal delay={0.2} className="ak-section">
           <ul className="ak-post-grid" role="list">
-            {paginatedPosts.map((p) => (
-              <li key={p.id} role="listitem">
-                <Link className="ak-post-card" href={`/blog/${p.id}`}>
-                  <div className="ak-post-meta">
-                    <span className="ak-post-tag">{p.tag}</span>
-                    <time className="ak-post-date" dateTime={p.date}>
-                      {p.date}
-                    </time>
-                  </div>
-                  <h2 className="ak-post-title">{p.title}</h2>
-                  {p.desc && <p className="ak-post-desc">{p.desc}</p>}
-                  {p.read && <span className="ak-post-read">{p.read} de lectura</span>}
-                </Link>
-              </li>
+            {paginatedPosts.map((p, i) => (
+              <Reveal key={p.id} delay={i * 0.06}>
+                <li role="listitem">
+                  <Link className="ak-post-card" href={`/blog/${p.id}`}>
+                    <div className="ak-post-meta">
+                      <span className="ak-post-tag">{p.tag}</span>
+                      <time className="ak-post-date" dateTime={p.date}>
+                        {p.date}
+                      </time>
+                    </div>
+                    <h2 className="ak-post-title">{p.title}</h2>
+                    {p.desc && <p className="ak-post-desc">{p.desc}</p>}
+                    {p.read && <span className="ak-post-read">{p.read} de lectura</span>}
+                  </Link>
+                </li>
+              </Reveal>
             ))}
           </ul>
 
@@ -179,7 +181,7 @@ export function BlogView({ posts: allPosts }: BlogViewProps) {
               </button>
             </nav>
           )}
-        </section>
+        </Reveal>
       )}
     </div>
   );

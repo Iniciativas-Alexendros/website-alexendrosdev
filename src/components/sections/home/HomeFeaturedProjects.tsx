@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Icon, Button } from "@/components/ui";
+import { Icon, Button, Reveal } from "@/components/ui";
 
 interface Project {
   slug: string;
@@ -77,7 +77,11 @@ export function HomeFeaturedProjects() {
 
         <div className="ak-zz">
           {PROJECTS.map((project, i) => (
-            <article key={project.slug} className={`ak-zz-row ${i % 2 === 1 ? "rev" : ""}`}>
+            <Reveal
+              key={project.slug}
+              delay={i * 0.06}
+              className={`ak-zz-row ${i % 2 === 1 ? "rev" : ""}`}
+            >
               <div className="ak-zz-media">
                 <img
                   src={`https://picsum.photos/seed/${project.imageSeed}/800/600`}
@@ -136,7 +140,7 @@ export function HomeFeaturedProjects() {
                   </Button>
                 </div>
               </div>
-            </article>
+            </Reveal>
           ))}
         </div>
 

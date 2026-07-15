@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
-import { Icon } from "@/components/ui/Icon";
+import { Icon, Reveal } from "@/components/ui";
 
 const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((p) => p.category)))];
 const TAGS = Array.from(new Set(PROJECTS.flatMap((p) => p.tags)));
@@ -155,46 +155,48 @@ export function ProjectsList() {
           </div>
         ) : (
           <div className="ak-masonry" role="list" aria-label="Lista de proyectos">
-            {filteredProjects.map((p) => (
-              <article key={p.id} className="ak-masonry-tile" role="listitem">
-                <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
-                  <div className="ak-tile-media" style={{ aspectRatio: "4 / 3" }}>
-                    <img
-                      src={`https://picsum.photos/seed/${p.id}/800/600`}
-                      alt=""
-                      loading="lazy"
-                      className="ak-tile-img"
-                    />
-                    <span className="ak-tile-badge">{p.category}</span>
-                  </div>
-                  <div className="ak-tile-body">
-                    <div className="ak-tile-meta">
-                      <span className="ak-tile-idx">{p.id}</span>
-                      <span className="ak-tile-year">{p.year}</span>
+            {filteredProjects.map((p, i) => (
+              <Reveal key={p.id} delay={i * 0.06}>
+                <article className="ak-masonry-tile" role="listitem">
+                  <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
+                    <div className="ak-tile-media" style={{ aspectRatio: "4 / 3" }}>
+                      <img
+                        src={`https://picsum.photos/seed/${p.id}/800/600`}
+                        alt=""
+                        loading="lazy"
+                        className="ak-tile-img"
+                      />
+                      <span className="ak-tile-badge">{p.category}</span>
                     </div>
-                    <h2 className="ak-tile-title">{p.title}</h2>
-                    <p className="ak-tile-desc">{p.desc}</p>
-                    <div className="ak-tile-tags">
-                      {p.tags.slice(0, 3).map((t) => (
-                        <span key={t} className="ak-tag">
-                          {t}
-                        </span>
-                      ))}
-                      {p.tags.length > 3 && (
-                        <span className="ak-tag ak-tag-more">+{p.tags.length - 3}</span>
-                      )}
+                    <div className="ak-tile-body">
+                      <div className="ak-tile-meta">
+                        <span className="ak-tile-idx">{p.id}</span>
+                        <span className="ak-tile-year">{p.year}</span>
+                      </div>
+                      <h2 className="ak-tile-title">{p.title}</h2>
+                      <p className="ak-tile-desc">{p.desc}</p>
+                      <div className="ak-tile-tags">
+                        {p.tags.slice(0, 3).map((t) => (
+                          <span key={t} className="ak-tag">
+                            {t}
+                          </span>
+                        ))}
+                        {p.tags.length > 3 && (
+                          <span className="ak-tag ak-tag-more">+{p.tags.length - 3}</span>
+                        )}
+                      </div>
+                      <div className="ak-tile-metrics">
+                        {p.metrics.slice(0, 2).map((m) => (
+                          <span key={m.l} className="ak-tile-metric">
+                            <b>{m.v}</b>
+                            <span>{m.l}</span>
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <div className="ak-tile-metrics">
-                      {p.metrics.slice(0, 2).map((m) => (
-                        <span key={m.l} className="ak-tile-metric">
-                          <b>{m.v}</b>
-                          <span>{m.l}</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </Link>
-              </article>
+                  </Link>
+                </article>
+              </Reveal>
             ))}
           </div>
         )}

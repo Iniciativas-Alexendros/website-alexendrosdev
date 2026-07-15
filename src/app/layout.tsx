@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/sections/Header";
 import { Footer } from "@/components/sections/Footer";
-import { RevealController } from "@/components/providers/RevealController";
 import { isComingSoon } from "@/lib/flags";
 import { JsonLd } from "@/components/JsonLd";
 import { makeWebSiteJsonLd, makePersonJsonLd } from "@/lib/seo/jsonld";
@@ -101,7 +100,6 @@ export default function RootLayout({
           <main>{children}</main>
           {!holding && <Footer />}
         </div>
-        <RevealController />
         <Analytics />
         <SpeedInsights />
       </body>
