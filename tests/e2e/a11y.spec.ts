@@ -13,7 +13,6 @@ const ROUTES = [
   "/blog",
   "/blog/cuanto-cuesta-web-medida-2026",
   "/contacto",
-  "/escaparate",
   "/stack",
   "/legal/privacidad",
 ];

@@ -33,50 +33,42 @@ export const HOME_SERVICES: HomeService[] = [
   },
 ]
 
-// Tiers retainer derivados del catálogo unificado (F11). Los importes exactos
+// Tiers derivados del catálogo unificado (F11). Los importes exactos
 // viven en `catalog.ts`; aquí solo se formatean para la UI.
+const PROYECTO_ITEMS = getCatalogItemsByCategory('proyecto')
 const RETAINER_ITEMS = getCatalogItemsByCategory('retainer')
 
 export const TIERS: Tiers = {
-  proyecto: [
-    {
-      name: 'Starter',
-      price: '€1.200',
-      unit: '/proyecto',
-      feats: [
-        ['Sitio web o herramienta acotada', true],
-        ['Hasta 5 páginas', true],
-        ['Adaptable a móvil + SEO base', true],
-        ['Backend a medida', false],
-        ['Soporte 30 días', false],
-      ],
-    },
-    {
-      name: 'Pro',
-      price: '€2.900',
-      unit: '/proyecto',
-      pro: true,
-      feats: [
-        ['Aplicación o plataforma completa', true],
-        ['Acceso de usuarios, datos y backend', true],
-        ['Pruebas automáticas y despliegue continuo', true],
-        ['Soporte 60 días', true],
-        ['Documentación de uso', true],
-      ],
-    },
-    {
-      name: 'Scale',
-      price: 'a consultar',
-      unit: '/proyecto',
-      feats: [
-        ['Arquitectura a medida', true],
-        ['Buenas prácticas de seguridad', true],
-        ['Monitorización y alertas', true],
-        ['Soporte prioritario', true],
-        ['Hoja de ruta conjunta', true],
-      ],
-    },
-  ],
+  proyecto: PROYECTO_ITEMS.map((item, i) => ({
+    name: item.name.replace('Proyecto ', ''),
+    price: item.id === 'proyecto-scale' ? 'a consultar' : `€${(item.amount / 100).toLocaleString('es-ES')}`,
+    unit: '/proyecto',
+    pro: i === 1,
+    feats:
+      item.id === 'proyecto-starter'
+        ? [
+            ['Sitio web o herramienta acotada', true],
+            ['Hasta 5 páginas', true],
+            ['Adaptable a móvil + SEO base', true],
+            ['Backend a medida', false],
+            ['Soporte 30 días', false],
+          ]
+        : item.id === 'proyecto-pro'
+          ? [
+              ['Aplicación o plataforma completa', true],
+              ['Acceso de usuarios, datos y backend', true],
+              ['Pruebas automáticas y despliegue continuo', true],
+              ['Soporte 60 días', true],
+              ['Documentación de uso', true],
+            ]
+          : [
+              ['Arquitectura a medida', true],
+              ['Buenas prácticas de seguridad', true],
+              ['Monitorización y alertas', true],
+              ['Soporte prioritario', true],
+              ['Hoja de ruta conjunta', true],
+            ],
+  })),
   retainer: RETAINER_ITEMS.map((item, i) => ({
     name: item.name.replace('Retainer ', ''),
     price: `€${(item.amount / 100).toLocaleString('es-ES')}`,
@@ -118,24 +110,25 @@ export const COMPARISON: ComparisonRow[] = [
   ['Acuerdo de servicio y soporte prioritario', [false, false, true]],
 ]
 
-// Items puntuales (sincronizados con PURCHASABLES en checkout.ts).
-export const ADDONS: Addon[] = [
-  {
-    name: 'Puesta a punto de tu web',
-    desc: 'Reviso tu web actual (velocidad, posicionamiento en Google y errores) y te entrego un informe claro con las mejoras priorizadas.',
-    price: '€390',
-  },
-  {
-    name: 'Sesión de consultoría',
-    desc: 'Hablamos de tu proyecto y te ayudo a decidir cómo abordar tu web, tu aplicación o una automatización. 1 hora, sin compromiso.',
-    price: '€60/hora',
-  },
-  {
-    name: 'Revisión de seguridad',
-    desc: 'Reviso tu web o tu sistema y te explico, en cristiano, qué conviene mejorar para estar tranquilo. Solo reviso: no toco nada sin tu visto bueno.',
-    price: 'desde €600',
-  },
+// Items puntuales, derivados del catálogo unificado (F11). Los importes
+// exactos y descripciones viven en `catalog.ts`; aquí solo se formatean
+// para la UI, igual que los retainers.
+const ADDON_ITEMS = [
+  ...getCatalogItemsByCategory('addon'),
+  ...getCatalogItemsByCategory('consultoria'),
 ]
+
+export const ADDONS: Addon[] = ADDON_ITEMS.map((item) => ({
+  name: item.name,
+  desc: item.desc,
+  price:
+    item.id === 'puesta-a-punto-web'
+      ? `€${(item.amount / 100).toLocaleString('es-ES')}`
+      : item.id === 'sesion-consultoria'
+        ? `€${item.amount / 100}/hora`
+        : `desde €${(item.amount / 100).toLocaleString('es-ES')}`,
+}))
+
 
 export const FAQ: FaqItem[] = [
   {

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.skip("el pago degrada a un mensaje de fallback sin claves de Stripe", async ({ page }) => {
-  await page.goto("/escaparate");
+  await page.goto("/servicios");
   await page
     .getByRole("button", { name: /Pagar ahora/ })
     .first()
@@ -16,7 +16,7 @@ test.skip("el pago degrada a un mensaje de fallback sin claves de Stripe", async
 test.skip("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solicitar datos", async ({
   page,
 }) => {
-  await page.goto("/escaparate");
+  await page.goto("/servicios");
   const card = page
     .locator(".ak-tier")
     .filter({ hasText: /Puesta a punto/i })
@@ -33,7 +33,7 @@ test.skip("T3.15: el toggle Tarjeta/Transferencia muestra inputs y permite solic
 });
 
 test.skip("T3.16: axe-core no detecta críticos en PurchaseCard con toggle", async ({ page }) => {
-  await page.goto("/escaparate");
+  await page.goto("/servicios");
   // El escaparate muestra 3 PurchaseCards (addons), cada una con su propio
   // radio button "Tarjeta"/"Transferencia". Usamos el primero (la card del
   // primer addon) para evitar strict mode violation.

@@ -33,7 +33,7 @@ export const CATALOG: CatalogItem[] = [
   },
   {
     id: 'sesion-consultoria',
-    name: 'Sesión de consultoría (1 h)',
+    name: 'Sesión de consultoría',
     desc: 'Hablamos de tu proyecto y te ayudo a decidir cómo abordar tu web, tu aplicación o una automatización. Sin compromiso.',
     amount: 6_000,
     currency: 'eur',

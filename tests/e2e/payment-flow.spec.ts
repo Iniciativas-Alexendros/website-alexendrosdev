@@ -9,7 +9,7 @@ import { test, expect } from "@playwright/test";
 //   STRIPE_WEBHOOK_SECRET=whsec_...
 //
 // El flujo verifica:
-//   1. GET /escaparate → renderiza PurchaseCard
+//   1. GET /servicios → renderiza PurchaseCard
 //   2. Click "Pagar ahora" → POST /api/checkout → redirige a checkout.stripe.com
 //   3. Rellenar tarjeta 4242 4242 4242 4242 → confirmar
 //   4. Vuelve a /checkout/success?session_id=cs_test_...
@@ -29,8 +29,8 @@ test.describe("F18.3 — flujo de pago end-to-end con Stripe test", () => {
   });
 
   test("compra confirmada con tarjeta 4242 y callback al success", async ({ page, context }) => {
-    // 1. /escaparate muestra el PurchaseCard con "Pagar ahora"
-    await page.goto("/escaparate");
+    // 1. /servicios muestra el PurchaseCard con "Pagar ahora"
+    await page.goto("/servicios");
     const payButton = page.getByRole("button", { name: /Pagar ahora/ }).first();
     await expect(payButton).toBeVisible();
 

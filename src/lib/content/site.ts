@@ -20,7 +20,6 @@ export const NAV: NavLink[] = [
   { label: "Stack", href: "/stack" },
   { label: "Blog", href: "/blog" },
   { label: "Servicios", href: "/servicios" },
-  { label: "Escaparate", href: "/escaparate" },
 ];
 
 export const TECH = [
