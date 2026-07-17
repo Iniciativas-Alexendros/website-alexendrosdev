@@ -3,7 +3,7 @@
 **Fecha:** 2026-07-12
 **Estado:** aprobado, en ejecución (P0)
 **Contexto:** auditoría de repositorio contrastada con el roadmap actual. La auditoría previa
-(`AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: DEFECTO-001/002/003/004/005/007 ya están
+(`docs/AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: DEFECTO-001/002/003/004/005/007 ya están
 resueltos en código. El problema real es de **orden de inversión**, no de calidad base.
 
 **Decisión de negocio (operador):** comercializar primero; los tiers de proyecto quedan como
@@ -110,7 +110,7 @@ P4  Pulido & gates de CI                        (higiene)
 - **P4.1 (DEFECTO-006):** `pnpm audit --prod --audit-level=high` + `gitleaks` en CI.
 - **P4.2 (DEFECTO-008/009/011):** borrar `_shot.mjs`, `.claude/worktrees/` en `.gitignore`,
   `key` estable, `engines` node≥22.
-- **P4.3:** actualizar `AUDITORIA-CRITICA.md` (resueltos + NUEVO-1..10) y regenerar `defectos.csv`.
+- **P4.3:** actualizar `docs/AUDITORIA-CRITICA.md` (resueltos + NUEVO-1..10) y regenerar `defectos.csv`.
 
 ---
 
