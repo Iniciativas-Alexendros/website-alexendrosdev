@@ -30,7 +30,6 @@
 /blog                   app/blog/page.tsx          (RSC)           Lista de posts
 /blog/[slug]            app/blog/[slug]/           (RSC · SSG·MDX) Post
 /servicios              app/servicios/page.tsx     (RSC + isla)    Tiers + FAQ
-/escaparate             app/escaparate/page.tsx    (RSC + isla)    Proyectos featured + comprables
 /contacto               app/contacto/page.tsx      (RSC + isla)    Form multi-step
 /checkout/success       app/checkout/success/      (RSC)           Confirmación post-pago
 /api/contact            app/api/contact/route.ts   (Route Handler) POST lead
