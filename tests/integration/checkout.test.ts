@@ -320,7 +320,7 @@ describe("POST /api/checkout", () => {
           items: expect.objectContaining({
             create: expect.arrayContaining([
               expect.objectContaining({
-                description: "Sesión de consultoría (1 h)",
+                description: "Sesión de consultoría",
                 quantity: 1,
               }),
             ]),

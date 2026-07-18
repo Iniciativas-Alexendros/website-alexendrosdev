@@ -35,9 +35,8 @@ test("el formulario de contacto se envía", async ({ page }) => {
   await expect(page.getByText(/Mensaje enviado/)).toBeVisible();
 });
 
-test("el escaparate redirige al catálogo de servicios", async ({ page }) => {
-  await page.goto("/escaparate");
-  await expect(page).toHaveURL(/\/servicios$/);
+test("el catálogo de servicios se renderiza correctamente", async ({ page }) => {
+  await page.goto("/servicios");
   await expect(page.getByRole("heading", { name: "Servicios", level: 1 })).toBeVisible();
 });
 

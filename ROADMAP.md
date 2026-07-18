@@ -14,7 +14,7 @@
 
 ## REESTRUCTURACIÓN 2026-07-12 (auditoría → nuevo orden de prioridades)
 
-> La auditoría previa (`AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: los defectos
+> La auditoría previa (`docs/AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: los defectos
 > DEFECTO-001/002/003/004/005/007 ya están resueltos en código. La auditoría del 2026-07-12
 > detectó que el problema real es de **orden de inversión**: se construyó automatización interna
 > (CRM, Notion sync, agentes IA) antes de las bases para vender y parecer profesional.
@@ -382,7 +382,7 @@ sin ellas (degradación null-safe al estilo Stripe/Resend).
 ## Referencias
 
 - **Reestructuración 2026-07-12:** `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md` (nuevo orden P0→P4 + hallazgos NUEVO-1..10)
-- Auditoría previa (obsoleta, base F10): `AUDITORIA-CRITICA.md`
+- Auditoría previa (obsoleta, base F10): `docs/AUDITORIA-CRITICA.md`
 - Specs: `specs/catalog-pipeline-stripe/` · `docs/superpowers/specs/2026-07-11-roadmap-reformulation-design.md`
 - Arquitectura: `ARCHITECTURE.md` — stack, rutas, modelos, testing
 - Testing: `tests/README.md` — pirámide completa, patrones, cobertura

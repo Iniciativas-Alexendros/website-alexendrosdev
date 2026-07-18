@@ -29,6 +29,11 @@
 /.junie/
 /.ruff_cache/
 /.commandcode/
+
+# Auditoría — artefactos eliminados, se excluyen por si se regeneran
+/.audit-shots/
+/defectos.csv
+/defectos.json
 # Worktrees efímeros de agentes Claude Code (envenenan knip/prettier si se escanean)
 /.claude/worktrees/
 
