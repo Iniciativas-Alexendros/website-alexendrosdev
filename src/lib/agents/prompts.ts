@@ -141,8 +141,3 @@ export async function buildReparadorSystemPrompt(): Promise<string> {
     `Entorno: ${agentsConfig.primaryModel} primario, fallbacks activos.`,
   ].join("\n");
 }
-
-// Reset cache (para tests)
-export function _resetCrmContextCache(): void {
-  cached = null;
-}

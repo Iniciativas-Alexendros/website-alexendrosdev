@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
+import { metric } from "@/lib/monitor";
 
 // El webhook necesita el runtime Node (verificación de firma con crypto) y el
 // cuerpo crudo sin parsear.
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
 
   const sig = req.headers.get("stripe-signature");
   if (!sig) {
+    metric("stripe.webhook.error", "missing_signature");
     return NextResponse.json({ error: "Falta la firma." }, { status: 400 });
   }
 
@@ -26,6 +28,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(raw, sig, STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     console.error("[stripe-webhook] firma inválida:", err);
+    metric("stripe.webhook.error", "invalid_signature");
     return NextResponse.json({ error: "Firma inválida." }, { status: 400 });
   }
 
@@ -33,8 +36,11 @@ export async function POST(req: Request) {
     console.warn(
       `[stripe-webhook] sin DATABASE_URL: evento ${event.type} recibido pero no procesado.`,
     );
+    metric("stripe.webhook.skipped", event.type);
     return NextResponse.json({ received: true });
   }
+
+  metric("stripe.webhook.received", event.type);
 
   try {
     switch (event.type) {
@@ -56,9 +62,11 @@ export async function POST(req: Request) {
     }
   } catch (err) {
     console.error(`[stripe-webhook] error al procesar ${event.type}:`, err);
+    metric("stripe.webhook.error", `processing:${event.type}`);
     return NextResponse.json({ error: "No se pudo procesar el evento." }, { status: 500 });
   }
 
+  metric("stripe.webhook.processed", event.type);
   return NextResponse.json({ received: true });
 }
 
