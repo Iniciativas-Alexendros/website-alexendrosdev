@@ -3,5 +3,5 @@
   "framework": "nextjs",
   "cleanUrls": true,
   "trailingSlash": false,
-  "ignoreBuildStep": "node scripts/should-build.mjs"
+  "ignoreCommand": "node scripts/should-build.mjs"
 }

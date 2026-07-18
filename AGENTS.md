@@ -22,7 +22,7 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | Contenido          | Módulos TS tipados (`src/lib/content/`) + blog MDX (`content/blog/`)                            |
 | Backend            | Route Handlers + zod + Prisma/Supabase + Stripe Checkout + Resend + React Email                 |
 | Catálogo unificado | `src/lib/content/catalog.ts` — fuente de verdad de precios (céntimos), server-trusted           |
-| Calidad            | ESLint, Prettier, tsc, Vitest (32 ficheros, 229 tests), Playwright + axe, Lighthouse/CWV        |
+| Calidad            | ESLint, Prettier, tsc, Vitest (47 ficheros, 436 tests), Playwright + axe, Lighthouse/CWV        |
 | Gestor             | pnpm 11.5.2                                                                                     |
 
 ### Fases (ROADMAP.md)
@@ -81,18 +81,18 @@ pnpm format           # Prettier --write
 
 ### Testing
 
-Pirámide completa documentada en `tests/README.md`. 229 tests, 32 ficheros.
+Pirámide completa documentada en `tests/README.md`. **436 tests**, 47 ficheros.
 
 Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 
-| Métrica    | Gate lock-in |
-| ---------- | ------------ |
-| Statements | 85%          |
-| Branches   | 80%          |
-| Functions  | 85%          |
-| Lines      | 85%          |
+| Métrica    | Gate                |
+| ---------- | ------------------- |
+| Statements | **89.99%** ≥ 85% ✅ |
+| Branches   | **80.00%** ≥ 80% ✅ |
+| Functions  | **92.30%** ≥ 85% ✅ |
+| Lines      | **91.42%** ≥ 85% ✅ |
 
-**Medición actual**: 87.7/72.08/95.41/89.93 con 229 tests (32 ficheros).
+**Todos los gates superados.** Branches subió de 72.08% → 80.00% (+7.92 pp) en esta sesión.
 
 **Regla RSC**: Server Components asíncronos (páginas, `/proyectos/[slug]`, `/blog/[slug]`) se cubren por e2e, no por Vitest.
 

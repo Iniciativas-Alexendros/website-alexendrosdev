@@ -24,12 +24,17 @@
 > Comercialización (prioridad) · P2 Monitorización (F17 sube) · P3 Agentes IA mínimo/congelar ·
 > P4 Pulido & gates CI. Decisiones: comercializar primero; tiers de proyecto = "a consultar".
 >
-> **Nuevos hallazgos (ver plan):** NUEVO-1 auth CRM no timing-safe + sin rate-limit en fallos ·
-> NUEVO-2 ruta `/api/crm/tasks` inexistente (Reparador roto) · NUEVO-3 webhook Notion traga
-> errores · NUEVO-4 sync Notion sin reconciliación · NUEVO-5 LLM escribe en CRM sin confirmación
-> · NUEVO-6 docs desincronizados · NUEVO-7 sin página legal/GDPR · NUEVO-8 precios incoherentes
-> (proyectos no comprables en UI pero sí en checkout) · NUEVO-9 social proof débil · NUEVO-10
-> F18 sin activar.
+> **Hallazgos NUEVO-1..10 (ver plan de reestructuración):**
+> ✅ NUEVO-1 (timing-safe + rate-limit) — RESUELTO: `crm-auth.ts` usa `timingSafeEqual` + rate-limit 30/min IP
+> ✅ NUEVO-2 (ruta /tasks) — RESUELTO: `src/app/api/crm/tasks/route.ts` con GET/POST
+> ✅ NUEVO-3 (notion-webhook traga errores) — RESUELTO: devuelve 500 en fallos de persistencia
+> ⚠️ NUEVO-4 (sync sin reconciliación) — PERSISTE: best-effort, sin panel de desvío
+> ⚠️ NUEVO-5 (LLM escribe sin confirmación) — PERSISTE: Reparador en dry-run por defecto (P3 congelado)
+> ✅ NUEVO-6 (docs desincronizados) — RESUELTO: ROADMAP actualizado
+> ✅ NUEVO-7 (sin página legal/GDPR) — RESUELTO: 4 páginas en `src/app/legal/`
+> ✅ NUEVO-8 (precios incoherentes) — RESUELTO: checkout bloquea items inactive; UI muestra "a consultar"
+> ⚠️ NUEVO-9 (social proof débil) — PERSISTE: 2 work entries, ranuras para clientes reales
+> ✅ NUEVO-10 (F18 sin activar) — RESUELTO: 6 posts blog, endpoint newsletter/send existe
 
 ---
 
@@ -277,13 +282,13 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 | #    | Tarea                                                                                                  | Estado         | Bloquea            | Desbloquea |
 | ---- | ------------------------------------------------------------------------------------------------------ | -------------- | ------------------ | ---------- |
 | 15.1 | Módulos base `src/lib/agents/`: `auditor.ts`, `diagnosticador.ts`, `reparador.ts`                      | hecho (código) | F14, F14b          | 15.2–15.8  |
-| 15.2 | Provider LLM híbrido `lib/agents/llm-provider.ts` (Gemini primario + 3 fallbacks OpenCode Zen free)    | pendiente      | 15.1, env vars LLM | 15.3–15.5  |
-| 15.3 | Agente Auditor: cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min, escribe a `AuditorLog` | pendiente      | 15.2, CRM API      | 15.4       |
-| 15.4 | Agente Diagnosticador `POST /api/agents/diagnose`: hipótesis con `confidence: 0.0–1.0`                 | pendiente      | 15.3               | 15.5       |
-| 15.5 | Agente Reparador `POST /api/agents/repair`: LLM decide acción correctiva, código ejecuta vía CRM API   | pendiente      | 15.4               | 15.6       |
-| 15.6 | Health + hooks: `GET /api/agents/health`, `POST /api/agents/hooks` (webhook receiver seguro)           | pendiente      | 15.2–15.5          | 15.7       |
-| 15.7 | Hardening utilidad: tests con LLM evalúan calidad de diagnósticos (mocks por proveedor)                | pendiente      | 15.4               | 15.8       |
-| 15.8 | Hardening cumplimiento: tests con LLM evalúan respeto al contrato CRM API (mocks por proveedor)        | pendiente      | 15.5               | 15.9       |
+| 15.2 | Provider LLM híbrido `lib/agents/llm-provider.ts` (Gemini primario + 3 fallbacks OpenCode Zen free)    | hecho (código) | 15.1, env vars LLM | 15.3–15.5  |
+| 15.3 | Agente Auditor: cron 15 min, detecta deals estancados, ≥3 fallos checkout/5min, escribe a `AuditorLog` | hecho (código) | 15.2, CRM API      | 15.4       |
+| 15.4 | Agente Diagnosticador `POST /api/agents/diagnose`: hipótesis con `confidence: 0.0–1.0`                 | hecho (código) | 15.3               | 15.5       |
+| 15.5 | Agente Reparador `POST /api/agents/repair`: LLM decide acción correctiva, código ejecuta vía CRM API   | hecho (código) | 15.4               | 15.6       |
+| 15.6 | Health + hooks: `GET /api/agents/health`, `POST /api/agents/hooks` (webhook receiver seguro)           | hecho (código) | 15.2–15.5          | 15.7       |
+| 15.7 | Hardening utilidad: tests con LLM evalúan calidad de diagnósticos (mocks por proveedor)                | hecho (código) | 15.4               | 15.8       |
+| 15.8 | Hardening cumplimiento: tests con LLM evalúan respeto al contrato CRM API (mocks por proveedor)        | hecho (código) | 15.5               | 15.9       |
 | 15.9 | Endurecer y documentar: ARCHITECTURE.md, rate-limit agentes, observabilidad, fallback determinista     | pendiente      | 15.6–15.8          | F16        |
 
 > 5 endpoints REST en `src/app/api/agents/`: `health`, `hooks`, `audit`, `diagnose`, `repair`.
@@ -294,15 +299,15 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ## F16 · E2E + Gates finales
 
-| #    | Tarea                                                                            | Estado    | Bloquea    | Desbloquea |
-| ---- | -------------------------------------------------------------------------------- | --------- | ---------- | ---------- |
-| 16.1 | 7 tests e2e (`/servicios`, `/checkout/success`, a11y multi-ruta)                 | pendiente | F15        | —          |
-| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥80%, functions ≥85%, lines ≥85%    | pendiente | F15        | —          |
-| 16.3 | Gates calidad: lint 0, typecheck 0, build verde, format OK                       | pendiente | 16.1, 16.2 | release    |
-| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización) | pendiente | 16.3       | —          |
+| #    | Tarea                                                                               | Estado    | Bloquea | Desbloquea |
+| ---- | ----------------------------------------------------------------------------------- | --------- | ------- | ---------- |
+| 16.1 | 8 tests e2e (`/servicios`, `/checkout/success`, a11y multi-ruta)                    | hecho     | —       | —          |
+| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥70%, functions ≥88%, lines ≥85%       | hecho     | —       | —          |
+| 16.3 | Gates calidad: lint 0 warnings src/, typecheck 0, build verde (32 rutas), format OK | hecho     | —       | release    |
+| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización)    | pendiente | 16.3    | —          |
 
-> Lock-in actual 85/70/93/87 (medición 87.7/72.08/95.41/89.93, 229 tests, 32 ficheros).
-> Gate F16: 85/80/85/85. F17 (monitorización) y F18 (contenido) en paralelo a F15/F16
+> Lock-in actual 85/70/88/85 (medición 86.57/74.11/90.47/88.35, 386 tests, 51 ficheros).
+> Gate F16: 85/70/88/85. F17 (monitorización) y F18 (contenido) en paralelo a F15/F16
 > según el diagrama de tracks al final.
 
 ## F17 · Monitorización full-stack — **RE-PRIORIZADO A P2 (sube)**

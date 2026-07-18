@@ -13,6 +13,7 @@ import {
 import { prisma } from "@/lib/db";
 import { generateInvoiceNumberAsync } from "@/lib/crm/invoice-number";
 import { clientIp, rateLimit } from "@/lib/rate-limit";
+import { metric } from "@/lib/monitor";
 
 export async function POST(req: Request) {
   const ip = clientIp(req.headers);
@@ -143,11 +144,14 @@ export async function POST(req: Request) {
     });
 
     if (!session.url) {
+      metric("checkout.error", "no_session_url");
       return NextResponse.json({ error: "No se pudo iniciar el pago." }, { status: 502 });
     }
+    metric("checkout.started", item.id);
     return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("[checkout] error al crear la sesión de Stripe:", err);
+    metric("checkout.error", "stripe_session_failed");
     // F13: fallback a Payment Link si la sesión falla.
     return await handlePaymentLinkFallback(item, effectiveMode);
   }

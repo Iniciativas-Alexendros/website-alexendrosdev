@@ -127,6 +127,23 @@ export const CATALOG: CatalogItem[] = [
     metadata: { hoursEstimate: '50 h/mes', anchorRate: '~40 €/h' },
   },
 
+  // ─── Landing page (one_time, orientativo — no comprable directo) ──
+  {
+    id: 'landing-page',
+    name: 'Landing de 1 página',
+    desc: 'Una página bien hecha para presentar tu negocio o producto: diseño a medida, rápida y adaptada a móvil.',
+    amount: 60_000,
+    currency: 'eur',
+    type: 'one_time',
+    stripePriceIds: {
+      test: undefined,
+      live: undefined,
+    },
+    active: false,
+    category: 'proyecto',
+    metadata: { hoursEstimate: '~14 h', anchorRate: '~43 €/h' },
+  },
+
   // ─── Proyectos (one_time, referencia — no comprables directos) ───
   {
     id: 'proyecto-starter',

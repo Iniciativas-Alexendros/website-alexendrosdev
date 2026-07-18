@@ -20,8 +20,23 @@ const mocks = vi.hoisted(() => ({
       invoice: { create: ReturnType<typeof vi.fn> };
     },
     isLiveMode: false,
+    // Control para testear `price_data` fallback. null → fuerza fallback.
+    priceIdOverride: undefined as string | null | undefined,
   },
 }));
+
+vi.mock("@/lib/content/catalog", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/content/catalog")>();
+  return {
+    ...original,
+    getCatalogPriceId: vi.fn((item, mode) => {
+      if (mocks.state.priceIdOverride !== undefined) {
+        return mocks.state.priceIdOverride;
+      }
+      return original.getCatalogPriceId(item, mode);
+    }),
+  };
+});
 
 vi.mock("@/lib/stripe", () => ({
   get stripe() {
@@ -81,6 +96,7 @@ beforeEach(() => {
   };
   mocks.state.prisma = null;
   vi.spyOn(console, "error").mockImplementation(() => {});
+  mocks.state.priceIdOverride = undefined;
 });
 
 describe("POST /api/checkout", () => {
@@ -418,6 +434,115 @@ describe("POST /api/checkout", () => {
     expect(body.method).toBe("transfer");
     expect(body.iban).toBe("ES7621000418401234560123");
     expect(body.beneficiary).toBe("Alexendros");
+  });
+
+  // ─── P1 — price_data fallback (getCatalogPriceId → null) ──────────
+
+  it("P1.1: price_data fallback one_time cuando getCatalogPriceId devuelve null", async () => {
+    mocks.state.priceIdOverride = null;
+    const create = vi.fn().mockResolvedValue({ url: "https://x" });
+    mocks.state.stripe = { checkout: { sessions: { create } } };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.7.0.1");
+    expect(res.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        line_items: [
+          expect.objectContaining({
+            price_data: expect.objectContaining({
+              currency: "eur",
+              unit_amount: 6000,
+              product_data: expect.objectContaining({
+                name: "Sesión de consultoría",
+              }),
+            }),
+          }),
+        ],
+      }),
+    );
+    // No debe contener recurring (es one_time)
+    const callArg = create.mock.calls[0][0];
+    expect(callArg.line_items[0].price_data.recurring).toBeUndefined();
+  });
+
+  it("P1.2: transfer error BD — prisma.invoice.create lanza → 502", async () => {
+    mocks.state.transfer = {
+      iban: "ES7621000418401234560123",
+      beneficiary: "Alexendros",
+      bank: "CaixaBank",
+      configured: true,
+    };
+    mocks.state.prisma = {
+      invoice: {
+        create: vi.fn().mockRejectedValue(new Error("db caída")),
+      },
+    };
+    const res = await post(
+      {
+        itemId: "sesion-consultoria",
+        paymentMethod: "transfer",
+        email: "cliente@example.com",
+        name: "Cliente Test",
+      },
+      "10.7.0.2",
+    );
+    expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.error).toBe("No se pudo registrar la factura proforma.");
+  });
+
+  it("P1.3: paymentLink.url null → 502 con fallbackAttempted", async () => {
+    mocks.state.stripe = {
+      checkout: {
+        sessions: {
+          create: vi.fn().mockRejectedValue(new Error("stripe caído")),
+        },
+      },
+      paymentLinks: {
+        create: vi.fn().mockResolvedValue({ url: null }),
+      },
+    };
+    const res = await post({ itemId: "sesion-consultoria" }, "10.7.0.3");
+    expect(res.status).toBe(502);
+    const body = await res.json();
+    expect(body.fallbackAttempted).toBe(true);
+    expect(body.error).toBe("No se pudo iniciar el pago.");
+  });
+
+  it("P1.4: fallback subscription price_data — paymentLink con price_data recurring", async () => {
+    mocks.state.priceIdOverride = null;
+    mocks.state.stripe = {
+      checkout: {
+        sessions: {
+          create: vi.fn().mockRejectedValue(new Error("stripe caído")),
+        },
+      },
+      paymentLinks: {
+        create: vi.fn().mockResolvedValue({ url: "https://buy.stripe.test/link_abc" }),
+      },
+    };
+    const res = await post({ itemId: "retainer-pro", mode: "subscription" }, "10.7.0.4");
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.fallback).toBe(true);
+    expect(body.url).toBe("https://buy.stripe.test/link_abc");
+    // Verificar que paymentLink se creó con price_data (no price) y con recurring
+    const paymentLinkCreate = mocks.state.stripe!.paymentLinks!.create;
+    expect(paymentLinkCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        line_items: [
+          expect.objectContaining({
+            price_data: expect.objectContaining({
+              currency: "eur",
+              unit_amount: 129000,
+              recurring: { interval: "month" },
+              product_data: expect.objectContaining({
+                name: "Retainer Pro",
+              }),
+            }),
+          }),
+        ],
+      }),
+    );
   });
 
   it("T3.10: POST transfer con email inválido → 422", async () => {

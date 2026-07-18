@@ -17,9 +17,9 @@ test.describe("/servicios", () => {
     await expect(page).toHaveURL(/\/contacto$/);
   });
 
-  test("la página renderiza 3 tier cards de proyecto", async ({ page }) => {
+  test("la página renderiza 4 tier cards de proyecto (incluye landing)", async ({ page }) => {
     await page.goto("/servicios");
     const tiles = page.locator("article[class*='ak-tier']");
-    await expect(tiles).toHaveCount(3);
+    await expect(tiles).toHaveCount(4);
   });
 });

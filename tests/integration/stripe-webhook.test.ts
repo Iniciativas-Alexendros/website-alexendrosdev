@@ -175,6 +175,49 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
+// ─── Fixtures adicionales para tests de ramas P1 ──────────────────
+
+// invoice.paid SIN subscription (sin campo subscription en el objeto)
+const invoicePaidNoSubEvent = {
+  type: "invoice.paid",
+  data: {
+    object: {
+      id: "in_stripe_no_sub",
+      amount_paid: 6000,
+      currency: "eur",
+    },
+  },
+};
+
+// subscription.updated CON contactId en metadata
+const subscriptionUpdatedWithContactEvent = {
+  type: "customer.subscription.updated",
+  data: {
+    object: {
+      id: "sub_stripe_contact",
+      customer: "cus_stripe_456",
+      status: "active",
+      current_period_start: 1720000000,
+      current_period_end: 1722592000,
+      canceled_at: null,
+      metadata: { contactId: "contact-1" },
+    },
+  },
+};
+
+// subscription.deleted CON canceled_at=null
+const subscriptionDeletedNullCancelEvent = {
+  type: "customer.subscription.deleted",
+  data: {
+    object: {
+      id: "sub_stripe_null_cancel",
+      status: "canceled",
+      canceled_at: null,
+      metadata: {},
+    },
+  },
+};
+
 describe("POST /api/stripe/webhook", () => {
   // Tests existentes (sin cambios)
   it("acusa recibo sin procesar si falta cliente o secreto (degradación)", async () => {
@@ -362,6 +405,112 @@ describe("POST /api/stripe/webhook", () => {
     expect(res.status).toBe(500);
   });
 
+  // ─── P1 — Ramas checkout.session.completed ───────────────────────
+
+  it("P1.1: checkout con dealId pero pipelineStage no encontrado → solo order, no deal update", async () => {
+    mocks.constructEvent.mockReturnValue(completedWithDealEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.pipelineStageFindFirst.mockResolvedValue(null);
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.orderUpsert).toHaveBeenCalled();
+    // Sin pipelineStage "Cerrado ganado" → no deal update, no activity
+    expect(mocks.dealUpdate).not.toHaveBeenCalled();
+    expect(mocks.activityCreate).not.toHaveBeenCalled();
+  });
+
+  it("P1.2: checkout sin dealId → solo order, no deal update ni activity de cierre", async () => {
+    mocks.constructEvent.mockReturnValue(completedEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.orderUpsert).toHaveBeenCalled();
+    expect(mocks.dealUpdate).not.toHaveBeenCalled();
+    expect(mocks.activityCreate).not.toHaveBeenCalled();
+  });
+
+  // ─── P1 — Ramas invoice.paid ──────────────────────────────────────
+
+  it("P1.3: invoice.paid sin subscription → upsert factura sin dealId, no subscription lookup", async () => {
+    mocks.constructEvent.mockReturnValue(invoicePaidNoSubEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.subscriptionFindUnique).not.toHaveBeenCalled();
+    // Prisma upsert usa { where, update, create }
+    expect(mocks.invoiceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          dealId: undefined,
+        }),
+      }),
+    );
+    expect(mocks.activityCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          dealId: undefined,
+        }),
+      }),
+    );
+  });
+
+  it("P1.4: invoice.paid con subscription pero sub no encontrado → upsert sin dealId", async () => {
+    mocks.constructEvent.mockReturnValue(invoicePaidEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionFindUnique.mockResolvedValue(null);
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.subscriptionFindUnique).toHaveBeenCalled();
+    expect(mocks.dealFindFirst).not.toHaveBeenCalled();
+    // Prisma upsert usa { where, update, create }
+    expect(mocks.invoiceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          dealId: undefined,
+        }),
+      }),
+    );
+  });
+
+  // ─── P1 — Ramas subscription ──────────────────────────────────────
+
+  it("P1.5: subscription.deleted con canceled_at=null → canceledAt es Date actual", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionDeletedNullCancelEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-1" });
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.subscriptionUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { stripeSubscriptionId: "sub_stripe_null_cancel" },
+        data: expect.objectContaining({
+          status: "canceled",
+          canceledAt: expect.any(Date),
+        }),
+      }),
+    );
+    // Task de cancelación sigue creándose
+    expect(mocks.taskCreate).toHaveBeenCalled();
+  });
+
+  it("P1.6: subscription.updated con contactId en metadata → upsert contactId presente", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionUpdatedWithContactEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    // Prisma upsert usa { where, update, create }
+    expect(mocks.subscriptionUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({
+          contactId: "contact-1",
+        }),
+        update: expect.objectContaining({
+          contactId: "contact-1",
+        }),
+      }),
+    );
+  });
+
   it("responde 500 si checkout con dealId falla al actualizar el deal", async () => {
     mocks.constructEvent.mockReturnValue(completedWithDealEvent);
     mocks.state.prisma = buildPrisma();
@@ -372,5 +521,165 @@ describe("POST /api/stripe/webhook", () => {
     mocks.dealUpdate.mockRejectedValue(new Error("db down"));
     const res = await post("raw", { "stripe-signature": "buena" });
     expect(res.status).toBe(500);
+  });
+
+  // ─── Tests para cerrar gate branches 80% ─────────────────────
+
+  it("evento desconocido → 200 received, ningún handler llamado", async () => {
+    const unknownEvent = {
+      type: "charge.succeeded",
+      data: { object: { id: "ch_unknown_123" } },
+    };
+    mocks.constructEvent.mockReturnValue(unknownEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+    // Ningún handler debe ejecutarse para evento desconocido
+    expect(mocks.orderUpsert).not.toHaveBeenCalled();
+    expect(mocks.invoiceUpsert).not.toHaveBeenCalled();
+    expect(mocks.subscriptionUpsert).not.toHaveBeenCalled();
+    expect(mocks.subscriptionUpdate).not.toHaveBeenCalled();
+    expect(mocks.activityCreate).not.toHaveBeenCalled();
+    expect(mocks.taskCreate).not.toHaveBeenCalled();
+  });
+
+  it("invoice.paid sin stripeInvoiceId → retorna early, no upsert ni activity", async () => {
+    const invoicePaidEmptyIdEvent = {
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "",
+          amount_paid: 6000,
+          currency: "eur",
+        },
+      },
+    };
+    mocks.constructEvent.mockReturnValue(invoicePaidEmptyIdEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ received: true });
+    // Early return: ni upsert ni activity
+    expect(mocks.invoiceUpsert).not.toHaveBeenCalled();
+    expect(mocks.activityCreate).not.toHaveBeenCalled();
+  });
+
+  it("invoice.paid con subscription pero sub sin contactId → no deal lookup, invoice sin dealId", async () => {
+    const invoicePaidNoContactEvent = {
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "in_stripe_no_contact",
+          amount_paid: 6000,
+          currency: "eur",
+          subscription: "sub_no_contact",
+        },
+      },
+    };
+    mocks.constructEvent.mockReturnValue(invoicePaidNoContactEvent);
+    mocks.state.prisma = buildPrisma();
+    // Sub encontrada pero SIN contactId
+    mocks.subscriptionFindUnique.mockResolvedValue({ id: "sub_no_contact" });
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    // sub?.contactId es undefined → no se busca deal
+    expect(mocks.subscriptionFindUnique).toHaveBeenCalled();
+    expect(mocks.dealFindFirst).not.toHaveBeenCalled();
+    // Invoice upsert sin dealId
+    expect(mocks.invoiceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ dealId: undefined }),
+      }),
+    );
+  });
+
+  it("invoice.paid con subscription, sub con contactId pero deal no encontrado → invoice sin dealId", async () => {
+    mocks.constructEvent.mockReturnValue(invoicePaidEvent);
+    mocks.state.prisma = buildPrisma();
+    // Sub encontrada CON contactId
+    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-sin-deal" });
+    // Pero ningún deal existe para ese contacto
+    mocks.dealFindFirst.mockResolvedValue(null);
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    // deal.findFirst se llamó pero devolvió null → dealId sigue undefined
+    expect(mocks.dealFindFirst).toHaveBeenCalled();
+    expect(mocks.invoiceUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ dealId: undefined }),
+      }),
+    );
+  });
+
+  it("subscription.deleted con canceled_at definido → canceledAt es Date del timestamp", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    // canceled_at = 1722000000 → new Date(1722000000 * 1000)
+    expect(mocks.subscriptionUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { stripeSubscriptionId: "sub_stripe_123" },
+        data: expect.objectContaining({
+          status: "canceled",
+          canceledAt: expect.any(Date),
+        }),
+      }),
+    );
+  });
+
+  it("invoice.paid con subscription como objeto (expandido por Stripe) → lookup por subscription.id", async () => {
+    const invoicePaidExpandedSubEvent = {
+      type: "invoice.paid",
+      data: {
+        object: {
+          id: "in_stripe_expanded",
+          amount_paid: 6000,
+          currency: "eur",
+          subscription: { id: "sub_expanded_123" } as { id: string },
+        },
+      },
+    };
+    mocks.constructEvent.mockReturnValue(invoicePaidExpandedSubEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionFindUnique.mockResolvedValue({ contactId: "contact-expanded" });
+    mocks.dealFindFirst.mockResolvedValue(null);
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    // Con subscription como objeto, busca por subscription.id
+    expect(mocks.subscriptionFindUnique).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { stripeSubscriptionId: "sub_expanded_123" },
+      }),
+    );
+  });
+
+  it("subscription.updated sin metadata.contactId → upsert sin contactId", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionUpdatedEvent);
+    mocks.state.prisma = buildPrisma();
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.subscriptionUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        create: expect.objectContaining({ contactId: undefined }),
+        update: expect.objectContaining({ contactId: undefined }),
+      }),
+    );
+  });
+
+  it("subscription.deleted sin contactId en sub → task create con undefined", async () => {
+    mocks.constructEvent.mockReturnValue(subscriptionDeletedEvent);
+    mocks.state.prisma = buildPrisma();
+    mocks.subscriptionFindUnique.mockResolvedValue({});
+    const res = await post("raw", { "stripe-signature": "buena" });
+    expect(res.status).toBe(200);
+    expect(mocks.taskCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          contactId: undefined,
+        }),
+      }),
+    );
   });
 });
