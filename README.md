@@ -4,6 +4,7 @@
 [![Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)](https://alexendros.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
+[![Coverage: 80% branches](https://img.shields.io/badge/coverage-80%25_branches-brightgreen?logo=vitest)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions)
 
 Portfolio profesional de **Alejandro Domingo Agustí** — Software & Platform Engineer en Valencia.
 
@@ -20,7 +21,7 @@ Portfolio profesional de **Alejandro Domingo Agustí** — Software & Platform E
 | Email          | Resend · React Email                                       |
 | Pagos          | Stripe Checkout                                            |
 | Observabilidad | Vercel Analytics · Speed Insights · OpenTelemetry          |
-| Calidad        | ESLint · Prettier · Vitest · Playwright + axe              |
+| Calidad        | ESLint · Prettier · Vitest (436 tests) · Playwright + axe  |
 
 ## Quickstart
 
@@ -51,7 +52,8 @@ pnpm dev                     # http://localhost:3000
 ```bash
 pnpm lint           # ESLint
 pnpm typecheck      # TypeScript
-pnpm test           # Vitest unit tests
+pnpm test           # Vitest unit tests (50 ficheros, 436 tests)
+pnpm test:coverage  # Con cobertura v8 + gates bloqueantes
 pnpm e2e            # Playwright E2E
 pnpm build          # Build producción
 ```
