@@ -145,17 +145,17 @@ test?, live? }`, `getCatalogPriceId(item, mode)`, guardia del checkout. 7 tests 
 > `deploy.yml` por CLI eliminado por redundante (fallaba en `vercel pull` con `VERCEL_PROJECT_ID`
 > inválido). La CI (`ci.yml`) sigue siendo la verificación de calidad bloqueante.
 
-## F9 · Escaparate (página showcase) + deploy en vivo
+## F9 · Escaparate → Servicios (fusionado) + deploy en vivo
 
-| #   | Tarea                                                                       | Estado | Bloquea               | Desbloquea |
-| --- | --------------------------------------------------------------------------- | ------ | --------------------- | ---------- |
-| 9.1 | `/escaparate`: proyectos featured + items comprables (Stripe) + nav/sitemap | hecho  | F3,7.4                | —          |
-| 9.2 | Isla `PurchaseCard` extraída y reutilizada en `/servicios` y `/escaparate`  | hecho  | 9.1                   | —          |
-| 9.3 | Endurecer `ci.yml`: `concurrency` cancel-in-progress + `timeout-minutes`    | hecho  | 6.2                   | —          |
-| 9.4 | Provisionar Supabase (instancia libre) + `DATABASE_URL` + migración Prisma  | hecho  | Supabase (MCP) + env  | 4.1        |
-| 9.5 | Deploy producción Vercel (MCP) + dominio `alexendros.dev`                   | hecho  | proyecto Vercel + env | 8.2        |
-| 9.6 | Personalización de contenido: datos reales + 5 proyectos OSS de GitHub      | hecho  | 9.1                   | —          |
-| 9.7 | Landing "en construcción" `/proximamente` + split preview/prod              | hecho  | 9.1                   | 9.5        |
+| #   | Tarea                                                                         | Estado | Bloquea               | Desbloquea |
+| --- | ----------------------------------------------------------------------------- | ------ | --------------------- | ---------- |
+| 9.1 | Escaparate (fusionado en `/servicios`): proyectos featured + items comprables | hecho  | F3,7.4                | —          |
+| 9.2 | Isla `PurchaseCard` extraída y reutilizada en `/servicios`                    | hecho  | 9.1                   | —          |
+| 9.3 | Endurecer `ci.yml`: `concurrency` cancel-in-progress + `timeout-minutes`      | hecho  | 6.2                   | —          |
+| 9.4 | Provisionar Supabase (instancia libre) + `DATABASE_URL` + migración Prisma    | hecho  | Supabase (MCP) + env  | 4.1        |
+| 9.5 | Deploy producción Vercel (MCP) + dominio `alexendros.dev`                     | hecho  | proyecto Vercel + env | 8.2        |
+| 9.6 | Personalización de contenido: datos reales + 5 proyectos OSS de GitHub        | hecho  | 9.1                   | —          |
+| 9.7 | Landing "en construcción" `/proximamente` + split preview/prod                | hecho  | 9.1                   | 9.5        |
 
 > Holding page: portfolio público por defecto. Landing `/proximamente` (vía `src/middleware.ts`
 >
@@ -220,7 +220,7 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 > 6 tests integración green en `tests/integration/checkout.test.ts` (T2.1–T2.6). 5 tests componente
 > en `tests/component/PurchaseCard.test.tsx` (T2.12–T2.16). 2 tests e2e en `services.spec.ts` y
-> `escaparate.spec.ts` (T2.17–T2.18).
+> `servicios.spec.ts` (T2.17–T2.18).
 
 ## F13 · Canal secundario (transferencia + Stripe Payment Link fallback)
 
@@ -301,7 +301,7 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 | #    | Tarea                                                                               | Estado    | Bloquea | Desbloquea |
 | ---- | ----------------------------------------------------------------------------------- | --------- | ------- | ---------- |
-| 16.1 | 8 tests e2e (`/servicios`, `/escaparate`, `/checkout/success`, a11y multi-ruta)     | hecho     | —       | —          |
+| 16.1 | 8 tests e2e (`/servicios`, `/checkout/success`, a11y multi-ruta)                    | hecho     | —       | —          |
 | 16.2 | Lock-in cobertura: statements ≥85%, branches ≥70%, functions ≥88%, lines ≥85%       | hecho     | —       | —          |
 | 16.3 | Gates calidad: lint 0 warnings src/, typecheck 0, build verde (32 rutas), format OK | hecho     | —       | release    |
 | 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización)    | pendiente | 16.3    | —          |
