@@ -36,7 +36,7 @@ export interface MonitorSnapshot {
 const WINDOW_5M = 300_000;
 const WINDOW_1H = 3_600_000;
 
-const startedAt = Date.now();
+let startedAt = Date.now();
 
 const counters = new Map<string, number[]>();
 
@@ -119,4 +119,6 @@ export function snapshot(): MonitorSnapshot {
  */
 export function _resetMetrics(): void {
   counters.clear();
+  startedAt = Date.now();
+  lastSweep = Date.now();
 }
