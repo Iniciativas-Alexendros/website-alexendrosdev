@@ -23,22 +23,22 @@
 
 ## Diagnostic Summary (pre-work, already collected)
 
-| Variable | Value |
-|---|---|
-| Production domain | `alexendros.dev` |
-| Production branch | `main` |
-| Production homepage | Uses `HomeFeaturedProjects` (older component, buggy) |
-| Production styles | Legacy `ak-*` CSS, no Tailwind `@theme inline` |
-| Reference preview URL | `website-alexendrosdev-git-feat-restructu-d0bea2-alexendros-team.vercel.app` |
-| Reference branch | `feat/restructure-content` |
-| Reference homepage | Uses `HomeProjects` (redesigned, correct) |
-| Reference styles | Tailwind v4 `@theme inline` in `globals.css`, condensed `site.css` |
-| Diff scope | 112 files changed, 2,491 insertions, 9,963 deletions |
-| `should-build.mjs` on `main` | Present — filters branches via `ALLOWED_BRANCHES` |
-| `should-build.mjs` on `feat/restructure-content` | **Absent** — no `ignoreCommand` in its `vercel.json` |
-| `vercel.json` on `main` | Has `ignoreCommand`, no `crons` |
-| `vercel.json` on `feat/restructure-content` | No `ignoreCommand`, has `crons` for `/api/agents/audit` |
-| Remote | `git@github.com:Iniciativas-Alexendros/website-alexendrosdev.git` |
+| Variable                                         | Value                                                                        |
+| ------------------------------------------------ | ---------------------------------------------------------------------------- |
+| Production domain                                | `alexendros.dev`                                                             |
+| Production branch                                | `main`                                                                       |
+| Production homepage                              | Uses `HomeFeaturedProjects` (older component, buggy)                         |
+| Production styles                                | Legacy `ak-*` CSS, no Tailwind `@theme inline`                               |
+| Reference preview URL                            | `website-alexendrosdev-git-feat-restructu-d0bea2-alexendros-team.vercel.app` |
+| Reference branch                                 | `feat/restructure-content`                                                   |
+| Reference homepage                               | Uses `HomeProjects` (redesigned, correct)                                    |
+| Reference styles                                 | Tailwind v4 `@theme inline` in `globals.css`, condensed `site.css`           |
+| Diff scope                                       | 112 files changed, 2,491 insertions, 9,963 deletions                         |
+| `should-build.mjs` on `main`                     | Present — filters branches via `ALLOWED_BRANCHES`                            |
+| `should-build.mjs` on `feat/restructure-content` | **Absent** — no `ignoreCommand` in its `vercel.json`                         |
+| `vercel.json` on `main`                          | Has `ignoreCommand`, no `crons`                                              |
+| `vercel.json` on `feat/restructure-content`      | No `ignoreCommand`, has `crons` for `/api/agents/audit`                      |
+| Remote                                           | `git@github.com:Iniciativas-Alexendros/website-alexendrosdev.git`            |
 
 ### Root Causes Identified
 
@@ -53,11 +53,13 @@
 ### Task 1: Verify current Vercel deployment status via CLI
 
 **Files:**
+
 - Read: `vercel.json` (root)
 - Read: `scripts/should-build.mjs`
 - Run: Vercel CLI commands
 
 **Interfaces:**
+
 - Consumes: N/A — baseline diagnostic
 - Produces: Confirmed list of active deployments, their branch aliases, and env vars
 
@@ -94,6 +96,7 @@ vercel ls --format json --scope alexendros-team 2>/dev/null | head -80
 ```
 
 Expected: List of deployments showing branch, URL, status, and creation date. Verify that:
+
 - Production deployment exists for `main` → `alexendros.dev`
 - Preview deployment exists for `feat/restructure-content` → reference URL
 - No stale/rogue branches are deploying
@@ -143,10 +146,12 @@ REPORT_EOF
 ### Task 2: Align `vercel.json` between branches
 
 **Files:**
+
 - Modify: `feat/restructure-content` branch — add `ignoreCommand` to `vercel.json`
 - Modify (later): Ensure merge to `main` picks up `crons` from feature branch
 
 **Interfaces:**
+
 - Consumes: Diagnostic from Task 1
 - Produces: Consistent `vercel.json` on both branches
 
@@ -227,9 +232,11 @@ Expected: New preview deployment URL listed with status "READY".
 ### Task 3: Merge `feat/restructure-content` → `main` (promote redesign to production)
 
 **Files:**
+
 - Merge: Full tree of `feat/restructure-content` into `main`
 
 **Interfaces:**
+
 - Consumes: Consistent config from Task 2
 - Produces: Production deployment with corrected homepage
 
@@ -252,6 +259,7 @@ Expected: Merge conflicts to resolve.
 - [ ] **Step 2: Resolve merge conflicts**
 
 Known conflicts (from diff analysis):
+
 - `vercel.json` — different `ignoreCommand` and `crons` fields
 - `src/app/page.tsx` — `HomeFeaturedProjects` vs `HomeProjects`
 - `src/styles/site.css` — heavily refactored on feat branch
@@ -261,6 +269,7 @@ Known conflicts (from diff analysis):
 - Deleted files: blog articles, API routes (`/api/health`), test files
 
 **Conflict resolution strategy:**
+
 - `vercel.json`: Accept feat branch (has crons + ignoreCommand)
 - `page.tsx`: Accept feat branch (HomeProjects is the fix)
 - CSS files: Accept feat branch (Tailwind-first approach is the fix)
@@ -288,10 +297,12 @@ git push origin feat/merge-restructure-to-main
 Then open a PR on GitHub from `feat/merge-restructure-to-main` → `main`.
 
 PR description template:
+
 ```markdown
 ## Merge feat/restructure-content → main
 
 ### What's included
+
 - Redesigned homepage with `HomeProjects` component (fixes bugs on production)
 - Tailwind v4 `@theme inline` integration
 - Updated design tokens (better WCAG compliance, fixed palette)
@@ -300,10 +311,11 @@ PR description template:
 - Updated CI/CD config
 
 ### Verification
+
 - [ ] Build passes
 - [ ] Tests pass (coverage gates)
 - [ ] Preview deployment URL verified
-- [ ] Allowed branches: feat/*, fix/*, chore/*, develop, main
+- [ ] Allowed branches: feat/_, fix/_, chore/*, develop, main
 
 Closes: <!-- add issue if exists -->
 ```
@@ -323,6 +335,7 @@ Expected: Shows new deployment with merge commit SHA. Status "READY".
 - [ ] **Step 6: Smoke test production**
 
 Visit `https://alexendros.dev` and verify:
+
 - Homepage renders correctly (Hero, Terminal, Marquee, HomeProjects, Services, Testimonials, CTA)
 - No console errors in browser devtools
 - Navigation links work
@@ -333,16 +346,19 @@ Visit `https://alexendros.dev` and verify:
 ### Task 4: Harden deployment pipeline — add branch/git ref validation
 
 **Files:**
+
 - Modify: `scripts/should-build.mjs`
 - Modify: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Consumes: Lessons from Tasks 1-3
 - Produces: Bulletproof branch deployment rules
 
 - [ ] **Step 1: Audit `scripts/should-build.mjs` for edge cases**
 
 Current issues identified:
+
 - `VERCEL_ENV` early exit: If VERCEL_ENV is set, ALL branches build (even branches not in ALLOWED_BRANCHES). This means a branch outside the convention could still trigger a build via manual Vercel deploy.
 - The glob pattern `feat/*` matches `feat/anything` but NOT `feat/restructure/content` with nested slashes — the `*` glob only matches within a single path segment.
 
@@ -370,15 +386,16 @@ Replace the `matchesGlob` function:
 function matchesGlob(pattern, candidate) {
   // Escape all regex special chars EXCEPT our glob wildcard
   const escaped = pattern
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*/g, '___DOUBLE_WILD___') // preserve ** before escaping *
-    .replace(/\*/g, '[^/]*')                // * matches within a path segment
-    .replace(/___DOUBLE_WILD___/g, '.*');   // ** matches across segments
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*\*/g, "___DOUBLE_WILD___") // preserve ** before escaping *
+    .replace(/\*/g, "[^/]*") // * matches within a path segment
+    .replace(/___DOUBLE_WILD___/g, ".*"); // ** matches across segments
   return new RegExp(`^${escaped}$`).test(candidate);
 }
 ```
 
 This ensures:
+
 - `feat/*` matches `feat/foo` but NOT `feat/foo/bar`
 - `feat/**` would match `feat/foo/bar` (if needed)
 - Edge case: `feat/*` correctly excludes `feat/foo/bar`
@@ -430,18 +447,18 @@ In `.github/workflows/ci.yml`, add a step to validate branch name against conven
 
 ```yaml
 # At top of quality job:
-      - name: Validate branch naming
-        run: |
-          BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
-          case "$BRANCH" in
-            main|develop|dependabot/*) exit 0 ;;
-            feat/*|fix/*|chore/*|ci/*|docs/*|refactor/*|test/*|perf/*|hotfix/*) exit 0 ;;
-            *)
-              echo "::error::Branch '$BRANCH' does not follow naming convention"
-              echo "Allowed: feat/*, fix/*, chore/*, ci/*, docs/*, refactor/*, test/*, perf/*, hotfix/*, develop, main"
-              exit 1
-              ;;
-          esac
+- name: Validate branch naming
+  run: |
+    BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+    case "$BRANCH" in
+      main|develop|dependabot/*) exit 0 ;;
+      feat/*|fix/*|chore/*|ci/*|docs/*|refactor/*|test/*|perf/*|hotfix/*) exit 0 ;;
+      *)
+        echo "::error::Branch '$BRANCH' does not follow naming convention"
+        echo "Allowed: feat/*, fix/*, chore/*, ci/*, docs/*, refactor/*, test/*, perf/*, hotfix/*, develop, main"
+        exit 1
+        ;;
+    esac
 ```
 
 ---
@@ -449,9 +466,11 @@ In `.github/workflows/ci.yml`, add a step to validate branch name against conven
 ### Task 5: Post-merge cleanup — remove stale branches and previews
 
 **Files:**
+
 - Run: Git branch management commands
 
 **Interfaces:**
+
 - Consumes: Merge completion from Task 3
 - Produces: Clean repository state
 
@@ -483,6 +502,7 @@ Expected: Clean worktree state.
 ## Self-Review
 
 ### Spec coverage
+
 1. ✅ Task 1: Diagnostic verification of Vercel deployments and branch mappings
 2. ✅ Task 2: Align `vercel.json` between branches (consistent ignoreCommand)
 3. ✅ Task 3: Merge redesign fixes to main → fixes homepage bugs
@@ -490,9 +510,11 @@ Expected: Clean worktree state.
 5. ✅ Task 5: Post-merge cleanup
 
 ### Placeholder scan
+
 No placeholders, TODOs, or "implement later" remaining. All code and commands are concrete.
 
 ### Type consistency
+
 - `should-build.mjs` uses `process.env.VERCEL_GIT_COMMIT_REF` — same env var name referenced in Task 1-4
 - `vercel.json` schema consistently uses `https://openapi.vercel.sh/vercel.json`
 - Branch naming: `feat/restructure-content` consistently referenced across all tasks
