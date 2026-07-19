@@ -11,6 +11,8 @@ export const SITE = {
     linkedin: "https://www.linkedin.com/in/alexendros/",
     web: "https://alexendros.me",
   },
+  /** URL de calendario para reservar llamada (Cal.com / Calendly). */
+  bookingUrl: "https://cal.com/alexendros/30min",
 } as const;
 
 export const NAV: NavLink[] = [
