@@ -27,7 +27,13 @@ if (branch === "main") {
 
 // Verificar contra ALLOWED_BRANCHES
 function matchesGlob(pattern, candidate) {
-  const escaped = pattern.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
+  // * solo matchea dentro de un segmento de ruta (no cruza /)
+  // ** matchea a través de segmentos (ej: feat/**/fix)
+  const escaped = pattern
+    .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*\*/g, "___DBL___")
+    .replace(/\*/g, "[^/]*")
+    .replace(/___DBL___/g, ".*");
   return new RegExp(`^${escaped}$`).test(candidate);
 }
 
