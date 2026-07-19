@@ -132,8 +132,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: npx vercel deploy --prod --prebuilt --token "${{ secrets.VERCEL_TOKEN }}" --yes --scope alexendros-team
+      - run: npx vercel deploy --prod --token "${{ secrets.VERCEL_TOKEN }}" --yes --scope alexendros-team
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -142,8 +141,8 @@ jobs:
   # también debería encargarse del deploy en cada push a main, pero está
   # fallando consistentemente (TypeError de build que no se reproduce
   # localmente). Este job es un backstop que:
-  # 1. Construye localmente con pnpm (espejo del paso build en quality)
-  # 2. Deploya el output prebuilt a Vercel vía API, evitando que Vercel
-  #    intente npm ci/pnpm install en su build environment.
+  # 1. Instala dependencias con pnpm (para que Vercel detecte pnpm)
+  # 2. Deploya el directorio local a Vercel vía API (cloud build)
+  # 3. La config installCommand en vercel.json fuerza Vercel a usar pnpm
   # Si el auto-deploy se arregla, este job se puede eliminar para evitar
   # doble deploy. Ver docs/devops/deploy.md para más contexto.
