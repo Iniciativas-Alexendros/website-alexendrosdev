@@ -37,6 +37,7 @@ vi.mock("@/lib/agents/config", () => ({
   hasGemini: () => Boolean(mocks.state.geminiKey),
   hasOpenCodeZen: () => Boolean(mocks.state.zenKey),
   hasAnyLLM: () => Boolean(mocks.state.geminiKey) || Boolean(mocks.state.zenKey),
+  ALLOWED_ENDPOINT_PATTERNS: [/.*/],
 }));
 
 vi.mock("@google/genai", () => ({
