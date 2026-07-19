@@ -27,6 +27,9 @@ interface FailureEntry {
   eventId?: string;
 }
 
+/** ⚠️ Vercel serverless: esta ventana es por instancia de función.
+ *  No detecta anomalías cross-instance. Suficiente como best-effort.
+ *  TODO S2: migrar a Upstash Redis para detección distribuida. */
 let recentFailures: FailureEntry[] = [];
 
 function recordFailure(eventId?: string): void {

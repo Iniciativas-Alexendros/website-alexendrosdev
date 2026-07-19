@@ -14,7 +14,7 @@ test("el toggle de tema alterna la clase dark", async ({ page }) => {
   await page.goto("/");
   const html = page.locator("html");
   const had = (await html.getAttribute("class"))?.includes("dark") ?? false;
-  await page.getByRole("button", { name: /Cambiar a modo/ }).click();
+  await page.getByRole("button", { name: "Cambiar tema" }).click();
   if (had) {
     await expect(html).not.toHaveClass(/dark/);
   } else {
@@ -35,9 +35,9 @@ test("el formulario de contacto se envía", async ({ page }) => {
   await expect(page.getByText(/Mensaje enviado/)).toBeVisible();
 });
 
-test("el catálogo de servicios se renderiza correctamente", async ({ page }) => {
-  await page.goto("/servicios");
-  await expect(page.getByRole("heading", { name: "Servicios", level: 1 })).toBeVisible();
+test("/escaparate devuelve 404", async ({ page }) => {
+  const res = await page.goto("/escaparate");
+  expect(res?.status()).toBe(404);
 });
 
 test("la home no tiene violaciones de accesibilidad críticas", async ({ page }) => {

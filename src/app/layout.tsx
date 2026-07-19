@@ -44,9 +44,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Alejandro Domingo Agustí" }],
   alternates: {
     canonical: "./",
-    types: {
-      "application/rss+xml": [{ url: "/feed.xml", title: "Blog — Alexendros" }],
-    },
   },
   openGraph: {
     title: SITE_TITLE,

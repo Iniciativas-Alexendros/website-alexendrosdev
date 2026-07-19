@@ -72,7 +72,7 @@ export const CATALOG: CatalogItem[] = [
       test: 'price_1TrTabAuditRapidWebTest',
       live: 'price_1TrUSAuditRapidWebLive01',
     },
-    active: true,
+    active: false,
     category: 'addon',
     metadata: { hoursEstimate: '~2 h', anchorRate: '45 €/h' },
   },
@@ -113,7 +113,7 @@ export const CATALOG: CatalogItem[] = [
   {
     id: 'retainer-scale',
     name: 'Retainer Scale',
-    desc: '50 h/mes (media jornada): hoja de ruta conjunta, arquitectura documentada y SLA.',
+    desc: '50 h/mes: hoja de ruta conjunta, arquitectura documentada y SLA.',
     amount: 199_000,
     currency: 'eur',
     type: 'recurring',

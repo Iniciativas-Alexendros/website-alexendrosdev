@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { PROJECTS, SITE } from "@/lib/content";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const base = SITE.url;
   const staticRoutes = [
     "",

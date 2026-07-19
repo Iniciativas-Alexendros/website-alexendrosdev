@@ -8,8 +8,6 @@ import {
 } from "@/lib/seo/jsonld";
 import { proyectoConRepo, proyectoSinRepo } from "../fixtures/content";
 
-// schema-dts tipa cada propiedad como unión muy amplia; para las aserciones
-// accedemos al objeto plano resultante como Record.
 const plain = (x: object) => x as unknown as Record<string, unknown>;
 
 describe("generadores JSON-LD", () => {
@@ -48,7 +46,7 @@ describe("generadores JSON-LD", () => {
     const j = plain(
       makeBreadcrumbJsonLd([
         { name: "Inicio", url: "https://alexendros.dev/" },
-        { name: "Sobre mí", url: "https://alexendros.dev/sobre-mi" },
+        { name: "Servicios", url: "https://alexendros.dev/servicios" },
       ]),
     );
     const items = j.itemListElement as Array<{ position: number; name: string }>;

@@ -4,5 +4,10 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "ignoreCommand": "node scripts/should-build.mjs",
-  "installCommand": "pnpm install --frozen-lockfile"
+  "crons": [
+    {
+      "path": "/api/agents/audit",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }

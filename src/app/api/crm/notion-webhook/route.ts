@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/db";
 import { notion } from "@/lib/crm/notion";
 import { notionToContact, notionToDeal } from "@/lib/crm/notion-mapper";
-import type { NotionWebhookEvent } from "@/lib/crm/notion-types";
+import { notionWebhookSchema } from "@/lib/crm/notion-types";
 
 function getWebhookSecret(): string | null {
   return process.env.NOTION_WEBHOOK_SECRET ?? null;
@@ -60,9 +60,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Firma inválida." }, { status: 401 });
   }
 
-  let event: NotionWebhookEvent;
+  let event: ReturnType<typeof notionWebhookSchema.parse>;
   try {
-    event = JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    event = notionWebhookSchema.parse(parsed);
   } catch {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
