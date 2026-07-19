@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SITE } from "@/lib/content";
 import { TIERS, COMPARISON, FAQ, ADDONS } from "@/lib/content/services";
 import { Button, Icon, Reveal } from "@/components/ui";
 import { JsonLd } from "@/components/JsonLd";
@@ -188,9 +189,22 @@ export default function ServicesView() {
             <p className="ak-cta-lead-sub">
               Cuéntame tu proyecto y te paso propuesta sin compromiso en 48h.
             </p>
-            <Button variant="primary" size="lg" href="/contacto">
-              Hablemos &rarr;
-            </Button>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                justifyContent: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <Button variant="primary" size="lg" href="/contacto">
+                Hablemos &rarr;
+              </Button>
+              <Button variant="secondary" size="lg" href={SITE.bookingUrl}>
+                <Icon name="calendar" size={16} style={{ marginRight: 8 }} />
+                Reserva 30 min
+              </Button>
+            </div>
           </div>
         </section>
       </Reveal>

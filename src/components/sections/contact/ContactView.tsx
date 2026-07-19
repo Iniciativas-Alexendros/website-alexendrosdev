@@ -337,65 +337,67 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
   );
 }
 
-const MONTHS = [
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Septiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre",
-];
-
-function Calendar() {
-  const [sel, setSel] = useState<number | null>(null);
-  const avail = [4, 9, 10, 16, 17, 23, 24, 25];
-  const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+function BookCall() {
   return (
-    <div className="ak-cal">
-      <div className="ak-cal-head">
-        <span className="ak-label">Agenda una llamada</span>
-        <span className="ak-cal-nav">
-          <button aria-label="Mes anterior">
-            <Icon name="chevron-left" size={15} />
-          </button>
-          <button aria-label="Mes siguiente">
-            <Icon name="chevron-right" size={15} />
-          </button>
-        </span>
+    <div className="ak-panel" style={{ padding: "28px 24px", textAlign: "center" }}>
+      <div
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: "50%",
+          background: "hsl(var(--bg-highlight))",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          margin: "0 auto 16px",
+        }}
+      >
+        <Icon name="calendar" size={26} />
       </div>
-      <div className="ak-byline-sub" style={{ marginBottom: 12 }}>
-        {MONTHS[now.getMonth()]} {now.getFullYear()} · zona horaria detectada
-      </div>
-      <div className="ak-cal-dow">
-        {["L", "M", "X", "J", "V", "S", "D"].map((d) => (
-          <span key={d}>{d}</span>
+      <span className="ak-label" style={{ fontSize: 15 }}>
+        Reserva una llamada gratuita
+      </span>
+      <p
+        style={{
+          fontSize: "var(--fs-body-sm)",
+          color: "hsl(var(--text-secondary))",
+          margin: "8px 0 20px",
+          lineHeight: 1.5,
+        }}
+      >
+        Conversación de 30 minutos sin compromiso. Te respondo en menos de 24h.
+      </p>
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          justifyContent: "center",
+          flexWrap: "wrap",
+          marginBottom: 20,
+        }}
+      >
+        {["30 min", "Sin compromiso", "Online"].map((tag) => (
+          <span
+            key={tag}
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              color: "hsl(var(--text-tertiary))",
+              background: "hsl(var(--bg-inset))",
+              padding: "4px 10px",
+              borderRadius: "var(--radius-full)",
+            }}
+          >
+            {tag}
+          </span>
         ))}
       </div>
-      <div className="ak-cal-grid">
-        {Array.from({ length: daysInMonth }).map((_, i) => {
-          const day = i + 1;
-          const av = avail.includes(day);
-          return (
-            <span
-              key={i}
-              className={`ak-cal-day ${av ? "av" : ""} ${sel === day ? "sel" : ""}`.trim()}
-              onClick={() => av && setSel(day)}
-            >
-              {day}
-            </span>
-          );
-        })}
-      </div>
-      <div className="ak-byline-sub" style={{ marginTop: 12 }}>
-        {sel ? `Seleccionado: ${sel} · elige hora →` : "Reserva disponible · martes y jueves"}
-      </div>
+      <Button variant="primary" size="lg" className="ak-tier-cta" href={SITE.bookingUrl}>
+        <Icon name="calendar" size={16} style={{ marginRight: 8 }} />
+        Elegir fecha y hora
+      </Button>
     </div>
   );
 }
@@ -425,7 +427,7 @@ function ContactViewInner() {
         <div className="ak-contact-grid">
           <MultiStepForm utms={utms} />
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <Calendar />
+            <BookCall />
             <div className="ak-panel">
               <div className="ak-side-group-t">Otros canales</div>
               <div className="ak-channels">
