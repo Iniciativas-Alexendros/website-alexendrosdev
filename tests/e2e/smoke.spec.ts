@@ -14,7 +14,7 @@ test("el toggle de tema alterna la clase dark", async ({ page }) => {
   await page.goto("/");
   const html = page.locator("html");
   const had = (await html.getAttribute("class"))?.includes("dark") ?? false;
-  await page.getByRole("button", { name: "Cambiar tema" }).click();
+  await page.getByRole("button", { name: /Cambiar a modo/ }).click();
   if (had) {
     await expect(html).not.toHaveClass(/dark/);
   } else {
