@@ -16,4 +16,7 @@ pnpm lint
 echo "▸ test:coverage..."
 pnpm test:coverage
 
+echo "▸ validate tokens..."
+bash scripts/validate-tokens.sh
+
 echo "✓ pre-push OK"

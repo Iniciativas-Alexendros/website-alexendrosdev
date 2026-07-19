@@ -2,7 +2,7 @@ import "server-only";
 import { buildReparadorSystemPrompt } from "@/lib/agents/prompts";
 import { chatCompletionStructured, LLMError } from "@/lib/agents/llm-provider";
 import { crmClient } from "@/lib/agents/crm-client";
-import { hasAnyLLM } from "@/lib/agents/config";
+import { hasAnyLLM, isAllowedRepairEndpoint } from "@/lib/agents/config";
 import {
   repairActionSchema,
   repairResultSchema,
@@ -154,6 +154,16 @@ async function executeAction(
   request: AgentRepairRequest,
   options: RepairOptions,
 ): Promise<RepairResult> {
+  // Seguridad: verificar que el endpoint está en la allowlist (defensa en profundidad)
+  if (!isAllowedRepairEndpoint(action.endpoint)) {
+    return {
+      action: action.action,
+      status: "skipped",
+      details: `Endpoint no permitido: ${action.endpoint}. Acción omitida por seguridad.`,
+      crmEndpointCalled: action.endpoint,
+    };
+  }
+
   const [methodRaw, pathRaw] = action.endpoint.split(" ", 2);
   const method = (methodRaw ?? "GET") as "GET" | "POST" | "PATCH" | "DELETE";
   const path = (pathRaw ?? "").replace(/^\/api\/crm\//, "");

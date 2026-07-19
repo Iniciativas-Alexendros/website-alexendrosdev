@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ALLOWED_ENDPOINT_PATTERNS } from "@/lib/agents/config";
 
 // ─── Schemas para las respuestas estructuradas de los agentes ───────────────
 //
@@ -44,8 +45,11 @@ export type DiagnosticResult = z.infer<typeof diagnosticResultSchema>;
 
 export const repairActionSchema = z.object({
   action: z.string().min(1).max(100),
-  // Endpoint del CRM API que el código invocará (ej. "POST /api/crm/activities").
-  endpoint: z.string().regex(/^(GET|POST|PATCH|DELETE) \/api\/crm\/\w+/),
+  // Endpoint del CRM API (ej. "POST /api/crm/activities"). Validado contra
+  // ALLOWED_ENDPOINT_PATTERNS de config.ts (fuente única de verdad).
+  endpoint: z.string().refine((val) => ALLOWED_ENDPOINT_PATTERNS.some((p) => p.test(val)), {
+    message: "Endpoint no permitido para el agente Reparador",
+  }),
   // Payload JSON que se enviará al endpoint. Validado contra el schema del
   // endpoint específico por el código antes de hacer el fetch.
   payload: z.record(z.string(), z.unknown()),

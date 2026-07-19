@@ -31,6 +31,10 @@ vi.mock("@/lib/agents/config", () => ({
   hasGemini: () => Boolean(mocks.state.geminiKey),
   hasOpenCodeZen: () => Boolean(mocks.state.zenKey),
   hasAnyLLM: () => Boolean(mocks.state.geminiKey) || Boolean(mocks.state.zenKey),
+  isAllowedRepairEndpoint: () => true,
+  describeAllowedEndpoints: () =>
+    "- POST /api/crm/tasks - crear tareas\n- POST /api/crm/activities - registrar actividades\n- PATCH /api/crm/deals/{id} - actualizar deals",
+  ALLOWED_ENDPOINT_PATTERNS: [/.*/],
 }));
 
 vi.mock("@/google/genai", () => ({}));

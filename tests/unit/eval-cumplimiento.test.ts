@@ -25,6 +25,10 @@ vi.mock("@/lib/agents/config", () => ({
   hasGemini: () => false,
   hasOpenCodeZen: () => false,
   hasAnyLLM: () => false,
+  isAllowedRepairEndpoint: () => true,
+  describeAllowedEndpoints: () =>
+    "- POST /api/crm/tasks - crear tareas\n- POST /api/crm/activities - registrar actividades\n- PATCH /api/crm/deals/{id} - actualizar deals",
+  ALLOWED_ENDPOINT_PATTERNS: [/.*/],
 }));
 
 vi.stubGlobal("fetch", mocks.fetchMock);

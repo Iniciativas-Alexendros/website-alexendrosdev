@@ -95,6 +95,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test:coverage
+      - name: Validate design tokens CSS ↔ DTCG
+        run: bash scripts/validate-tokens.sh
       - run: pnpm build
 
   e2e:

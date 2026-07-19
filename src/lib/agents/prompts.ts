@@ -1,5 +1,5 @@
 import "server-only";
-import { agentsConfig } from "@/lib/agents/config";
+import { agentsConfig, describeAllowedEndpoints } from "@/lib/agents/config";
 
 // Contexto CRM que se inyecta en los system prompts de los agentes. Se cachea
 // en memoria porque no cambia entre requests (los stages y productos son
@@ -117,10 +117,7 @@ export async function buildReparadorSystemPrompt(): Promise<string> {
     "TÚ PROPONES, EL CÓDIGO EJECUTA. Nunca invoques APIs por tu cuenta.",
     "",
     "## Endpoints CRM disponibles",
-    "- POST /api/crm/activities — crear una actividad (NOTE, TASK, etc.)",
-    "- POST /api/crm/tasks — crear una tarea",
-    "- PATCH /api/crm/deals/{id} — actualizar deal (stage, notes, etc.)",
-    "- POST /api/crm/contacts — crear un contacto",
+    describeAllowedEndpoints(),
     "",
     "## Reglas del payload",
     "- activity: { type, title, description?, occurredAt, contactId?, dealId? }",
@@ -129,6 +126,11 @@ export async function buildReparadorSystemPrompt(): Promise<string> {
     "",
     "## Stages del pipeline",
     ctx.pipelineStages,
+    "",
+    "## ⚠️ Restricciones de seguridad",
+    "- Solo puedes usar los endpoints listados arriba.",
+    "- NO puedes: eliminar recursos, modificar precios, cancelar suscripciones, invocar webhooks.",
+    "- NO puedes: crear contactos ni modificar facturas.",
     "",
     "## Reglas",
     "- Devuelve exactamente UN action JSON con {action, endpoint, payload}.",
