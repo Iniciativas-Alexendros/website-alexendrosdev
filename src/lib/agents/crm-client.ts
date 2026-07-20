@@ -57,7 +57,8 @@ export async function crmRequest<T = unknown>(
     }
     if (res.status === 204) return null as T;
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    console.warn("[crmRequest] Error calling CRM API:", err instanceof Error ? err.message : err);
     return null;
   } finally {
     clearTimeout(timeout);

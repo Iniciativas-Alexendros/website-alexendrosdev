@@ -84,63 +84,90 @@ export function evaluateCrmCompliance(calls: CrmCall[], contract: CrmContract): 
 // ─── Capturador de llamadas (para tests) ────────────────────────────────────
 //
 // Helper para tests: wrappea `crmClient` y captura las llamadas en un array
-// en lugar de hacer requests reales.
+// SIN invocar al CRM real. Todas las operaciones de escritura devuelven un
+// mock no-null para que el caller no degrade. Las operaciones de lectura
+// devuelven `null` o `[]` según el tipo.
 
-export function captureCrmCalls(): {
+export function captureCrmCalls(options?: { available?: boolean }): {
   calls: CrmCall[];
   wrappedClient: typeof crmClient;
 } {
+  const available = options?.available ?? true;
   const calls: CrmCall[] = [];
 
   const wrappedClient = {
-    ...crmClient,
-    async getDeal(id: string) {
-      const result = await crmClient.getDeal(id);
-      calls.push({
-        method: "GET",
-        path: `/api/crm/deals/${id}`,
-        body: undefined,
-      });
-      return result;
+    // Default true para que los tests no degraden; pasar {available: false}
+    // para verificar comportamiento del agente sin CRM.
+    isAvailable: () => available,
+
+    getDeal(_id: string) {
+      calls.push({ method: "GET", path: `/api/crm/deals/${_id}`, body: undefined });
+      return Promise.resolve(null);
     },
-    async listDeals() {
-      const result = await crmClient.listDeals();
+
+    listDeals() {
       calls.push({ method: "GET", path: "/api/crm/deals", body: undefined });
-      return result;
+      return Promise.resolve([]);
     },
-    async getContact(id: string) {
-      const result = await crmClient.getContact(id);
+
+    getContact(_id: string) {
+      calls.push({ method: "GET", path: `/api/crm/contacts/${_id}`, body: undefined });
+      return Promise.resolve(null);
+    },
+
+    listInvoicesForDeal(dealId: string) {
       calls.push({
         method: "GET",
-        path: `/api/crm/contacts/${id}`,
+        path: `/api/crm/invoices?dealId=${encodeURIComponent(dealId)}`,
         body: undefined,
       });
-      return result;
+      return Promise.resolve([]);
     },
-    async updateDealStage(id: string, stageId: string) {
-      const result = await crmClient.updateDealStage(id, stageId);
-      calls.push({
-        method: "PATCH",
-        path: `/api/crm/deals/${id}`,
-        body: { stageId },
-      });
-      return result;
+
+    updateDealStage(_id: string, stageId: string) {
+      calls.push({ method: "PATCH", path: `/api/crm/deals/${_id}`, body: { stageId } });
+      return Promise.resolve(null);
     },
-    async createTask(task: Parameters<typeof crmClient.createTask>[0]) {
-      const result = await crmClient.createTask(task);
+
+    createTask(task: Parameters<typeof crmClient.createTask>[0]) {
       calls.push({ method: "POST", path: "/api/crm/tasks", body: task });
-      return result;
+      const mock: CrmTask = {
+        id: "mock-task-1",
+        title:
+          typeof task === "object" && task !== null
+            ? ((task as { title?: string }).title ?? "")
+            : "",
+        priority:
+          typeof task === "object" && task !== null
+            ? ((task as { priority?: "LOW" | "MEDIUM" | "HIGH" | "URGENT" }).priority ?? "LOW")
+            : "LOW",
+        doneAt: null,
+        contactId:
+          typeof task === "object" && task !== null
+            ? ((task as { contactId?: string }).contactId ?? null)
+            : null,
+        dealId:
+          typeof task === "object" && task !== null
+            ? ((task as { dealId?: string }).dealId ?? null)
+            : null,
+      };
+      return Promise.resolve(mock);
     },
-    async createActivity(activity: Parameters<typeof crmClient.createActivity>[0]) {
-      const result = await crmClient.createActivity(activity);
-      calls.push({
-        method: "POST",
-        path: "/api/crm/activities",
-        body: activity,
-      });
-      return result;
+
+    createActivity(activity: Parameters<typeof crmClient.createActivity>[0]) {
+      calls.push({ method: "POST", path: "/api/crm/activities", body: activity });
+      return Promise.resolve({ id: "mock-activity-1" });
     },
-  } as typeof crmClient;
+  } as unknown as typeof crmClient;
+
+  // Runtime assertion: verificar que todos los métodos de crmClient están mockeados
+  const clientKeys = Object.keys(crmClient).filter((k) => k !== "isAvailable");
+  const wrappedKeys = Object.keys(wrappedClient);
+  for (const key of clientKeys) {
+    if (!wrappedKeys.includes(key)) {
+      console.warn(`[captureCrmCalls] Missing mock for crmClient.${key}`);
+    }
+  }
 
   return { calls, wrappedClient };
 }

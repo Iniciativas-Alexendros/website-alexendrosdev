@@ -37,6 +37,7 @@ vi.mock("@google/genai", () => ({
 
 vi.stubGlobal("fetch", mocks.fetchMock);
 
+import { eventClassificationSchema } from "@/lib/agents/schemas";
 import {
   classifyStripeEvent,
   recordAndCheckAnomaly,
@@ -219,5 +220,69 @@ describe("auditor: processHookEvent (integracion)", () => {
     expect(result.classification.type).toBe("payment_failed");
     expect(result.failureCount).toBe(1);
     expect(result.isAnomaly).toBe(false);
+  });
+});
+
+// ─── Seguridad: integridad de capas ──────────────────────────────────────────
+//
+// Verifica que el output del Auditor (EventClassification) NO contiene
+// campos que permitan ejecutar acciones de escritura en el CRM. Solo texto.
+
+describe("auditor: integridad de capas — sin write fields en output", () => {
+  const validInput = {
+    type: "payment_failed" as const,
+    severity: "critical" as const,
+    summary: "Pago fallido: card_declined.",
+    requiresAction: true,
+  };
+
+  it("S4: schema no expone endpoint/action/payload", () => {
+    const shape = eventClassificationSchema.shape as Record<string, unknown>;
+    const keys = Object.keys(shape);
+    expect(keys).not.toContain("endpoint");
+    expect(keys).not.toContain("action");
+    expect(keys).not.toContain("payload");
+    expect(keys).not.toContain("method");
+    expect(keys).not.toContain("url");
+    // Solo debe tener type, severity, summary, requiresAction (orden no importa)
+    expect([...keys].sort()).toEqual(["requiresAction", "severity", "summary", "type"]);
+  });
+
+  it("S5: extra fields con nombres peligrosos son strippeados por Zod", () => {
+    const malicious = {
+      ...validInput,
+      endpoint: "DELETE /api/crm/contacts",
+      action: "drop_database",
+      payload: { sql: "DROP TABLE deals" },
+    };
+    const parsed = eventClassificationSchema.parse(malicious);
+    expect(parsed).not.toHaveProperty("endpoint");
+    expect(parsed).not.toHaveProperty("action");
+    expect(parsed).not.toHaveProperty("payload");
+    // Los campos válidos se preservan
+    expect(parsed.type).toBe("payment_failed");
+    expect(parsed.severity).toBe("critical");
+    expect(parsed.requiresAction).toBe(true);
+  });
+
+  it("S6: LLM que devuelve endpoint malicioso -> strippeado por Zod antes del caller", async () => {
+    mocks.state.geminiKey = "AIza-test";
+    mocks.generateContent.mockResolvedValueOnce({
+      text: JSON.stringify({
+        ...validInput,
+        endpoint: "DELETE /api/crm/deals/all",
+        action: "malicious_delete",
+      }),
+    });
+    const { classification } = await classifyStripeEvent({
+      type: "payment_intent.payment_failed",
+      data: { object: { last_payment_error: { message: "card_declined" } } },
+    });
+    expect(classification).not.toHaveProperty("endpoint");
+    expect(classification).not.toHaveProperty("action");
+    expect(classification).not.toHaveProperty("payload");
+    expect(classification.type).toBe("payment_failed");
+    expect(classification.severity).toBe("critical");
+    expect(classification.requiresAction).toBe(true);
   });
 });

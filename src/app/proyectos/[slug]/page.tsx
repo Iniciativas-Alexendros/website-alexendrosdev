@@ -1,10 +1,26 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
 import type { CaseBlock } from "@/lib/content/case-studies";
 import { Button } from "@/components/ui/Button";
-import { Icon, Reveal } from "@/components/ui";
+import { Icon } from "@/components/ui";
 import { JsonLd } from "@/components/JsonLd";
 import { makeCreativeWorkJsonLd, makeBreadcrumbJsonLd } from "@/lib/seo/jsonld";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const p = getProject(slug);
+  if (!p) return {};
+  const study = getCaseStudy(p);
+  return {
+    title: p.title,
+    description: study?.summary ?? `${p.title} — Caso de estudio`,
+  };
+}
 
 function Block({ block }: { block: CaseBlock }) {
   switch (block.type) {
@@ -124,65 +140,63 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
         fetchPriority="high"
       />
 
-      <Reveal delay={0.06}>
-        <section className="ak-case-layout">
-          <article className="ak-prose">
-            <div className="ak-case-metrics">
-              {p.metrics.map((m) => (
-                <div key={m.l} className="ak-case-metric">
-                  <b>{m.v}</b>
-                  <span>{m.l}</span>
-                </div>
+      <section className="ak-case-layout">
+        <article className="ak-prose">
+          <div className="ak-case-metrics">
+            {p.metrics.map((m) => (
+              <div key={m.l} className="ak-case-metric">
+                <b>{m.v}</b>
+                <span>{m.l}</span>
+              </div>
+            ))}
+          </div>
+
+          {study.sections.map((s) => (
+            <section key={s.id} id={s.id}>
+              <h2>{s.title}</h2>
+              {s.blocks.map((b, i) => (
+                <Block key={`${s.id}-block-${i}`} block={b} />
+              ))}
+            </section>
+          ))}
+
+          <div className="ak-stack-showcase">
+            <h3>Stack</h3>
+            <div className="ak-pcard-tags">
+              {p.tags.map((t) => (
+                <span key={t} className="ak-tag">
+                  {t}
+                </span>
               ))}
             </div>
+          </div>
+        </article>
 
-            {study.sections.map((s) => (
-              <section key={s.id} id={s.id}>
-                <h2>{s.title}</h2>
-                {s.blocks.map((b, i) => (
-                  <Block key={`${s.id}-block-${i}`} block={b} />
-                ))}
-              </section>
-            ))}
-
-            <div className="ak-stack-showcase">
-              <h3>Stack</h3>
-              <div className="ak-pcard-tags">
-                {p.tags.map((t) => (
-                  <span key={t} className="ak-tag">
-                    {t}
-                  </span>
-                ))}
-              </div>
+        <aside className="ak-case-side">
+          <div className="ak-meta-card">
+            <div className="ak-meta-item">
+              <span className="k">Rol</span>
+              <span className="v">{study.role}</span>
             </div>
-          </article>
-
-          <aside className="ak-case-side">
-            <div className="ak-meta-card">
-              <div className="ak-meta-item">
-                <span className="k">Rol</span>
-                <span className="v">{study.role}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Duración</span>
-                <span className="v">{study.duration}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Año</span>
-                <span className="v">{p.year}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Categoría</span>
-                <span className="v">{p.category}</span>
-              </div>
-              <div className="ak-meta-item">
-                <span className="k">Cliente</span>
-                <span className="v">{study.client}</span>
-              </div>
+            <div className="ak-meta-item">
+              <span className="k">Duración</span>
+              <span className="v">{study.duration}</span>
             </div>
-          </aside>
-        </section>
-      </Reveal>
+            <div className="ak-meta-item">
+              <span className="k">Año</span>
+              <span className="v">{p.year}</span>
+            </div>
+            <div className="ak-meta-item">
+              <span className="k">Categoría</span>
+              <span className="v">{p.category}</span>
+            </div>
+            <div className="ak-meta-item">
+              <span className="k">Cliente</span>
+              <span className="v">{study.client}</span>
+            </div>
+          </div>
+        </aside>
+      </section>
 
       <section className="ak-section" style={{ paddingTop: 0 }}>
         <div className="ak-relnav">

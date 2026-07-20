@@ -122,3 +122,46 @@ describe("crm-client: crmRequest", () => {
     });
   });
 });
+
+// ─── Seguridad: integridad de capas — crmReader no expone métodos write ──────
+
+describe("crmReader: sin métodos write en runtime", () => {
+  const WRITE_METHODS = ["createTask", "createActivity", "updateDealStage"];
+  const READ_METHODS = ["isAvailable", "getDeal", "listDeals", "getContact", "listInvoicesForDeal"];
+
+  it("S7: no expone ningún método write (createTask, createActivity, updateDealStage)", async () => {
+    const { crmReader } = await import("@/lib/agents/crm-reader");
+    const keys = Object.keys(crmReader).sort();
+
+    // Verificar que ningún nombre de write method está presente
+    for (const writeMethod of WRITE_METHODS) {
+      expect(keys).not.toContain(writeMethod);
+    }
+  });
+
+  it("S8: solo expone métodos de lectura + isAvailable", async () => {
+    const { crmReader } = await import("@/lib/agents/crm-reader");
+    const keys = Object.keys(crmReader).sort();
+
+    expect(keys).toEqual([...READ_METHODS].sort());
+  });
+
+  it("S9: cada propiedad expuesta es una función (no null/undefined)", async () => {
+    const { crmReader } = await import("@/lib/agents/crm-reader");
+    const keys = Object.keys(crmReader);
+
+    for (const key of keys) {
+      const value = (crmReader as Record<string, unknown>)[key];
+      expect(typeof value).toBe("function");
+    }
+  });
+
+  it("S10: la importación directa de crmClient SÍ expone write methods (verificación del test)", async () => {
+    const { crmClient } = await import("@/lib/agents/crm-client");
+    const keys = Object.keys(crmClient);
+
+    for (const writeMethod of WRITE_METHODS) {
+      expect(keys).toContain(writeMethod);
+    }
+  });
+});

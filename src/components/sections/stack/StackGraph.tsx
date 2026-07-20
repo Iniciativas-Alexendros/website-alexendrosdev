@@ -4,11 +4,13 @@ import {
   useLayoutEffect,
   useMemo,
   useRef,
+  useSyncExternalStore,
   useState,
   type PointerEvent,
   type WheelEvent,
 } from "react";
 import { STACK_CATS, STACK_DETAIL } from "@/lib/content";
+import { StackGraphSkeleton } from "@/components/sections/stack/StackGraphSkeleton";
 import type { StackDetail } from "@/lib/content";
 import { Icon } from "@/components/ui/Icon";
 
@@ -81,6 +83,11 @@ export function StackGraph() {
   const [sel, setSel] = useState("Rust");
   const [hot, setHot] = useState<string | null>(null);
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   useLayoutEffect(() => {
     const el = wrapRef.current;
@@ -131,6 +138,10 @@ export function StackGraph() {
     setScale(s);
     setPan({ x: (r.width - W * s) / 2, y: (r.height - H * s) / 2 });
   };
+
+  if (!hydrated) {
+    return <StackGraphSkeleton />;
+  }
 
   const d = detailFor(sel);
 

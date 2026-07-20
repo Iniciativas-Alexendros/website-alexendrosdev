@@ -38,12 +38,16 @@ mkdirSync(REPORTS_DIR, { recursive: true });
 const URLS = [
   { url: "https://alexendros.dev", slug: "home" },
   { url: "https://alexendros.dev/servicios", slug: "servicios" },
-  {
-    url: "https://alexendros.dev/blog",
-    slug: "blog",
-    fallback: "https://alexendros.dev/stack",
-    fallbackSlug: "stack",
-  },
+  { url: "https://alexendros.dev/stack", slug: "stack" },
+  { url: "https://alexendros.dev/sobre-mi", slug: "sobre-mi" },
+  { url: "https://alexendros.dev/proyectos", slug: "proyectos" },
+  { url: "https://alexendros.dev/proyectos/alexendros-me", slug: "proyecto" },
+  { url: "https://alexendros.dev/contacto", slug: "contacto" },
+  { url: "https://alexendros.dev/proximamente", slug: "proximamente" },
+  { url: "https://alexendros.dev/legal/cookies", slug: "legal-cookies" },
+  { url: "https://alexendros.dev/legal/aviso-legal", slug: "legal-aviso" },
+  { url: "https://alexendros.dev/legal/condiciones", slug: "legal-condiciones" },
+  { url: "https://alexendros.dev/legal/privacidad", slug: "legal-privacidad" },
 ];
 
 const DEVICES = ["mobile", "desktop"];
@@ -197,8 +201,16 @@ async function runAudit(url, slug, device) {
       throw new Error("Lighthouse no devolvió resultado (lhr undefined)");
     }
 
-    // Guardar JSON completo
-    const reportPath = path.join(REPORTS_DIR, `lh-${slug}-${device}.json`);
+    // Guardar JSON completo con timestamp
+    const now = new Date();
+    const ts =
+      now.getUTCFullYear().toString() +
+      String(now.getUTCMonth() + 1).padStart(2, "0") +
+      String(now.getUTCDate()).padStart(2, "0") +
+      "-" +
+      String(now.getUTCHours()).padStart(2, "0") +
+      String(now.getUTCMinutes()).padStart(2, "0");
+    const reportPath = path.join(REPORTS_DIR, `lh-${slug}-${device}-${ts}.json`);
     writeFileSync(reportPath, JSON.stringify(runnerResult.lhr, null, 2), "utf-8");
     console.error(`  ✅ Guardado: ${reportPath}`);
 

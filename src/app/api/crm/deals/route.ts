@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireCrmAuth } from "@/lib/crm-auth";
 import { crmDealSchema, flattenErrors } from "@/lib/validation";
+import { syncDealToNotion } from "@/lib/crm/notion-sync";
 
 export async function GET(req: Request) {
   const authErr = requireCrmAuth(req);
@@ -78,7 +79,13 @@ export async function POST(req: Request) {
             }
           : undefined,
       },
+      include: { stage: true, contact: true },
     });
+
+    // Best-effort: sincronizar a Notion en background
+    syncDealToNotion(deal as Parameters<typeof syncDealToNotion>[0]).catch((e) =>
+      console.warn("[crm/deals] sync Notion falló:", e),
+    );
 
     return NextResponse.json({ data: deal }, { status: 201 });
   } catch (err) {

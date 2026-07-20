@@ -1,8 +1,16 @@
 import "server-only";
 
-// Rate limiter en memoria (ventana deslizante por clave/IP). Suficiente para una
-// instancia única (VPS). En despliegues multi-instancia es best-effort; migrar a
-// Upstash/Redis si se requiere límite global estricto.
+/**
+ * Rate limiter en memoria (ventana deslizante por clave/IP).
+ *
+ * ⚠️ Vercel serverless: cada instancia de función tiene su propio Map.
+ * Un mismo IP puede sortear el límite con requests paralelas a distintas
+ * instancias. Suficiente como best-effort para tráfico bajo.
+ * TODO S2: migrar a Upstash Redis para rate limiting distribuido.
+ *
+ * Suficiente para una instancia única (VPS). En despliegues multi-instancia es
+ * best-effort; migrar a Upstash/Redis si se requiere límite global estricto.
+ */
 const hits = new Map<string, number[]>();
 
 // Barrido perezoso anti-fuga: el Map crecería sin cota porque las claves de IPs

@@ -12,19 +12,19 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
-  display: "swap",
+  display: "optional",
 });
 
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-  display: "swap",
+  display: "optional",
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
-  display: "swap",
+  display: "optional",
 });
 
 const SITE_URL = "https://alexendros.dev";
@@ -44,9 +44,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Alejandro Domingo Agustí" }],
   alternates: {
     canonical: "./",
-    types: {
-      "application/rss+xml": [{ url: "/feed.xml", title: "Blog — Alexendros" }],
-    },
   },
   openGraph: {
     title: SITE_TITLE,

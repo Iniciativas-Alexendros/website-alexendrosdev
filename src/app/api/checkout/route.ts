@@ -263,6 +263,10 @@ async function handlePaymentLinkFallback(
               },
       ],
       metadata: { item: item.id, fallback: "paymentLink" },
+      after_completion: {
+        type: "redirect",
+        redirect: { url: `${BASE_URL}/servicios?checkout=done` },
+      },
     });
     if (!link.url) {
       return NextResponse.json(

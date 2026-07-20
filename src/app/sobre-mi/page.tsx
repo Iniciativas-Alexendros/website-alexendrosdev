@@ -14,31 +14,21 @@ export const metadata: Metadata = {
 function AboutIntro() {
   return (
     <section className="ak-about-hero" data-screen-label="intro">
-      <Reveal>
-        <span className="ak-avatar" />
-      </Reveal>
-      <Reveal delay={0.06}>
-        <Eyebrow>sobre mí</Eyebrow>
-      </Reveal>
-      <Reveal delay={0.12}>
-        <h1 className="ak-page-title">Construyo el producto digital que tu negocio necesita</h1>
-      </Reveal>
-      <Reveal delay={0.18}>
-        <p className="ak-page-lead">
-          Soy Alejandro Domingo Agustí (Alexendros), desarrollador en Valencia. Diseño y construyo
-          webs, aplicaciones y plataformas a medida con tecnología moderna (Next.js, React,
-          TypeScript) y backend propio. Me importa entregar cosas que funcionen, sin sorpresas en la
-          factura, con código que es tuyo y construido de forma segura desde el primer día.
-        </p>
-      </Reveal>
-      <Reveal delay={0.24}>
-        <div className="ak-about-cta">
-          {/* CV próximamente */}
-          <Button variant="secondary" href="/contacto">
-            Contacto
-          </Button>
-        </div>
-      </Reveal>
+      <span className="ak-avatar" />
+      <Eyebrow>sobre mí</Eyebrow>
+      <h1 className="ak-page-title">Construyo el producto digital que tu negocio necesita</h1>
+      <p className="ak-page-lead">
+        Soy Alejandro Domingo Agustí (Alexendros), desarrollador en Valencia. Diseño y construyo
+        webs, aplicaciones y plataformas a medida con tecnología moderna (Next.js, React,
+        TypeScript) y backend propio. Me importa entregar cosas que funcionen, sin sorpresas en la
+        factura, con código que es tuyo y construido de forma segura desde el primer día.
+      </p>
+      <div className="ak-about-cta">
+        {/* CV próximamente */}
+        <Button variant="secondary" href="/contacto">
+          Contacto
+        </Button>
+      </div>
       <div className="ak-stat-row" style={{ justifyContent: "center", marginTop: 36 }}>
         {ABOUT_STATS.map(([n, l]) => (
           <div key={l} className="ak-stat" style={{ alignItems: "center" }}>

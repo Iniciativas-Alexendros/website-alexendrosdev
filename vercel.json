@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "cleanUrls": true,
   "trailingSlash": false,
-  "ignoreCommand": "node scripts/should-build.mjs"
+  "ignoreCommand": "node scripts/should-build.mjs",
+  "crons": [
+    {
+      "path": "/api/agents/audit",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }

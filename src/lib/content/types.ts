@@ -23,17 +23,6 @@ export interface Project {
   metrics: Metric[]
 }
 
-export interface Post {
-  id: string
-  title: string
-  tag: string
-  date: string
-  read: string
-  featured?: boolean
-  desc?: string
-  metaDescription?: string // ≤155 chars para <meta name="description">
-}
-
 // "Prueba en abierto": en lugar de testimonios fabricados, enlaces a trabajo
 // real y verificable. `quote` describe el proyecto; `name`/`role` lo identifican;
 // `url` apunta al repo o sitio público.

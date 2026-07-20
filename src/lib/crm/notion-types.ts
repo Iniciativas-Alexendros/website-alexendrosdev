@@ -1,4 +1,5 @@
 import type { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import { z } from "zod";
 
 /** Resultado de una operación de sync con Notion. */
 export interface NotionSyncResult {
@@ -27,6 +28,19 @@ export interface NotionWebhookEvent {
   };
   data?: Record<string, unknown>;
 }
+
+/** Esquema mínimo de validación para el webhook de Notion. */
+export const notionWebhookSchema = z.object({
+  id: z.string().optional(),
+  type: z.string().optional(),
+  verification_token: z.string().optional(),
+  entity: z
+    .object({
+      id: z.string(),
+      type: z.enum(["page", "block", "database"]),
+    })
+    .optional(),
+});
 
 /** IDs de databases de Notion configurados. */
 export interface NotionDatabaseIds {

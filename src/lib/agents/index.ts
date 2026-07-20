@@ -6,9 +6,6 @@ export { agentsConfig, hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents
 export {
   chatCompletion,
   chatCompletionStructured,
-  classifyEvent,
-  diagnose,
-  planRepair,
   LLMError,
   type LLMMessage,
   type LLMResponse,
@@ -19,14 +16,9 @@ export {
   buildDiagnosticadorSystemPrompt,
   buildReparadorSystemPrompt,
 } from "@/lib/agents/prompts";
-export {
-  crmClient,
-  crmRequest,
-  type CrmDeal,
-  type CrmContact,
-  type CrmInvoice,
-  type CrmTask,
-} from "@/lib/agents/crm-client";
+export { crmReader, type CrmDeal, type CrmContact, type CrmInvoice } from "@/lib/agents/crm-reader";
+export { crmWriter, type CrmTask } from "@/lib/agents/crm-writer";
+export { crmRequest } from "@/lib/agents/crm-client";
 export {
   eventClassificationSchema,
   diagnosticHypothesisSchema,
@@ -48,6 +40,7 @@ export {
 // (F15 S5 — hardening — completado)
 export {
   classifyStripeEvent,
+  classifyEvent,
   recordAndCheckAnomaly,
   findStalledDeals,
   runAudit,
@@ -55,8 +48,8 @@ export {
   type AuditReport,
   type StripeEvent,
 } from "@/lib/agents/auditor";
-export { runDiagnosticador, type DiagnoseOptions } from "@/lib/agents/diagnosticador";
-export { runReparador, type RepairOptions } from "@/lib/agents/reparador";
+export { runDiagnosticador, diagnose, type DiagnoseOptions } from "@/lib/agents/diagnosticador";
+export { runReparador, planRepair, type RepairOptions } from "@/lib/agents/reparador";
 export {
   evaluateDiagnoseUtility,
   evaluateRepairUtility,

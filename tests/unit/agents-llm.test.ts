@@ -16,28 +16,54 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("@/lib/agents/config", () => ({
-  agentsConfig: {
-    get geminiApiKey() {
-      return mocks.state.geminiKey;
+vi.mock("@/lib/agents/config", () => {
+  const ALLOWED_REPAIR_ENDPOINTS = ["POST tasks", "POST activities", "PATCH deals/{id}"] as const;
+
+  const ENDPOINT_DESCRIPTIONS: Record<string, string> = {
+    "POST tasks": "crear tareas de seguimiento",
+    "POST activities": "registrar actividades",
+    "PATCH deals/{id}": "actualizar deals (stage, notes, probability)",
+  };
+
+  const ALLOWED_ENDPOINT_PATTERNS: RegExp[] = ALLOWED_REPAIR_ENDPOINTS.map((ep: string) => {
+    const [method, resource] = ep.split(" ", 2);
+    const resourcePattern = resource!.replace(/\{id\}/g, "[\\w-]+");
+    return new RegExp(`^${method} /api/crm/${resourcePattern}$`);
+  });
+
+  return {
+    agentsConfig: {
+      get geminiApiKey() {
+        return mocks.state.geminiKey;
+      },
+      get opencodeZenApiKey() {
+        return mocks.state.zenKey;
+      },
+      get opencodeZenBaseUrl() {
+        return mocks.state.zenBaseUrl;
+      },
+      get opencodeZenModels() {
+        return mocks.state.zenModels;
+      },
+      primaryModel: "gemini-3.5-flash",
+      perModelTimeoutMs: 1_000,
+      perModelMaxRetries: 1,
     },
-    get opencodeZenApiKey() {
-      return mocks.state.zenKey;
-    },
-    get opencodeZenBaseUrl() {
-      return mocks.state.zenBaseUrl;
-    },
-    get opencodeZenModels() {
-      return mocks.state.zenModels;
-    },
-    primaryModel: "gemini-3.5-flash",
-    perModelTimeoutMs: 1_000,
-    perModelMaxRetries: 1,
-  },
-  hasGemini: () => Boolean(mocks.state.geminiKey),
-  hasOpenCodeZen: () => Boolean(mocks.state.zenKey),
-  hasAnyLLM: () => Boolean(mocks.state.geminiKey) || Boolean(mocks.state.zenKey),
-}));
+    ALLOWED_REPAIR_ENDPOINTS,
+    ALLOWED_ENDPOINT_PATTERNS,
+    ENDPOINT_DESCRIPTIONS,
+    isAllowedRepairEndpoint: (endpoint: string) =>
+      ALLOWED_ENDPOINT_PATTERNS.some((p: RegExp) => p.test(endpoint)),
+    describeAllowedEndpoints: () =>
+      ALLOWED_REPAIR_ENDPOINTS.map((ep: string) => {
+        const [method, resource] = ep.split(" ", 2);
+        return `- ${method} /api/crm/${resource} — ${ENDPOINT_DESCRIPTIONS[ep]}`;
+      }).join("\n"),
+    hasGemini: () => Boolean(mocks.state.geminiKey),
+    hasOpenCodeZen: () => Boolean(mocks.state.zenKey),
+    hasAnyLLM: () => Boolean(mocks.state.geminiKey) || Boolean(mocks.state.zenKey),
+  };
+});
 
 vi.mock("@google/genai", () => ({
   GoogleGenAI: class {
@@ -52,14 +78,10 @@ vi.mock("@google/genai", () => ({
 
 vi.stubGlobal("fetch", mocks.fetchMock);
 
-import {
-  LLMError,
-  chatCompletion,
-  chatCompletionStructured,
-  classifyEvent,
-  diagnose,
-  planRepair,
-} from "@/lib/agents/llm-provider";
+import { LLMError, chatCompletion, chatCompletionStructured } from "@/lib/agents/llm-provider";
+import { classifyEvent } from "@/lib/agents/auditor";
+import { diagnose } from "@/lib/agents/diagnosticador";
+import { planRepair } from "@/lib/agents/reparador";
 import {
   diagnosticResultSchema,
   eventClassificationSchema,

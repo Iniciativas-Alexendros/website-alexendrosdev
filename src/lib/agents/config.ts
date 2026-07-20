@@ -29,6 +29,60 @@ export const agentsConfig = {
   perModelMaxRetries: 2,
 } as const;
 
+// ─── Allowlist de endpoints CRM para el agente Reparador ──────────────────
+//
+// Fuente única de verdad. schemas.ts, reparador.ts y prompts.ts derivan de aquí.
+// Formato: "METHOD resource" ("POST tasks", "PATCH deals/{id}").
+// {id} se expande a /[a-zA-Z0-9-]+ en los patrones regex.
+
+export const ALLOWED_REPAIR_ENDPOINTS = [
+  "POST tasks",
+  "POST activities",
+  "PATCH deals/{id}",
+] as const;
+
+export type AllowedRepairEndpoint = (typeof ALLOWED_REPAIR_ENDPOINTS)[number];
+
+/**
+ * Descripciones legibles de cada endpoint permitido, en castellano.
+ * Map exportable para que crm-writer.ts y otros módulos puedan reusarlo
+ * en mensajes de error o logging sin hardcodear strings.
+ */
+export const ENDPOINT_DESCRIPTIONS: Record<AllowedRepairEndpoint, string> = {
+  "POST tasks": "crear tareas de seguimiento",
+  "POST activities": "registrar actividades",
+  "PATCH deals/{id}": "actualizar deals (stage, notes, probability)",
+};
+
+/**
+ * Patrones regex derivados de ALLOWED_REPAIR_ENDPOINTS.
+ * Se construyen una sola vez en módulo load.
+ */
+export const ALLOWED_ENDPOINT_PATTERNS: readonly RegExp[] = ALLOWED_REPAIR_ENDPOINTS.map((ep) => {
+  const [method, resource] = ep.split(" ", 2);
+  const resourcePattern = resource!.replace(/\{id\}/g, "[\\w-]+");
+  return new RegExp(`^${method} /api/crm/${resourcePattern}$`);
+});
+
+/**
+ * Verifica si un endpoint completo (ej. "PATCH /api/crm/deals/abc-123")
+ * está en la lista de endpoints permitidos.
+ */
+export function isAllowedRepairEndpoint(endpoint: string): boolean {
+  return ALLOWED_ENDPOINT_PATTERNS.some((p) => p.test(endpoint));
+}
+
+/**
+ * Describe los endpoints permitidos en formato legible para prompts.
+ * Devuelve líneas como "- POST /api/crm/tasks — crear tareas de seguimiento".
+ */
+export function describeAllowedEndpoints(): string {
+  return ALLOWED_REPAIR_ENDPOINTS.map((ep) => {
+    const [method, resource] = ep.split(" ", 2);
+    return `- ${method} /api/crm/${resource} — ${ENDPOINT_DESCRIPTIONS[ep]}`;
+  }).join("\n");
+}
+
 export function hasGemini(): boolean {
   return Boolean(process.env.GEMINI_API_KEY);
 }
