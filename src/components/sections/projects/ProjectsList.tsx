@@ -155,15 +155,17 @@ export function ProjectsList() {
           </div>
         ) : (
           <div className="ak-masonry" role="list" aria-label="Lista de proyectos">
-            {filteredProjects.map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.06}>
-                <article className="ak-masonry-tile" role="listitem">
+            {filteredProjects.map((p, i) => {
+              const lcpOptimized = i === 0;
+              const tile = (
+                <article className="ak-masonry-tile" role="listitem" key={p.id}>
                   <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
                     <div className="ak-tile-media" style={{ aspectRatio: "4 / 3" }}>
                       <img
                         src={`https://picsum.photos/seed/${p.id}/800/600`}
                         alt=""
-                        loading="lazy"
+                        loading={lcpOptimized ? "eager" : "lazy"}
+                        {...(lcpOptimized ? { fetchPriority: "high" } : {})}
                         className="ak-tile-img"
                       />
                       <span className="ak-tile-badge">{p.category}</span>
@@ -196,8 +198,16 @@ export function ProjectsList() {
                     </div>
                   </Link>
                 </article>
-              </Reveal>
-            ))}
+              );
+
+              return lcpOptimized ? (
+                tile
+              ) : (
+                <Reveal key={p.id} delay={i * 0.06}>
+                  {tile}
+                </Reveal>
+              );
+            })}
           </div>
         )}
       </main>

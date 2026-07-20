@@ -9,6 +9,31 @@ import { Button } from "@/components/ui/Button";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Eyebrow } from "@/components/ui/SectionHead";
 
+type UtmParams = {
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmTerm?: string;
+  utmContent?: string;
+};
+
+/**
+ * Extrae UTM params via useSearchParams().
+ * Este componente es el único que necesita Suspense, evitando que
+ * todo el layout de contacto se oculte del SSR (y cause CLS).
+ */
+function UtmReader({ children }: { children: (utms: UtmParams) => React.ReactNode }) {
+  const searchParams = useSearchParams();
+  const utms: UtmParams = {
+    utmSource: searchParams.get("utm_source") ?? undefined,
+    utmMedium: searchParams.get("utm_medium") ?? undefined,
+    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
+    utmTerm: searchParams.get("utm_term") ?? undefined,
+    utmContent: searchParams.get("utm_content") ?? undefined,
+  };
+  return <>{children(utms)}</>;
+}
+
 const PROJ_TYPES = ["Web App", "API & backend", "Consultoría", "Otro"];
 const STEPS = ["Datos", "Proyecto", "Enviar"];
 // Texto mostrable de una URL: sin protocolo ni "www." ni barra final.
@@ -57,14 +82,6 @@ function Field({ label, value, onChange, type = "text", placeholder, error }: Fi
       )}
     </div>
   );
-}
-
-interface UtmParams {
-  utmSource?: string;
-  utmMedium?: string;
-  utmCampaign?: string;
-  utmTerm?: string;
-  utmContent?: string;
 }
 
 interface FormData {
@@ -400,16 +417,7 @@ function Calendar() {
   );
 }
 
-function ContactViewInner() {
-  const searchParams = useSearchParams();
-  const utms: UtmParams = {
-    utmSource: searchParams.get("utm_source") ?? undefined,
-    utmMedium: searchParams.get("utm_medium") ?? undefined,
-    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
-    utmTerm: searchParams.get("utm_term") ?? undefined,
-    utmContent: searchParams.get("utm_content") ?? undefined,
-  };
-
+function ContactViewInner({ utms }: { utms: UtmParams }) {
   return (
     <div className="ak-container">
       <section className="ak-contact-hero" data-screen-label="header">
@@ -448,8 +456,45 @@ function ContactViewInner() {
 
 export function ContactView() {
   return (
-    <Suspense fallback={null}>
-      <ContactViewInner />
+    <Suspense fallback={<ContactViewSkeleton />}>
+      <UtmReader>{(utms) => <ContactViewInner utms={utms} />}</UtmReader>
     </Suspense>
+  );
+}
+
+/**
+ * Skeleton SSR-friendly que ocupa el mismo espacio que el formulario real,
+ * eliminando el CLS cuando Suspense se hidrata en cliente.
+ */
+function ContactViewSkeleton() {
+  return (
+    <div className="ak-container">
+      <section className="ak-contact-hero" data-screen-label="header">
+        <div className="ak-skeleton ak-skeleton-eyebrow" />
+        <div className="ak-skeleton ak-skeleton-title" style={{ width: "50%", marginTop: 12 }} />
+        <div className="ak-skeleton ak-skeleton-text" style={{ width: "70%", marginTop: 8 }} />
+      </section>
+      <section className="ak-section" style={{ paddingTop: 24 }}>
+        <div className="ak-contact-grid">
+          <div className="ak-form-card">
+            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+              <div className="ak-skeleton ak-skeleton-step" />
+              <div className="ak-skeleton ak-skeleton-step" />
+              <div className="ak-skeleton ak-skeleton-step" />
+            </div>
+            <div className="ak-skeleton ak-skeleton-input" />
+            <div className="ak-skeleton ak-skeleton-input" />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="ak-cal">
+              <div className="ak-skeleton ak-skeleton-cal" />
+            </div>
+            <div className="ak-panel">
+              <div className="ak-skeleton ak-skeleton-channels" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

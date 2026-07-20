@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { TIERS, COMPARISON, FAQ, ADDONS } from "@/lib/content/services";
 import { Button, Icon, Reveal } from "@/components/ui";
-import { JsonLd } from "@/components/JsonLd";
-import { makeProfessionalServiceJsonLd } from "@/lib/seo/jsonld";
 
 function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: number }) {
   const isPro = tier.pro;
@@ -141,16 +139,13 @@ function AddonsSection() {
 export default function ServicesView() {
   return (
     <>
-      <JsonLd data={makeProfessionalServiceJsonLd()} />
-      <Reveal>
-        <header className="ak-page-head">
-          <h1 className="ak-page-title">Servicios</h1>
-          <p className="ak-page-lead">
-            Desarrollo de webs, aplicaciones y plataformas a medida. Planes por proyecto o cuota
-            mensual, precios cerrados y contenidos para empresas nuevas y pequeñas.
-          </p>
-        </header>
-      </Reveal>
+      <header className="ak-page-head">
+        <h1 className="ak-page-title">Servicios</h1>
+        <p className="ak-page-lead">
+          Desarrollo de webs, aplicaciones y plataformas a medida. Planes por proyecto o cuota
+          mensual, precios cerrados y contenidos para empresas nuevas y pequeñas.
+        </p>
+      </header>
 
       <Reveal delay={0.06}>
         <section className="ak-section ak-tiers">

@@ -116,14 +116,13 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
         )}
       </header>
 
-      <Reveal>
-        <img
-          src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
-          alt={p.title}
-          className="ak-hero-img"
-          loading="eager"
-        />
-      </Reveal>
+      <img
+        src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
+        alt={p.title}
+        className="ak-hero-img"
+        loading="eager"
+        fetchPriority="high"
+      />
 
       <Reveal delay={0.06}>
         <section className="ak-case-layout">
