@@ -63,9 +63,6 @@ export function Footer() {
           <Link className="ak-footer-lk" href="/servicios">
             Servicios
           </Link>
-          <a className="ak-footer-lk" href="/feed.xml">
-            RSS
-          </a>
         </nav>
         <div className="ak-footer-newsletter">
           <div className="ak-footer-ct">Newsletter</div>

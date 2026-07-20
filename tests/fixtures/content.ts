@@ -1,26 +1,6 @@
 // Fixtures tipadas para tests de lógica pura (p. ej. generadores JSON-LD), con
 // las variantes de campos opcionales que conviene ejercer explícitamente.
-import type { Post, Project } from "@/lib/content/types";
-
-/** Post con `metaDescription` (debe primar sobre `desc` en BlogPosting). */
-export const postConMeta: Post = {
-  id: "post-demo",
-  title: "Post de demostración",
-  tag: "Calidad",
-  date: "01 Ene 2026",
-  read: "5 min",
-  desc: "Descripción larga.",
-  metaDescription: "Meta descripción corta.",
-};
-
-/** Post sin meta ni desc: el generador debe construir un fallback. */
-export const postSinMeta: Post = {
-  id: "post-minimo",
-  title: "Post mínimo",
-  tag: "DevTools",
-  date: "02 Ene 2026",
-  read: "3 min",
-};
+import type { Project } from "@/lib/content/types";
 
 /** Proyecto con repo público y liveUrl: ejercita `codeRepository` y `url`. */
 export const proyectoConRepo: Project = {

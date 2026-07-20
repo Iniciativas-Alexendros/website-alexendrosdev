@@ -8,11 +8,10 @@ import type {
   Person,
   WithContext,
   BreadcrumbList,
-  BlogPosting,
   SoftwareApplication,
   ProfessionalService,
 } from "schema-dts";
-import type { Post, Project } from "@/lib/content/types";
+import type { Project } from "@/lib/content/types";
 
 const SITE_URL = "https://alexendros.dev";
 const SITE_NAME = "Alejandro Domingo Agustí";
@@ -70,30 +69,6 @@ export function makeProfessionalServiceJsonLd(): WithContext<ProfessionalService
       addressLocality: "Valencia",
       addressCountry: "ES",
     },
-  };
-}
-
-export function makeBlogPostingJsonLd(post: Post): WithContext<BlogPosting> {
-  const description = post.metaDescription ?? post.desc ?? `${post.title} — nota de ingeniería.`;
-  return {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description,
-    url: `${SITE_URL}/blog/${post.id}`,
-    datePublished: post.date,
-    author: {
-      "@type": "Person",
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
-    publisher: {
-      "@type": "Person",
-      name: SITE_NAME,
-      url: SITE_URL,
-    },
-    inLanguage: "es-ES",
-    keywords: post.tag,
   };
 }
 

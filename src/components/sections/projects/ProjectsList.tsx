@@ -163,7 +163,8 @@ export function ProjectsList() {
                       <img
                         src={`https://picsum.photos/seed/${p.id}/800/600`}
                         alt=""
-                        loading="lazy"
+                        loading={i === 0 ? "eager" : "lazy"}
+                        fetchPriority={i === 0 ? "high" : undefined}
                         className="ak-tile-img"
                       />
                       <span className="ak-tile-badge">{p.category}</span>

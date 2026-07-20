@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, Suspense, useState } from "react";
+import { Fragment, Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { SITE } from "@/lib/content";
@@ -400,18 +400,31 @@ function Calendar() {
   );
 }
 
-function ContactViewInner() {
+// Componente mínimo dentro de Suspense: solo lee searchParams. No renderiza
+// nada visible, por lo que no causa layout shift al hidratarse.
+function UtmCapture({ onUtms }: { onUtms: (u: UtmParams) => void }) {
   const searchParams = useSearchParams();
-  const utms: UtmParams = {
-    utmSource: searchParams.get("utm_source") ?? undefined,
-    utmMedium: searchParams.get("utm_medium") ?? undefined,
-    utmCampaign: searchParams.get("utm_campaign") ?? undefined,
-    utmTerm: searchParams.get("utm_term") ?? undefined,
-    utmContent: searchParams.get("utm_content") ?? undefined,
-  };
+  useEffect(() => {
+    onUtms({
+      utmSource: searchParams.get("utm_source") ?? undefined,
+      utmMedium: searchParams.get("utm_medium") ?? undefined,
+      utmCampaign: searchParams.get("utm_campaign") ?? undefined,
+      utmTerm: searchParams.get("utm_term") ?? undefined,
+      utmContent: searchParams.get("utm_content") ?? undefined,
+    });
+  }, [searchParams, onUtms]);
+  return null;
+}
+
+export function ContactView() {
+  const [utms, setUtms] = useState<UtmParams>({});
 
   return (
     <div className="ak-container">
+      <Suspense fallback={null}>
+        <UtmCapture onUtms={setUtms} />
+      </Suspense>
+
       <section className="ak-contact-hero" data-screen-label="header">
         <Eyebrow>contacto</Eyebrow>
         <h1 className="ak-page-title">¿Empezamos?</h1>
@@ -421,6 +434,7 @@ function ContactViewInner() {
           Disponible · respondo en ~24h
         </span>
       </section>
+
       <section className="ak-section" style={{ paddingTop: 24 }}>
         <div className="ak-contact-grid">
           <MultiStepForm utms={utms} />
@@ -443,13 +457,5 @@ function ContactViewInner() {
         </div>
       </section>
     </div>
-  );
-}
-
-export function ContactView() {
-  return (
-    <Suspense fallback={null}>
-      <ContactViewInner />
-    </Suspense>
   );
 }

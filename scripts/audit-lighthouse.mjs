@@ -52,7 +52,6 @@ const URLS = [
   { url: "https://alexendros.dev/stack", slug: "stack" },
   { url: "https://alexendros.dev/proyectos", slug: "proyectos" },
   { url: "https://alexendros.dev/proyectos/alexendros-me", slug: "proyecto" },
-  { url: "https://alexendros.dev/blog", slug: "blog" },
   { url: "https://alexendros.dev/contacto", slug: "contacto" },
   { url: "https://alexendros.dev/proximamente", slug: "proximamente" },
   // Páginas legales
