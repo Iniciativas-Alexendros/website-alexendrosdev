@@ -149,4 +149,27 @@ describe("eval/cumplimiento: captureCrmCalls + evaluateCrmCompliance", () => {
     });
     expect(results[0]?.violations).toContain("Missing required field: priority");
   });
+
+  it("T12.8: ningun metodo de captureCrmCalls invoca fetch", async () => {
+    // El mock de fetch ya está instalado por vi.stubGlobal arriba.
+    // Si captureCrmCalls invocara al CRM real, fetchMock sería llamado.
+    mocks.fetchMock.mockClear();
+
+    const { wrappedClient } = captureCrmCalls();
+
+    // Ejecutar todos los métodos del wrapped client
+    await wrappedClient.getDeal("deal-1");
+    await wrappedClient.listDeals();
+    await wrappedClient.getContact("contact-1");
+    await wrappedClient.listInvoicesForDeal("deal-1");
+    await wrappedClient.updateDealStage("deal-1", "stage-2");
+    await wrappedClient.createTask({ title: "t", priority: "HIGH" });
+    await wrappedClient.createActivity({
+      type: "NOTE",
+      title: "act",
+      occurredAt: new Date().toISOString(),
+    });
+
+    expect(mocks.fetchMock).not.toHaveBeenCalled();
+  });
 });

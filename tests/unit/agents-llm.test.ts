@@ -52,14 +52,10 @@ vi.mock("@google/genai", () => ({
 
 vi.stubGlobal("fetch", mocks.fetchMock);
 
-import {
-  LLMError,
-  chatCompletion,
-  chatCompletionStructured,
-  classifyEvent,
-  diagnose,
-  planRepair,
-} from "@/lib/agents/llm-provider";
+import { LLMError, chatCompletion, chatCompletionStructured } from "@/lib/agents/llm-provider";
+import { classifyEvent } from "@/lib/agents/auditor";
+import { diagnose } from "@/lib/agents/diagnosticador";
+import { planRepair } from "@/lib/agents/reparador";
 import {
   diagnosticResultSchema,
   eventClassificationSchema,

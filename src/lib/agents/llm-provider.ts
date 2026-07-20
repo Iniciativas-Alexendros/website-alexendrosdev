@@ -1,11 +1,5 @@
 import "server-only";
 import { agentsConfig } from "@/lib/agents/config";
-import {
-  diagnosticResultSchema,
-  eventClassificationSchema,
-  repairActionSchema,
-} from "@/lib/agents/schemas";
-import type { DiagnosticResult, EventClassification, RepairAction } from "@/lib/agents/schemas";
 
 // ─── Provider LLM híbrido: Gemini (primario) + OpenCode Zen (fallback) ──────
 //
@@ -271,55 +265,4 @@ async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
       },
     );
   });
-}
-
-// ─── Wrappers de dominio (Zod ya validado) ─────────────────────────────────
-
-export async function classifyEvent(
-  eventDescription: string,
-): Promise<LLMResponse<EventClassification>> {
-  return chatCompletionStructured(
-    [
-      {
-        role: "system",
-        content:
-          "Eres un clasificador de eventos de Stripe. Dado un evento, devuelve JSON con {type, severity, summary, requiresAction}.",
-      },
-      { role: "user", content: eventDescription },
-    ],
-    eventClassificationSchema,
-  );
-}
-
-export async function diagnose(contextText: string): Promise<LLMResponse<DiagnosticResult>> {
-  return chatCompletionStructured(
-    [
-      {
-        role: "system",
-        content:
-          "Eres un diagnosticador de incidencias en un pipeline comercial. " +
-          "Dado un contexto, formula hipótesis de causa con confianza 0-1 y " +
-          "evidencia. Devuelve JSON con {diagnosis, hypotheses: [{cause, confidence, evidence, suggestedAction}], context}.",
-      },
-      { role: "user", content: contextText },
-    ],
-    diagnosticResultSchema,
-  );
-}
-
-export async function planRepair(diagnosisText: string): Promise<LLMResponse<RepairAction>> {
-  return chatCompletionStructured(
-    [
-      {
-        role: "system",
-        content:
-          "Eres un planificador de reparaciones. Dado un diagnóstico, " +
-          "propón UNA acción correctiva concreta que se ejecutará vía CRM API. " +
-          "Devuelve JSON con {action, endpoint, payload}. " +
-          "El endpoint debe tener formato 'METHOD /api/crm/...'.",
-      },
-      { role: "user", content: diagnosisText },
-    ],
-    repairActionSchema,
-  );
 }

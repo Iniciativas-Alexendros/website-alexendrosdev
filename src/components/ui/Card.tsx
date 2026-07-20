@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { shadow, radius, duration } from "@/tokens";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;
@@ -18,6 +19,11 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           padded && "p-6",
           className,
         )}
+        style={{
+          // Referencia explícita a tokens desde @/tokens para consumo JS
+          boxShadow: interactive ? undefined : shadow.sm,
+          transitionDuration: duration.base,
+        }}
         {...props}
       >
         {children}

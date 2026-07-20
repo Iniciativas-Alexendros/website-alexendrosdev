@@ -46,6 +46,7 @@ vi.mock("@google/genai", () => ({
 
 vi.stubGlobal("fetch", mocks.fetchMock);
 
+import { diagnosticResultSchema } from "@/lib/agents/schemas";
 import { runDiagnosticador } from "@/lib/agents/diagnosticador";
 
 beforeEach(() => {
@@ -168,5 +169,73 @@ describe("diagnosticador: con LLM (Gemini)", () => {
     });
     expect(mode).toBe("deterministic");
     expect(result.hypotheses.length).toBeGreaterThan(0);
+  });
+});
+
+// ─── Seguridad: integridad de capas ──────────────────────────────────────────
+//
+// Verifica que el output del Diagnosticador (DiagnosticResult) NO contiene
+// campos que permitan ejecutar acciones de escritura en el CRM. Solo texto.
+
+describe("diagnosticador: integridad de capas — sin write fields en output", () => {
+  const validInput = {
+    diagnosis: "DB caída",
+    hypotheses: [
+      {
+        cause: "Postgres connection refused",
+        confidence: 0.85,
+        evidence: ["ECONNREFUSED"],
+        suggestedAction: "restart supabase",
+      },
+    ],
+    context: {},
+  };
+
+  it("S1: schema no expone endpoint/action/payload", () => {
+    const shape = diagnosticResultSchema.shape as Record<string, unknown>;
+    const keys = Object.keys(shape);
+    expect(keys).not.toContain("endpoint");
+    expect(keys).not.toContain("action");
+    expect(keys).not.toContain("payload");
+    expect(keys).not.toContain("method");
+    expect(keys).not.toContain("url");
+    // Solo debe tener diagnosis, hypotheses, context (orden no importa)
+    expect([...keys].sort()).toEqual(["diagnosis", "hypotheses", "context"]);
+  });
+
+  it("S2: extra fields con nombres peligrosos son strippeados por Zod", () => {
+    const malicious = {
+      ...validInput,
+      endpoint: "DELETE /api/crm/tasks",
+      action: "delete_all_contacts",
+      payload: { malicious: true },
+    };
+    const parsed = diagnosticResultSchema.parse(malicious);
+    expect(parsed).not.toHaveProperty("endpoint");
+    expect(parsed).not.toHaveProperty("action");
+    expect(parsed).not.toHaveProperty("payload");
+    // Los campos válidos se preservan
+    expect(parsed.diagnosis).toBe("DB caída");
+    expect(parsed.hypotheses).toHaveLength(1);
+  });
+
+  it("S3: LLM que devuelve endpoint malicioso -> strippeado por Zod antes del caller", async () => {
+    mocks.state.geminiKey = "AIza-test";
+    mocks.generateContent.mockResolvedValueOnce({
+      text: JSON.stringify({
+        ...validInput,
+        endpoint: "DELETE /api/crm/deals/all",
+        action: "malicious_delete",
+      }),
+    });
+    const { result } = await runDiagnosticador({
+      context: "test",
+    });
+    // Verificar que los campos maliciosos NO están en el resultado
+    expect(result).not.toHaveProperty("endpoint");
+    expect(result).not.toHaveProperty("action");
+    // Los campos válidos están presentes
+    expect(result.diagnosis).toBe("DB caída");
+    expect(result.hypotheses).toHaveLength(1);
   });
 });

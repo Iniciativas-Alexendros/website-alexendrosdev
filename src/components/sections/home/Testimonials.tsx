@@ -102,25 +102,7 @@ export function Testimonials() {
   const goPrev = () => setIndex((i) => (i <= 0 ? 0 : i - 1));
   const goTo = (i: number) => setIndex(Math.min(Math.max(0, i), maxIndex));
 
-  if (!isClient || isReduced) {
-    return (
-      <section className="ak-section" aria-labelledby="testimonials-heading">
-        <div className="ak-container">
-          <header className="ak-section-head ak-center">
-            <h2 id="testimonials-heading" className="ak-h2">
-              Testimonios
-            </h2>
-            <p className="ak-section-sub">Qu&eacute; dicen quienes ya han trabajado conmigo.</p>
-          </header>
-          <div className="ak-tcar-static" role="list">
-            {TESTIMONIALS.map((t, i) => (
-              <TestimonialCard key={i} t={t} />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
+  const showStatic = !isClient || isReduced;
 
   return (
     <section className="ak-section" aria-labelledby="testimonials-heading">
@@ -132,52 +114,60 @@ export function Testimonials() {
           <p className="ak-section-sub">Qu&eacute; dicen quienes ya han trabajado conmigo.</p>
         </header>
 
-        <div className="ak-tcar" role="region" aria-label="Carrusel de testimonios">
-          <div className="ak-tcar-viewport">
-            <div
-              className="ak-tcar-track"
-              role="list"
-              style={{
-                transform: `translateX(calc(-${safeIndex} * (100% + 20px) / ${perView}))`,
-              }}
-            >
-              {TESTIMONIALS.map((t, i) => (
-                <TestimonialCard key={i} t={t} />
+        {showStatic ? (
+          <div className="ak-tcar-static" role="list">
+            {TESTIMONIALS.map((t, i) => (
+              <TestimonialCard key={i} t={t} />
+            ))}
+          </div>
+        ) : (
+          <div className="ak-tcar" role="region" aria-label="Carrusel de testimonios">
+            <div className="ak-tcar-viewport">
+              <div
+                className="ak-tcar-track"
+                role="list"
+                style={{
+                  transform: `translateX(calc(-${safeIndex} * (100% + 20px) / ${perView}))`,
+                }}
+              >
+                {TESTIMONIALS.map((t, i) => (
+                  <TestimonialCard key={i} t={t} />
+                ))}
+              </div>
+            </div>
+
+            <div className="ak-tcar-nav" aria-label="Navegaci&oacute;n carrusel">
+              <button
+                className="ak-tcar-btn"
+                onClick={goPrev}
+                aria-label="Testimonio anterior"
+                disabled={safeIndex <= 0}
+              >
+                <Icon name="chevron-left" size={18} />
+              </button>
+              <button
+                className="ak-tcar-btn"
+                onClick={goNext}
+                aria-label="Siguiente testimonio"
+                disabled={safeIndex >= maxIndex}
+              >
+                <Icon name="chevron-right" size={18} />
+              </button>
+            </div>
+
+            <div className="ak-tcar-dots" aria-label="Indicadores">
+              {TESTIMONIALS.slice(0, maxIndex + 1).map((_, i) => (
+                <button
+                  key={i}
+                  className={`ak-tcar-dot ${i === safeIndex ? "on" : ""}`}
+                  onClick={() => goTo(i)}
+                  aria-label={`Ir al testimonio ${i + 1}`}
+                  aria-current={i === safeIndex ? "true" : "false"}
+                />
               ))}
             </div>
           </div>
-
-          <div className="ak-tcar-nav" aria-label="Navegaci&oacute;n carrusel">
-            <button
-              className="ak-tcar-btn"
-              onClick={goPrev}
-              aria-label="Testimonio anterior"
-              disabled={safeIndex <= 0}
-            >
-              <Icon name="chevron-left" size={18} />
-            </button>
-            <button
-              className="ak-tcar-btn"
-              onClick={goNext}
-              aria-label="Siguiente testimonio"
-              disabled={safeIndex >= maxIndex}
-            >
-              <Icon name="chevron-right" size={18} />
-            </button>
-          </div>
-
-          <div className="ak-tcar-dots" aria-label="Indicadores">
-            {TESTIMONIALS.slice(0, maxIndex + 1).map((_, i) => (
-              <button
-                key={i}
-                className={`ak-tcar-dot ${i === safeIndex ? "on" : ""}`}
-                onClick={() => goTo(i)}
-                aria-label={`Ir al testimonio ${i + 1}`}
-                aria-current={i === safeIndex ? "true" : "false"}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </section>
   );

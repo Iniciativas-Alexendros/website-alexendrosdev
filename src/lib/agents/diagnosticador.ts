@@ -1,7 +1,7 @@
 import "server-only";
 import { buildDiagnosticadorSystemPrompt } from "@/lib/agents/prompts";
-import { chatCompletionStructured, LLMError } from "@/lib/agents/llm-provider";
-import { crmClient, type CrmContact, type CrmDeal, type CrmInvoice } from "@/lib/agents/crm-client";
+import { chatCompletionStructured, LLMError, type LLMResponse } from "@/lib/agents/llm-provider";
+import { crmReader, type CrmContact, type CrmDeal, type CrmInvoice } from "@/lib/agents/crm-reader";
 import {
   diagnosticResultSchema,
   type DiagnosticResult,
@@ -69,6 +69,61 @@ export async function runDiagnosticador(
   }
 }
 
+// ─── Reglas heurísticas ─────────────────────────────────────────────────────
+
+interface HeuristicRule {
+  match: (text: string) => boolean;
+  cause: string;
+  confidence: number;
+  evidence: string[];
+  suggestedAction: string;
+}
+
+const HEURISTIC_RULES: HeuristicRule[] = [
+  {
+    match: (t) => t.includes("timeout") || t.includes("econnrefused"),
+    cause: "Timeout o error de red al llamar a una API externa (DB, Stripe, CRM).",
+    confidence: 0.7,
+    evidence: ["keyword 'timeout' o 'econnrefused' en el contexto"],
+    suggestedAction: "Verificar conectividad con el servicio afectado. Reintentar operación.",
+  },
+  {
+    match: (t) => t.includes("429") || t.includes("rate limit") || t.includes("too many"),
+    cause: "Rate limit excedido (429) en el servicio externo.",
+    confidence: 0.85,
+    evidence: ["keyword 'rate limit' o '429' en el contexto"],
+    suggestedAction: "Esperar 1-5 min. Implementar backoff exponencial si es recurrente.",
+  },
+  {
+    match: (t) => t.includes("500") || t.includes("internal server error") || t.includes("503"),
+    cause: "Error 5xx en el servicio upstream (DB caída, Stripe down, etc.).",
+    confidence: 0.75,
+    evidence: ["keyword 5xx en el contexto"],
+    suggestedAction: "Comprobar status page del servicio. Reintentar con backoff.",
+  },
+  {
+    match: (t) => t.includes("prisma") || t.includes("database") || t.includes("postgres"),
+    cause: "DB no responde o conexión caída.",
+    confidence: 0.9,
+    evidence: ["keyword 'prisma'/'database'/'postgres' en el contexto"],
+    suggestedAction: "Verificar conexión Supabase. Comprobar logs del container.",
+  },
+  {
+    match: (t) => t.includes("stripe") && (t.includes("fail") || t.includes("error")),
+    cause: "Stripe Checkout falló (red, API, o validación).",
+    confidence: 0.7,
+    evidence: ["keyword 'stripe' + 'fail/error' en el contexto"],
+    suggestedAction: "Comprobar Stripe Dashboard. Regenerar Payment Link si aplica.",
+  },
+  {
+    match: (t) => t.includes("validation") || t.includes("invalid") || t.includes("422"),
+    cause: "Datos de entrada no cumplen el schema (Zod validation failed).",
+    confidence: 0.95,
+    evidence: ["keyword 'validation'/'invalid'/'422' en el contexto"],
+    suggestedAction: "Revisar payload enviado vs schema. Comprobar cambios en el cliente.",
+  },
+];
+
 // ─── Heurísticas deterministas ──────────────────────────────────────────────
 
 function heuristicDiagnose(
@@ -76,56 +131,15 @@ function heuristicDiagnose(
   crmContext: CrmContextData,
 ): DiagnosticResult {
   const text = `${request.context} ${request.error ?? ""}`.toLowerCase();
-  const hypotheses: DiagnosticResult["hypotheses"] = [];
 
-  if (text.includes("timeout") || text.includes("econnrefused")) {
-    hypotheses.push({
-      cause: "Timeout o error de red al llamar a una API externa (DB, Stripe, CRM).",
-      confidence: 0.7,
-      evidence: ["keyword 'timeout' o 'econnrefused' en el contexto"],
-      suggestedAction: "Verificar conectividad con el servicio afectado. Reintentar operación.",
-    });
-  }
-  if (text.includes("429") || text.includes("rate limit") || text.includes("too many")) {
-    hypotheses.push({
-      cause: "Rate limit excedido (429) en el servicio externo.",
-      confidence: 0.85,
-      evidence: ["keyword 'rate limit' o '429' en el contexto"],
-      suggestedAction: "Esperar 1-5 min. Implementar backoff exponencial si es recurrente.",
-    });
-  }
-  if (text.includes("500") || text.includes("internal server error") || text.includes("503")) {
-    hypotheses.push({
-      cause: "Error 5xx en el servicio upstream (DB caída, Stripe down, etc.).",
-      confidence: 0.75,
-      evidence: ["keyword 5xx en el contexto"],
-      suggestedAction: "Comprobar status page del servicio. Reintentar con backoff.",
-    });
-  }
-  if (text.includes("prisma") || text.includes("database") || text.includes("postgres")) {
-    hypotheses.push({
-      cause: "DB no responde o conexión caída.",
-      confidence: 0.9,
-      evidence: ["keyword 'prisma'/'database'/'postgres' en el contexto"],
-      suggestedAction: "Verificar conexión Supabase. Comprobar logs del container.",
-    });
-  }
-  if (text.includes("stripe") && (text.includes("fail") || text.includes("error"))) {
-    hypotheses.push({
-      cause: "Stripe Checkout falló (red, API, o validación).",
-      confidence: 0.7,
-      evidence: ["keyword 'stripe' + 'fail/error' en el contexto"],
-      suggestedAction: "Comprobar Stripe Dashboard. Regenerar Payment Link si aplica.",
-    });
-  }
-  if (text.includes("validation") || text.includes("invalid") || text.includes("422")) {
-    hypotheses.push({
-      cause: "Datos de entrada no cumplen el schema (Zod validation failed).",
-      confidence: 0.95,
-      evidence: ["keyword 'validation'/'invalid'/'422' en el contexto"],
-      suggestedAction: "Revisar payload enviado vs schema. Comprobar cambios en el cliente.",
-    });
-  }
+  const hypotheses: DiagnosticResult["hypotheses"] = HEURISTIC_RULES.filter((rule) =>
+    rule.match(text),
+  ).map((rule) => ({
+    cause: rule.cause,
+    confidence: rule.confidence,
+    evidence: rule.evidence,
+    suggestedAction: rule.suggestedAction,
+  }));
 
   // Si no hay hipótesis concretas, usar fallback genérico
   if (hypotheses.length === 0) {
@@ -159,10 +173,10 @@ async function gatherCrmContext(
   options: DiagnoseOptions,
 ): Promise<CrmContextData> {
   const ctx: CrmContextData = {};
-  const fetchDeal = options.fetchDeal ?? ((id: string) => crmClient.getDeal(id));
-  const fetchContact = options.fetchContact ?? ((id: string) => crmClient.getContact(id));
+  const fetchDeal = options.fetchDeal ?? ((id: string) => crmReader.getDeal(id));
+  const fetchContact = options.fetchContact ?? ((id: string) => crmReader.getContact(id));
   const fetchInvoices =
-    options.fetchInvoices ?? ((dealId: string) => crmClient.listInvoicesForDeal(dealId));
+    options.fetchInvoices ?? ((dealId: string) => crmReader.listInvoicesForDeal(dealId));
 
   if (request.dealId) {
     ctx.dealId = request.dealId;
@@ -185,6 +199,27 @@ async function gatherCrmContext(
     }
   }
   return ctx;
+}
+
+// ─── Wrapper LLM directo (desde index.ts o tests) ───────────────────────────
+//
+// Versión simplificada que diagnostica un texto de contexto sin necesidad
+// de un objeto AgentDiagnoseRequest completo.
+
+export async function diagnose(contextText: string): Promise<LLMResponse<DiagnosticResult>> {
+  return chatCompletionStructured(
+    [
+      {
+        role: "system",
+        content:
+          "Eres un diagnosticador de incidencias en un pipeline comercial. " +
+          "Dado un contexto, formula hipótesis de causa con confianza 0-1 y " +
+          "evidencia. Devuelve JSON con {diagnosis, hypotheses: [{cause, confidence, evidence, suggestedAction}], context}.",
+      },
+      { role: "user", content: contextText },
+    ],
+    diagnosticResultSchema,
+  );
 }
 
 function formatRequestForLlm(request: AgentDiagnoseRequest, crmContext: CrmContextData): string {

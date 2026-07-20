@@ -113,28 +113,26 @@ function FAQAccordion() {
 
 function AddonsSection() {
   return (
-    <Reveal>
-      <section className="ak-section ak-addons">
-        <div className="ak-section-head ak-center">
-          <h2 className="ak-h2">Extras a la carta</h2>
-          <p className="ak-section-sub">Servicios puntuales sin compromiso de continuidad.</p>
-        </div>
-        <div className="ak-addons-grid">
-          {ADDONS.map((a, i) => (
-            <Reveal key={i} delay={i * 0.06}>
-              <article className="ak-addon">
-                <h3>{a.name}</h3>
-                <p>{a.desc}</p>
-                <div className="ak-addon-price">{a.price}</div>
-                <Button variant="secondary" size="sm" href="/contacto">
-                  Consultar
-                </Button>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </section>
-    </Reveal>
+    <section className="ak-section ak-addons">
+      <div className="ak-section-head ak-center">
+        <h2 className="ak-h2">Extras a la carta</h2>
+        <p className="ak-section-sub">Servicios puntuales sin compromiso de continuidad.</p>
+      </div>
+      <div className="ak-addons-grid">
+        {ADDONS.map((a, i) => (
+          <Reveal key={i} delay={i * 0.06}>
+            <article className="ak-addon">
+              <h3>{a.name}</h3>
+              <p>{a.desc}</p>
+              <div className="ak-addon-price">{a.price}</div>
+              <Button variant="secondary" size="sm" href="/contacto">
+                Consultar
+              </Button>
+            </article>
+          </Reveal>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -142,40 +140,34 @@ export default function ServicesView() {
   return (
     <>
       <JsonLd data={makeProfessionalServiceJsonLd()} />
-      <Reveal>
-        <header className="ak-page-head">
-          <h1 className="ak-page-title">Servicios</h1>
-          <p className="ak-page-lead">
-            Desarrollo de webs, aplicaciones y plataformas a medida. Planes por proyecto o cuota
-            mensual, precios cerrados y contenidos para empresas nuevas y pequeñas.
+      <header className="ak-page-head">
+        <h1 className="ak-page-title">Servicios</h1>
+        <p className="ak-page-lead">
+          Desarrollo de webs, aplicaciones y plataformas a medida. Planes por proyecto o cuota
+          mensual, precios cerrados y contenidos para empresas nuevas y pequeñas.
+        </p>
+      </header>
+
+      <section className="ak-section ak-tiers">
+        <div className="ak-section-head ak-center">
+          <h2 className="ak-h2">Planes por proyecto</h2>
+          <p className="ak-section-sub">
+            Tres niveles. Eliges el que encaja. Sin sorpresas, sin letra pequeña.
           </p>
-        </header>
-      </Reveal>
+        </div>
+        <div className="ak-tiers-grid">
+          {TIERS.proyecto.map((t, i) => (
+            <TierCard key={t.name} tier={t} index={i} />
+          ))}
+        </div>
+      </section>
 
-      <Reveal delay={0.06}>
-        <section className="ak-section ak-tiers">
-          <div className="ak-section-head ak-center">
-            <h2 className="ak-h2">Planes por proyecto</h2>
-            <p className="ak-section-sub">
-              Tres niveles. Eliges el que encaja. Sin sorpresas, sin letra pequeña.
-            </p>
-          </div>
-          <div className="ak-tiers-grid">
-            {TIERS.proyecto.map((t, i) => (
-              <TierCard key={t.name} tier={t} index={i} />
-            ))}
-          </div>
-        </section>
-      </Reveal>
-
-      <Reveal>
-        <section className="ak-section ak-comparison-sec">
-          <div className="ak-section-head ak-center">
-            <h2 className="ak-h2">Comparativa rápida</h2>
-          </div>
-          <ComparisonTable />
-        </section>
-      </Reveal>
+      <section className="ak-section ak-comparison-sec">
+        <div className="ak-section-head ak-center">
+          <h2 className="ak-h2">Comparativa rápida</h2>
+        </div>
+        <ComparisonTable />
+      </section>
 
       <FAQAccordion />
 
