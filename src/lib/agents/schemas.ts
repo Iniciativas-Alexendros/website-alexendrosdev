@@ -62,11 +62,9 @@ export const repairActionSchema = z
     action: z.string().min(1).max(100),
     // Endpoint del CRM API (ej. "POST /api/crm/activities"). Validado contra
     // ALLOWED_ENDPOINT_PATTERNS de config.ts (fuente única de verdad).
-    endpoint: z
-      .string()
-      .refine((val) => ALLOWED_ENDPOINT_PATTERNS.some((p) => p.test(val)), {
-        message: "Endpoint no permitido para el agente Reparador",
-      }),
+    endpoint: z.string().refine((val) => ALLOWED_ENDPOINT_PATTERNS.some((p) => p.test(val)), {
+      message: "Endpoint no permitido para el agente Reparador",
+    }),
     // Payload JSON que se enviará al endpoint. Validado contra el schema del
     // endpoint específico por el código antes de hacer el fetch.
     payload: z.record(z.string(), z.unknown()),
