@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
+import { getProjectImageOrGradient } from "@/lib/project-images";
 import { Icon, Reveal } from "@/components/ui";
 
 const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((p) => p.category)))];
@@ -161,13 +162,24 @@ export function ProjectsList() {
                 <article className="ak-masonry-tile" role="listitem" key={p.id}>
                   <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
                     <div className="ak-tile-media" style={{ aspectRatio: "4 / 3" }}>
-                      <img
-                        src={`https://picsum.photos/seed/${p.id}/800/600`}
-                        alt=""
-                        loading={lcpOptimized ? "eager" : "lazy"}
-                        {...(lcpOptimized ? { fetchPriority: "high" } : {})}
-                        className="ak-tile-img"
-                      />
+                      {(() => {
+                        const img = getProjectImageOrGradient(p.id);
+                        return img.type === "image" ? (
+                          <img
+                            src={img.src}
+                            alt={p.title}
+                            loading={lcpOptimized ? "eager" : "lazy"}
+                            {...(lcpOptimized ? { fetchPriority: "high" } : {})}
+                            className="ak-tile-img"
+                          />
+                        ) : (
+                          <div
+                            className="ak-tile-img"
+                            style={{ background: img.style, width: "100%", height: "100%" }}
+                            aria-hidden="true"
+                          />
+                        );
+                      })()}
                       <span className="ak-tile-badge">{p.category}</span>
                     </div>
                     <div className="ak-tile-body">

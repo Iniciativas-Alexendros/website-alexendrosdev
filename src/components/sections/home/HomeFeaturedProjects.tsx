@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { getProjectImageOrGradient } from "@/lib/project-images";
 import { Icon, Button, Reveal } from "@/components/ui";
 
 interface Project {
@@ -43,7 +44,7 @@ const PROJECTS: Project[] = [
       { label: "Conversión", value: "3.2%", accent: true },
     ],
     imageSeed: "nasve-shop",
-    liveUrl: "https://nasve.com",
+    liveUrl: "https://ecommerce-graficasnasve.vercel.app",
   },
   {
     slug: "pipeline-crm",
@@ -83,14 +84,29 @@ export function HomeFeaturedProjects() {
               className={`ak-zz-row ${i % 2 === 1 ? "rev" : ""}`}
             >
               <div className="ak-zz-media">
-                <img
-                  src={`https://picsum.photos/seed/${project.imageSeed}/800/600`}
-                  alt=""
-                  loading="lazy"
-                  sizes="(max-width: 880px) 100vw, 540px"
-                  width={800}
-                  height={600}
-                />
+                {(() => {
+                  const img = getProjectImageOrGradient(project.slug);
+                  return img.type === "image" ? (
+                    <img
+                      src={img.src}
+                      alt={project.title}
+                      loading="lazy"
+                      sizes="(max-width: 880px) 100vw, 540px"
+                      width={800}
+                      height={600}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        background: img.style,
+                        width: "100%",
+                        height: "100%",
+                        minHeight: 300,
+                      }}
+                      aria-hidden="true"
+                    />
+                  );
+                })()}
               </div>
               <div className="ak-zz-body">
                 <span className="ak-zz-cat">{project.category}</span>
