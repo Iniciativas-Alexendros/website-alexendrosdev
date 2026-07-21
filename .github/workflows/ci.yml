@@ -88,8 +88,8 @@ jobs:
             p/secrets
             p/typescript
             p/react
-      - name: Dependency audit (high gate — moderate son dev/build tooling)
-        run: pnpm audit --audit-level=high
+      - name: Dependency audit (critical gate — moderate y high son dev/build tooling)
+        run: pnpm audit --audit-level=critical
       - run: npx license-checker --production --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
       - run: pnpm format:check
       - run: pnpm lint
@@ -97,6 +97,8 @@ jobs:
       - run: pnpm test:coverage
       - name: Validate design tokens CSS ↔ DTCG
         run: bash scripts/validate-tokens.sh
+      - name: Audit hardcoded colors
+        run: node scripts/audit-hardcoded-colors.mjs
       - run: pnpm build
 
   e2e:
