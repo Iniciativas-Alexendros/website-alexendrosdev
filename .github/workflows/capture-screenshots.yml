@@ -1,0 +1,74 @@
+name: Capture project screenshots
+
+on:
+  pull_request:
+    paths:
+      - src/lib/content/projects.ts
+    types: [opened, synchronize]
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: capture-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install chromium
+
+      - name: Detect new liveUrl additions
+        id: detect
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          node scripts/detect-new-liveurls.mjs --base="$BASE" --head="$HEAD" > /tmp/new-liveurls.json
+          COUNT=$(node -e "const d=require('fs').readFileSync('/tmp/new-liveurls.json','utf8');process.stdout.write(String(JSON.parse(d).length));" 2>/dev/null || echo "0")
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Capture screenshots for new projects
+        if: steps.detect.outputs.count != '0'
+        run: |
+          node -e "
+            const data = JSON.parse(require('fs').readFileSync('/tmp/new-liveurls.json','utf8'));
+            for (const {slug, url} of data) {
+              const {execSync} = require('child_process');
+              console.log('Capturing: ' + slug + ' @ ' + url);
+              execSync('node scripts/capture-project-screenshots.mjs --slug=' + slug + ' --url=' + url, {stdio:'inherit'});
+            }
+          "
+        timeout-minutes: 10
+
+      - name: Sync REAL_IMAGES registry
+        if: steps.detect.outputs.count != '0'
+        run: node scripts/sync-project-images.mjs
+
+      - name: Commit captured images and registry changes
+        if: steps.detect.outputs.count != '0'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/images/projects/ src/lib/project-images.ts
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(images): auto-capture screenshots for new project live URLs"
+            git push
+            echo "Committed and pushed new screenshots"
+          fi
