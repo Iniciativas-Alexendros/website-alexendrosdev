@@ -32,6 +32,7 @@ export const PROJECTS: Project[] = [
     tags: ["Next.js", "React", "TypeScript", "E-commerce", "Vercel"],
     desc: "Sitio web y tienda para Gráficas Nasve, imprenta familiar de Torrent desde 1982: catálogo, configurador de encargos y solicitud de presupuesto, con un diseño a medida que transmite oficio y confianza. Proyecto de cliente, de la idea al lanzamiento.",
     metaDescription: "Web y tienda a medida para Gráficas Nasve (imprenta, Torrent 1982): catálogo, configurador de encargos y presupuesto.",
+    liveUrl: "https://ecommerce-graficasnasve.vercel.app",
     metrics: [
       { v: "Web + tienda", l: "diseño y desarrollo", acc: true },
       { v: "Next.js", l: "React + TypeScript" },

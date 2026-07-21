@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
 import type { CaseBlock } from "@/lib/content/case-studies";
+import { getProjectImageOrGradient } from "@/lib/project-images";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui";
 import { JsonLd } from "@/components/JsonLd";
@@ -45,11 +46,15 @@ function Block({ block }: { block: CaseBlock }) {
     case "figure":
       return (
         <figure>
-          <img
-            src={`https://picsum.photos/seed/${block.label?.replace(/\s+/g, "-").toLowerCase() ?? "shot"}/1200/675`}
-            alt={block.caption ?? ""}
+          <div
             className="ak-prose-shot"
-            loading="lazy"
+            style={{
+              background:
+                "linear-gradient(135deg, oklch(var(--bg-sunken)), oklch(var(--bg-elevated)))",
+              aspectRatio: "16/9",
+              borderRadius: 8,
+            }}
+            aria-label={block.caption}
           />
           <figcaption>{block.caption}</figcaption>
         </figure>
@@ -132,13 +137,29 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
         )}
       </header>
 
-      <img
-        src={`https://picsum.photos/seed/${p.id}-hero/1920/1080`}
-        alt={p.title}
-        className="ak-hero-img"
-        loading="eager"
-        fetchPriority="high"
-      />
+      {(() => {
+        const img = getProjectImageOrGradient(p.id);
+        return img.type === "image" ? (
+          <img
+            src={img.src}
+            alt={p.title}
+            className="ak-hero-img"
+            loading="eager"
+            fetchPriority="high"
+          />
+        ) : (
+          <div
+            className="ak-hero-img"
+            style={{
+              background: img.style,
+              width: "100%",
+              minHeight: 400,
+              borderRadius: 12,
+            }}
+            aria-hidden="true"
+          />
+        );
+      })()}
 
       <section className="ak-case-layout">
         <article className="ak-prose">
