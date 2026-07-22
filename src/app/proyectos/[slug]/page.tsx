@@ -101,12 +101,10 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           { name: p.title, url: `https://alexendros.dev/proyectos/${p.id}` },
         ])}
       />
-
       <Link className="ak-back" href="/proyectos">
         <Icon name="arrow-left" size={15} />
         Proyectos
       </Link>
-
       <header className="ak-detail-hero">
         <div className="ak-detail-meta">
           <span>{p.category}</span>
@@ -136,12 +134,11 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
             )}
           </div>
         )}
-      </header>
-
+      </header>{" "}
       {(() => {
         const img = getProjectImageOrGradient(p.id);
         return img.type === "image" ? (
-          <div className="ak-hero-img" style={{ aspectRatio: `${img.width}/${img.height}` }}>
+          <div className="ak-hero-img">
             <Image src={img.src} alt={p.title} fill sizes="100vw" priority />
           </div>
         ) : (
@@ -152,7 +149,6 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           />
         );
       })()}
-
       <section className="ak-case-layout">
         <article className="ak-prose">
           <div className="ak-case-metrics">
@@ -210,7 +206,6 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           </div>
         </aside>
       </section>
-
       <section className="ak-section" style={{ paddingTop: 0 }}>
         <div className="ak-relnav">
           <Link className="prev" href={`/proyectos/${prev.id}`}>

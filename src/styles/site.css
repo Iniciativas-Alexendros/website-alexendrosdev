@@ -689,7 +689,7 @@ main { display: block; }
 .ak-detail-sum { font-size: var(--fs-body-lg); line-height: 1.65; color: hsl(var(--text-secondary)); margin: 0 0 20px; }
 .ak-detail-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .ak-hero-shot { aspect-ratio: 16 / 8; border-radius: var(--radius-2xl); margin-bottom: 8px; }
-.ak-hero-img { position: relative; width: 100%; border-radius: var(--radius-2xl); overflow: hidden; }
+.ak-hero-img { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-2xl); overflow: hidden; }
 .ak-hero-img img { object-fit: cover; }
 
 .ak-case-grid { display: grid; grid-template-columns: 1fr 260px; gap: 48px; align-items: start; }
