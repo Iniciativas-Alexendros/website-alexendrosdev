@@ -28,6 +28,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      // Capturas reales de proyectos con URLs externas conocidas.
+      { protocol: "https", hostname: "alexendros.me" },
+      { protocol: "https", hostname: "ecommerce-graficasnasve.vercel.app" },
+      { protocol: "https", hostname: "crm.alexendros.dev" },
+    ],
+  },
   async headers() {
     return [
       {

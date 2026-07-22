@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
@@ -100,12 +101,10 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           { name: p.title, url: `https://alexendros.dev/proyectos/${p.id}` },
         ])}
       />
-
       <Link className="ak-back" href="/proyectos">
         <Icon name="arrow-left" size={15} />
         Proyectos
       </Link>
-
       <header className="ak-detail-hero">
         <div className="ak-detail-meta">
           <span>{p.category}</span>
@@ -135,35 +134,21 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
             )}
           </div>
         )}
-      </header>
-
+      </header>{" "}
       {(() => {
         const img = getProjectImageOrGradient(p.id);
         return img.type === "image" ? (
-          // Imágenes de proyecto son dinámicas y pueden provenir de dominios
-          // externos no predecibles; se mantiene <img> para evitar remotePatterns.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={img.src}
-            alt={p.title}
-            className="ak-hero-img"
-            loading="eager"
-            fetchPriority="high"
-          />
+          <div className="ak-hero-img">
+            <Image src={img.src} alt={p.title} fill sizes="100vw" priority />
+          </div>
         ) : (
           <div
             className="ak-hero-img"
-            style={{
-              background: img.style,
-              width: "100%",
-              minHeight: 400,
-              borderRadius: 12,
-            }}
+            style={{ background: img.style, minHeight: 300 }}
             aria-hidden="true"
           />
         );
       })()}
-
       <section className="ak-case-layout">
         <article className="ak-prose">
           <div className="ak-case-metrics">
@@ -221,7 +206,6 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           </div>
         </aside>
       </section>
-
       <section className="ak-section" style={{ paddingTop: 0 }}>
         <div className="ak-relnav">
           <Link className="prev" href={`/proyectos/${prev.id}`}>

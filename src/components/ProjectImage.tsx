@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { getProjectImageOrGradient } from "@/lib/project-images";
 
 interface ProjectImageProps {
@@ -18,15 +20,13 @@ export function ProjectImage({ id, alt, className = "", priority = false }: Proj
 
   if (media.type === "image") {
     return (
-      // Imágenes de proyecto son dinámicas y pueden provenir de dominios
-      // externos no predecibles; se mantiene <img> para evitar remotePatterns.
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={media.src}
         alt={alt}
         className={className}
-        loading={priority ? "eager" : "lazy"}
-        {...(priority ? { fetchPriority: "high" as const } : {})}
+        fill
+        sizes="100vw"
+        priority={priority}
       />
     );
   }

@@ -46,9 +46,9 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | **F14**  | Webhook ampliado + CRM API (8 handlers REST) + Pipeline 9 stages + 3 migraciones | **hecho** — 188 tests, commit `bbbc6a8`                                                                          |
 | **F14b** | Notion bidirectional sync (client, mapper, outbound, inbound webhook)            | **hecho** — 219 tests, commit `3c8fbd8`                                                                          |
 | **F15**  | Agentes IA + Hardening (TS integrado, Gemini 3.5 Flash + Zen)                    | **parcial (código hecho)** — re-priorizado a **P3 (mínimo/congelar)**; véase ROADMAP reestructuración 2026-07-12 |
-| **F16**  | E2E + Gates finales — lock-in cobertura 85/80/85/85                              | **pendiente** — depende de P1/P2                                                                                 |
-| **F17**  | Monitorización full-stack (SigNoz, health, alertas)                              | **parcial** (`/api/health` hecho) — re-priorizado a **P2 (sube)**                                                |
-| **F18**  | Contenido & Marketing (blog, newsletter, analytics)                              | **pendiente** — depende de P1 (Profesionalización)                                                               |
+| **F16**  | E2E + Gates finales — lock-in cobertura 85/80/85/85                              | **hecho** — gates finales completados; desbloquea F18/F17                                                        |
+| **F17**  | Monitorización full-stack (SigNoz, health, alertas)                              | **parcial** (`/api/health` hecho) — en curso en paralelo (**Track P2**)                                          |
+| **F18**  | Contenido & Marketing (blog, newsletter, analytics)                              | **pendiente — próximo foco P1** (Track P1)                                                                       |
 
 > **Reestructuración 2026-07-12 (auditoría):** nuevo orden P0→P4 en `ROADMAP.md` y
 > `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md`. Prioridad = comercializar

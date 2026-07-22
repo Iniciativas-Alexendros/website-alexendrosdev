@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
@@ -165,14 +166,12 @@ export function ProjectsList() {
                       {(() => {
                         const img = getProjectImageOrGradient(p.id);
                         return img.type === "image" ? (
-                          // Imágenes de proyecto son dinámicas y pueden provenir
-                          // de dominios externos; se mantiene <img>.
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={img.src}
                             alt={p.title}
-                            loading={lcpOptimized ? "eager" : "lazy"}
-                            {...(lcpOptimized ? { fetchPriority: "high" } : {})}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            priority={lcpOptimized}
                             className="ak-tile-img"
                           />
                         ) : (

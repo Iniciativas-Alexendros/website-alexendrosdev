@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { getProjectImageOrGradient } from "@/lib/project-images";
 import { Icon, Button, Reveal } from "@/components/ui";
@@ -87,16 +88,11 @@ export function HomeFeaturedProjects() {
                 {(() => {
                   const img = getProjectImageOrGradient(project.slug);
                   return img.type === "image" ? (
-                    // Imágenes de proyecto son dinámicas y pueden provenir de
-                    // dominios externos; se mantiene <img>.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={img.src}
                       alt={project.title}
-                      loading="lazy"
+                      fill
                       sizes="(max-width: 880px) 100vw, 540px"
-                      width={800}
-                      height={600}
                     />
                   ) : (
                     <div

@@ -14,7 +14,7 @@
 | Backend          | Route Handlers + zod + Resend + React Email + Prisma 7 / Postgres (Supabase self-hosted en Coolify)                                                                                                                              |
 | Pagos            | Stripe Checkout **live activo** (`sk_live_...`, webhook `we_1TrUSpK8xOmiNNUKB8yz7tob`) + catálogo unificado con price IDs dual-mode (`test`/`live`) + canal transferencia + Payment Link fallback (F7 + F7-activ. + F7-activ.5b) |
 | CRM              | API REST (`/api/crm/`) con 9 stages de pipeline, auth `X-API-Key` (F14 hecho)                                                                                                                                                    |
-| Agentes IA       | Módulos TS integrados en `src/lib/agents/` — 3 agentes (Auditor/Diagnosticador/Reparador) con provider LLM híbrido Gemini 3.5 Flash (primario) + OpenCode Zen free (fallback) (F15 pendiente)                                    |
+| Agentes IA       | Módulos TS integrados en `src/lib/agents/` — 3 agentes (Auditor/Diagnosticador/Reparador) con provider LLM híbrido Gemini 3.5 Flash (primario) + OpenCode Zen free (fallback) (F15 re-priorizado a P3, congelado)                |
 | Calidad          | ESLint, Prettier, tsc, Vitest, Playwright, axe, Lighthouse/CWV                                                                                                                                                                   |
 | Gestor           | pnpm ≥10                                                                                                                                                                                                                         |
 
@@ -178,7 +178,13 @@ PipelineStage seed: 9 stages con orden 0-9 y colores hex
 | `lib/tweaks-panel.jsx`           | descartado (dev-only opcional)                              |
 | `*.html`                         | rutas App Router                                            |
 
-## Agentes IA (F15, pendiente)
+## Agentes IA (F15, código hecho, P3 congelado)
+
+> Estado estratégico actual: la implementación de los 5 endpoints y los módulos de agentes ya
+> existe en código, pero F15 quedó **congelada en P3** tras la reestructuración 2026-07-12. No se
+> invierte más en agentes hasta que P1 (F18) y P2 (F17) estén consolidados. El Reparador opera en
+> modo determinista/dryRun por defecto en producción; el LLM solo decide la acción, el código la
+> ejecuta.
 
 Módulos TypeScript integrados en `src/lib/agents/` (sin repo externo, sin Ollama, sin
 Python). 5 endpoints REST en `src/app/api/agents/`. Comunicación con el resto del
@@ -222,7 +228,7 @@ invoque APIs por su cuenta.
 Sin ninguna API key → degradación determinista: Diagnosticador/Reparador devuelven
 `action: "none"`, Auditor usa reglas de conteo.
 
-## Stripe live (F17, hecho)
+## Stripe live (F7-activ., hecho)
 
 `alexendros.dev` acepta pagos reales desde 2026-07-10. Configuración:
 
@@ -246,14 +252,14 @@ Sin ninguna API key → degradación determinista: Diagnosticador/Reparador devu
 - **Webhook endpoint live**: `we_1TrUSpK8xOmiNNUKB8yz7tob`
   apuntando a `https://alexendros.dev/api/stripe/webhook`.
 - **Productos live** (Dashboard Stripe): 9 productos con sus 9 precios
-  pre-creados. Smoke test post-F17.5b confirmó que el checkout live usa
+  pre-creados. Smoke test post-F7-activ.5b confirmó que el checkout live usa
   `price: "price_1TrUSW..."` y `product: prod_UrCswCK6GqUFDm` (no productos
   anónimos generados por `price_data`).
 
 Para auditoría/rollback, las claves viven en el item "Stripe" del vault
 "Infraestructura" en Proton Pass, junto con las claves test.
 
-### Tests de integridad del catálogo (F17.5b)
+### Tests de integridad del catálogo (F7-activ.5b)
 
 `tests/unit/catalog.test.ts` añade 7 tests de invariantes:
 
@@ -275,4 +281,24 @@ lo que permite alternar test ↔ live dentro de la misma suite.
 
 ```
 
+## Monitorización y salud (F17, Track P2)
+
+> Track P2 en paralelo a F18 (P1). `/api/health` ya existe; SigNoz/OTel y alertas están planificadas.
+
+| Componente     | Tipo       | Identificador                         | Detalle                                                              |
+| -------------- | ---------- | ------------------------------------- | -------------------------------------------------------------------- |
+| Health check   | Route      | `GET /api/health`                     | Null-safe: DB, Stripe, Resend, MiniPC reportan `"disabled"` si no están configurados. |
+| Uptime externo | Servicio   | Monitor externo (Uptime Robot / cron-job.org) | Ping a `/api/health` cada 5 min.                                     |
+| Telemetría     | Librería   | `@vercel/otel`                        | Traces a SigNoz self-hosted en MiniPC vía Cloudflare Tunnel.         |
+| Alertas        | Integración | Resend                               | Email tras N checks fallidos; requiere `RESEND_API_KEY`.            |
+
+## Contenido y marketing (F18, Track P1)
+
+> Próximo objetivo prioritario tras F16. Infraestructura ya lista (`/blog`, newsletter, MDX); falta activar flujos y producir posts.
+
+- **Blog**: rutas `/blog` y `/blog/[slug]` renderizan MDX desde `content/blog/`.
+- **Newsletter**: `/api/newsletter` (suscripción + double opt-in) y `POST /api/newsletter/send` (admin) para disparos masivos.
+  - Requiere `RESEND_API_KEY` para envío real; sin ella la API degrada a `console.log`.
+- **Analytics**: `@vercel/analytics` activo en `layout.tsx`; objetivos de conversión y seguimiento de funnel pendientes.
+- **Próximas acciones**: activar `RESEND_API_KEY`, publicar 2 posts iniciales, crear calendario editorial y templates de newsletter.
 ```

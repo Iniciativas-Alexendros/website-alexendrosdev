@@ -8,12 +8,18 @@
 
 // Projects with real captured screenshots
 // Auto-captured via scripts/capture-project-screenshots.mjs
-const REAL_IMAGES: Record<string, string> = {
-  "alexendros-me": "/images/projects/alexendros-me/hero.webp",
-  nasve: "/images/projects/nasve/hero.webp",
-  "pipeline-crm": "/images/projects/pipeline-crm/hero.webp",
-  "stripe-catalog": "/images/projects/stripe-catalog/hero.webp",
-  "mcp-toolkit": "/images/projects/mcp-toolkit/hero.webp",
+interface ProjectImageInfo {
+  src: string;
+  width: number;
+  height: number;
+}
+
+const REAL_IMAGES: Record<string, ProjectImageInfo> = {
+  "alexendros-me": { src: "/images/projects/alexendros-me/hero.webp", width: 1600, height: 900 },
+  nasve: { src: "/images/projects/nasve/hero.webp", width: 1600, height: 900 },
+  "pipeline-crm": { src: "/images/projects/pipeline-crm/hero.webp", width: 1600, height: 900 },
+  "stripe-catalog": { src: "/images/projects/stripe-catalog/hero.webp", width: 1440, height: 4547 },
+  "mcp-toolkit": { src: "/images/projects/mcp-toolkit/hero.webp", width: 840, height: 1753 },
 };
 
 // Gradient fallbacks for internal tools without deployable UIs.
@@ -38,10 +44,12 @@ const SECTION_GRADIENTS: Record<string, string> = {
 const DEFAULT_SECTION_GRADIENT =
   "linear-gradient(135deg, oklch(var(--primary-200) / 0.5), oklch(var(--primary-500) / 0.7))";
 
-export function getProjectImageOrGradient(
-  id: string,
-): { type: "image"; src: string } | { type: "gradient"; style: string } {
-  if (REAL_IMAGES[id]) return { type: "image", src: REAL_IMAGES[id] };
+export type ProjectImageResult =
+  | { type: "image"; src: string; width: number; height: number }
+  | { type: "gradient"; style: string };
+
+export function getProjectImageOrGradient(id: string): ProjectImageResult {
+  if (REAL_IMAGES[id]) return { type: "image", ...REAL_IMAGES[id] };
   if (GRADIENT_FALLBACKS[id]) return { type: "gradient", style: GRADIENT_FALLBACKS[id] };
   return {
     type: "gradient",
