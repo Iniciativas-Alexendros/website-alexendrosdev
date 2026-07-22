@@ -1,29 +1,27 @@
-name: Deploy Production
+name: Deploy Preview
 
 on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: [main]
 
 permissions:
   deployments: write
   contents: read
 
 concurrency:
-  group: deploy-production
-  cancel-in-progress: false
+  group: deploy-preview-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.event == 'push'
+      github.event.workflow_run.event == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
-      name: production
+      name: preview
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
@@ -34,14 +32,14 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Deploy to Vercel Production
+      - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          URL=$(vercel --prod --yes \
+          URL=$(vercel --environment=preview --yes \
             --token "$VERCEL_TOKEN" \
           )
           echo "url=$URL" >> "$GITHUB_OUTPUT"
-          echo "::notice::Production → $URL"
+          echo "::notice::Preview → $URL"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
@@ -55,7 +53,7 @@ jobs:
           DEPLOY_ID=$(gh api "repos/$GITHUB_REPOSITORY/deployments" \
             --method POST \
             -f ref="${{ github.event.workflow_run.head_sha }}" \
-            -f environment="Production" \
+            -f environment="Preview" \
             -f auto_merge=false \
             --jq '.id')
           gh api "repos/$GITHUB_REPOSITORY/deployments/$DEPLOY_ID/statuses" \
