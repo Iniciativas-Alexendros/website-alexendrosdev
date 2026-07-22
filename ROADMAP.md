@@ -299,16 +299,21 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ## F16 · E2E + Gates finales
 
-| #    | Tarea                                                                               | Estado    | Bloquea | Desbloquea |
-| ---- | ----------------------------------------------------------------------------------- | --------- | ------- | ---------- |
-| 16.1 | 8 tests e2e (`/servicios`, `/checkout/success`, a11y multi-ruta)                    | hecho     | —       | —          |
-| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥70%, functions ≥88%, lines ≥85%       | hecho     | —       | —          |
-| 16.3 | Gates calidad: lint 0 warnings src/, typecheck 0, build verde (32 rutas), format OK | hecho     | —       | release    |
-| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización)    | pendiente | 16.3    | —          |
+| #    | Tarea                                                                               | Estado | Bloquea | Desbloquea |
+| ---- | ----------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 16.1 | 8 tests e2e (`/servicios`, `/checkout/success`, a11y multi-ruta)                    | hecho  | —       | —          |
+| 16.2 | Lock-in cobertura: statements ≥85%, branches ≥70%, functions ≥88%, lines ≥85%       | hecho  | —       | —          |
+| 16.3 | Gates calidad: lint 0 warnings src/, typecheck 0, build verde (32 rutas), format OK | hecho  | —       | release    |
+| 16.4 | Actualizar ARCHITECTURE.md (rutas CRM, Subscription, agentes IA, monitorización)    | hecho  | 16.3    | F18        |
 
 > Lock-in actual 85/70/88/85 (medición 86.57/74.11/90.47/88.35, 386 tests, 51 ficheros).
-> Gate F16: 85/70/88/85. F17 (monitorización) y F18 (contenido) en paralelo a F15/F16
-> según el diagrama de tracks al final.
+> **F16 COMPLETADO.** Gate 85/70/88/85 mantenido; lint/typecheck/build/format verdes.
+> El cierre de F16 desbloquea F18. Próximo foco prioritario:
+>
+> 1. **F18 · Contenido & Marketing (Track P1)** — activar Resend, publicar 2 posts iniciales y activar newsletter/admin.
+> 2. **F17 · Monitorización full-stack (Track P2)** — en paralelo, implementar uptime externo y OTel/SigNoz.
+>
+> El orden sigue la reestructuración 2026-07-12: P1 (comercialización) primero, P2 (monitorización) en paralelo.
 
 ## F17 · Monitorización full-stack — **RE-PRIORIZADO A P2 (sube)**
 
