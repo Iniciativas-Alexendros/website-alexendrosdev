@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
@@ -140,27 +141,11 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
       {(() => {
         const img = getProjectImageOrGradient(p.id);
         return img.type === "image" ? (
-          // Imágenes de proyecto son dinámicas y pueden provenir de dominios
-          // externos no predecibles; se mantiene <img> para evitar remotePatterns.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={img.src}
-            alt={p.title}
-            className="ak-hero-img"
-            loading="eager"
-            fetchPriority="high"
-          />
+          <div className="ak-hero-img">
+            <Image src={img.src} alt={p.title} fill sizes="100vw" priority />
+          </div>
         ) : (
-          <div
-            className="ak-hero-img"
-            style={{
-              background: img.style,
-              width: "100%",
-              minHeight: 400,
-              borderRadius: 12,
-            }}
-            aria-hidden="true"
-          />
+          <div className="ak-hero-img" style={{ background: img.style }} aria-hidden="true" />
         );
       })()}
 
