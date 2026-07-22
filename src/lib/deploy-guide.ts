@@ -145,6 +145,7 @@ export function getDeployStage(
  * - Solo cambiaron docs/chore files (opcional, vía changedFiles)
  */
 export function shouldBuild(deployDecision: DeployDecision, _changedFiles?: string[]): boolean {
+  void _changedFiles;
   if (deployDecision.stage === "skip") return false;
   return true;
 }

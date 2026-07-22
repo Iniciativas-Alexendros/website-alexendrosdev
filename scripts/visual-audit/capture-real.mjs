@@ -4,7 +4,7 @@
  * Usage: node scripts/visual-audit/capture-real.mjs
  */
 import { chromium } from "@playwright/test";
-import { mkdirSync } from "node:fs";
+
 import { join } from "node:path";
 
 const OUT_DIR = join(import.meta.dirname, "../../public/images/projects");

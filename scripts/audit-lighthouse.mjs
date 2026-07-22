@@ -230,7 +230,7 @@ async function runAudit(url, slug, device) {
       try {
         await chrome.kill();
         console.error(`  Chrome cerrado`);
-      } catch (_) {}
+      } catch {}
     }
   }
 }

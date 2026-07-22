@@ -15,7 +15,7 @@
  * - Archivos de test y snapshots
  */
 
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -168,7 +168,6 @@ function main() {
 
   console.log("🔍 Auditando colores hardcoded en src/\n");
   let total = 0;
-  let exitCode = 0;
 
   for (const [group, items] of Object.entries(all)) {
     if (items.length === 0) {

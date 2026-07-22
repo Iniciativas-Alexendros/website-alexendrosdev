@@ -1,7 +1,7 @@
 import type { HTMLAttributes } from "react";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
-import { shadow, radius, duration } from "@/tokens";
+import { shadow, duration } from "@/tokens";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   interactive?: boolean;

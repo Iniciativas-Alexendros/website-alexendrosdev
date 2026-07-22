@@ -18,6 +18,9 @@ export function ProjectImage({ id, alt, className = "", priority = false }: Proj
 
   if (media.type === "image") {
     return (
+      // Imágenes de proyecto son dinámicas y pueden provenir de dominios
+      // externos no predecibles; se mantiene <img> para evitar remotePatterns.
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={media.src}
         alt={alt}

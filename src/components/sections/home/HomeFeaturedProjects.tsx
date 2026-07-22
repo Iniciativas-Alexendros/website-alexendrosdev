@@ -87,6 +87,9 @@ export function HomeFeaturedProjects() {
                 {(() => {
                   const img = getProjectImageOrGradient(project.slug);
                   return img.type === "image" ? (
+                    // Imágenes de proyecto son dinámicas y pueden provenir de
+                    // dominios externos; se mantiene <img>.
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={img.src}
                       alt={project.title}

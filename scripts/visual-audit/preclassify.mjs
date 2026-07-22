@@ -30,7 +30,6 @@ const PROJECT_URLS = {
 function preclassify(img) {
   const src = (img.src || "").toLowerCase();
   const alt = (img.alt || "").toLowerCase();
-  const nearby = (img.nearbyText || "").toLowerCase();
   const page = img.page || "";
 
   // Rule 0: Tiny images (avatars, icons, logos) → KEEP
