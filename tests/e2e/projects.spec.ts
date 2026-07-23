@@ -1,8 +1,34 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("/proyectos", () => {
+  const errors: string[] = [];
+
   test.beforeEach(async ({ page }) => {
+    errors.length = 0;
+    page.on("pageerror", (err) => errors.push(err.message));
+    page.on("console", (msg) => {
+      // Solo console.error explícito; 404s HTTP los captura el listener de response
+      if (msg.type() === "error" && !msg.text().includes("/_vercel/"))
+        errors.push(`[console.error] ${msg.text()}`);
+    });
+    page.on("response", (res) => {
+      const status = res.status();
+      if (status >= 400) {
+        const url = res.url();
+        // Filter out expected localhost-only 4xx (Vercel Analytics, Next.js internals)
+        if (
+          !url.includes("/_vercel/") &&
+          !url.includes("__nextjs") &&
+          !url.endsWith("/favicon.ico")
+        )
+          errors.push(`[HTTP ${status}] ${url}`);
+      }
+    });
     await page.goto("/proyectos");
+  });
+
+  test.afterEach(() => {
+    expect(errors).toEqual([]);
   });
 
   test("filtra y busca en la página de proyectos", async ({ page }) => {
