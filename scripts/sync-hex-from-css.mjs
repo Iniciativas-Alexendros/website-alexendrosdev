@@ -82,12 +82,27 @@ function parseHSLValue(str) {
 
 function setDeep(obj, path, value) {
   const keys = path.split(".");
+  const blockedKeys = new Set(["__proto__", "prototype", "constructor"]);
   let cur = obj;
+
   for (let i = 0; i < keys.length - 1; i++) {
-    if (!cur[keys[i]] || typeof cur[keys[i]] !== "object") cur[keys[i]] = {};
-    cur = cur[keys[i]];
+    const key = keys[i];
+    if (blockedKeys.has(key)) return;
+
+    if (
+      !Object.prototype.hasOwnProperty.call(cur, key) ||
+      !cur[key] ||
+      typeof cur[key] !== "object"
+    ) {
+      cur[key] = {};
+    }
+
+    cur = cur[key];
   }
-  cur[keys[keys.length - 1]] = value;
+
+  const lastKey = keys[keys.length - 1];
+  if (blockedKeys.has(lastKey)) return;
+  cur[lastKey] = value;
 }
 
 const CSS_TO_DTCG_MAP = {
