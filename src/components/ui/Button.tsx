@@ -41,7 +41,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   // Tokens from @theme — durations and easings are mapped to Tailwind utilities
   // via design-tokens.css @theme inline block
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold transition-all duration-fast ease-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus/30 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus/30 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
   const variantStyles: Record<Variant, string> = {
     primary:
