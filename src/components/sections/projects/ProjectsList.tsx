@@ -162,7 +162,7 @@ export function ProjectsList() {
               const tile = (
                 <article className="ak-masonry-tile" role="listitem" key={p.id}>
                   <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
-                    <div className="ak-tile-media" style={{ aspectRatio: "4 / 3" }}>
+                    <div className="ak-tile-media">
                       {(() => {
                         const img = getProjectImageOrGradient(p.id);
                         return img.type === "image" ? (
@@ -176,8 +176,8 @@ export function ProjectsList() {
                           />
                         ) : (
                           <div
-                            className="ak-tile-img"
-                            style={{ background: img.style, width: "100%", height: "100%" }}
+                            className="ak-tile-img ak-tile-fallback"
+                            style={{ background: img.style }}
                             aria-hidden="true"
                           />
                         );

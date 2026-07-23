@@ -164,8 +164,8 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
           <span className="ak-success-ic">
             <Icon name="check" size={28} />
           </span>
-          <h3 style={{ margin: 0 }}>¡Mensaje enviado!</h3>
-          <p className="ak-principle-body" style={{ margin: 0, maxWidth: "36ch" }}>
+          <h3>¡Mensaje enviado!</h3>
+          <p className="ak-success-desc">
             Gracias{data.name ? `, ${data.name}` : ""}. Te respondo en menos de 24h.
           </p>
           <Button
@@ -206,7 +206,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         ))}
       </div>
       <div className="ak-progress">
-        <span style={{ width: `${((step + 1) / 3) * 100}%` }} />
+        <span className="ak-progress-bar" style={{ width: `${((step + 1) / 3) * 100}%` }} />
       </div>
 
       {/* honeypot anti-spam (oculto para humanos) */}
@@ -218,13 +218,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         aria-hidden
         value={data.website}
         onChange={(e) => set("website", e.target.value)}
-        style={{
-          position: "absolute",
-          left: "-9999px",
-          width: 1,
-          height: 1,
-          opacity: 0,
-        }}
+        className="ak-sr-only"
       />
 
       <div className="ak-fields">
@@ -251,7 +245,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
           <>
             <div className="ak-field">
               <label className="ak-label">Tipo de proyecto</label>
-              <div className="ak-chips" style={{ marginLeft: 0 }}>
+              <div className="ak-chips">
                 {PROJ_TYPES.map((t) => (
                   <button
                     key={t}
@@ -298,9 +292,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
               </div>
               <div className="ak-review-row">
                 <span className="lbl">Mensaje</span>
-                <span className="val" style={{ maxWidth: "60%" }}>
-                  {data.message || "(sin mensaje)"}
-                </span>
+                <span className="val ak-review-val">{data.message || "(sin mensaje)"}</span>
               </div>
             </div>
             <label className="ak-consent">
@@ -310,7 +302,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                 onChange={(e) => set("consent", e.target.checked)}
               />
               Acepto la{" "}
-              <Link href="/legal/privacidad" style={{ textDecoration: "underline" }}>
+              <Link href="/legal/privacidad" className="ak-link-underline">
                 política de privacidad
               </Link>{" "}
               y el tratamiento de mis datos.
@@ -334,7 +326,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
       <div className="ak-form-actions">
         {step > 0 ? (
           <Button variant="ghost" onClick={back}>
-            <Icon name="arrow-left" size={15} style={{ marginRight: 6 }} />
+            <Icon name="arrow-left" size={15} className="ak-ic-mr-sm" />
             Atrás
           </Button>
         ) : (
@@ -342,7 +334,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         )}
         {step < 2 ? (
           <Button variant="primary" onClick={next}>
-            Siguiente <Icon name="arrow-right" size={15} style={{ marginLeft: 6 }} />
+            Siguiente <Icon name="arrow-right" size={15} className="ak-ic-ml-sm" />
           </Button>
         ) : (
           <Button variant="primary" onClick={submit}>
@@ -387,7 +379,7 @@ function Calendar() {
           </button>
         </span>
       </div>
-      <div className="ak-byline-sub" style={{ marginBottom: 12 }}>
+      <div className="ak-byline-sub ak-cal-sub">
         {MONTHS[now.getMonth()]} {now.getFullYear()} · zona horaria detectada
       </div>
       <div className="ak-cal-dow">
@@ -410,7 +402,7 @@ function Calendar() {
           );
         })}
       </div>
-      <div className="ak-byline-sub" style={{ marginTop: 12 }}>
+      <div className="ak-byline-sub ak-cal-sub-top">
         {sel ? `Seleccionado: ${sel} · elige hora →` : "Reserva disponible · martes y jueves"}
       </div>
     </div>
@@ -424,15 +416,15 @@ function ContactViewInner({ utms }: { utms: UtmParams }) {
         <Eyebrow>contacto</Eyebrow>
         <h1 className="ak-page-title">¿Empezamos?</h1>
         <p className="ak-page-lead">¿Tienes un proyecto o reto técnico? Hablamos.</p>
-        <span className="ak-note" style={{ marginTop: 16 }}>
+        <span className="ak-note">
           <span className="ak-status-dot" />
           Disponible · respondo en ~24h
         </span>
       </section>
-      <section className="ak-section" style={{ paddingTop: 24 }}>
+      <section className="ak-section ak-section-pt-sm">
         <div className="ak-contact-grid">
           <MultiStepForm utms={utms} />
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="ak-flex-col-16">
             <Calendar />
             <div className="ak-panel">
               <div className="ak-side-group-t">Otros canales</div>
@@ -471,13 +463,13 @@ function ContactViewSkeleton() {
     <div className="ak-container">
       <section className="ak-contact-hero" data-screen-label="header">
         <div className="ak-skeleton ak-skeleton-eyebrow" />
-        <div className="ak-skeleton ak-skeleton-title" style={{ width: "50%", marginTop: 12 }} />
-        <div className="ak-skeleton ak-skeleton-text" style={{ width: "70%", marginTop: 8 }} />
+        <div className="ak-skeleton ak-skeleton-title" />
+        <div className="ak-skeleton ak-skeleton-text ak-skeleton-lead" />
       </section>
-      <section className="ak-section" style={{ paddingTop: 24 }}>
+      <section className="ak-section ak-section-pt-sm">
         <div className="ak-contact-grid">
           <div className="ak-form-card">
-            <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+            <div className="ak-skeleton-row">
               <div className="ak-skeleton ak-skeleton-step" />
               <div className="ak-skeleton ak-skeleton-step" />
               <div className="ak-skeleton ak-skeleton-step" />
@@ -485,7 +477,7 @@ function ContactViewSkeleton() {
             <div className="ak-skeleton ak-skeleton-input" />
             <div className="ak-skeleton ak-skeleton-input" />
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="ak-flex-col-16">
             <div className="ak-cal">
               <div className="ak-skeleton ak-skeleton-cal" />
             </div>

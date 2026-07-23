@@ -29,6 +29,9 @@ test.describe("/servicios", () => {
           errors.push(`[HTTP ${status}] ${url}`);
       }
     });
+    // Forzar reduced motion para que Framer Motion <Reveal> renderice el contenido
+    // sin animaciones de entrada y los tests puedan verificar visibilidad.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/servicios");
   });
 
@@ -36,10 +39,10 @@ test.describe("/servicios", () => {
     expect(errors).toEqual([]);
   });
 
-  test("el grid de pricing muestra las cards responsivas en desktop", async ({ page }) => {
+  test("el grid de pricing muestra 4 columnas en desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     const grid = page.locator(".ak-tiers-grid");
     await expect(grid).toBeVisible();
-    // El grid contiene 4 cards de proyecto; el DOM expone 4 nodos .ak-tier.
     await expect(grid.locator(".ak-tier")).toHaveCount(4);
 
     const styles = await grid.evaluate((el) => {
@@ -47,14 +50,23 @@ test.describe("/servicios", () => {
       return { display: s.display, gridTemplateColumns: s.gridTemplateColumns };
     });
     expect(styles.display).toBe("grid");
-    // auto-fit: el grid puede mostrar 2, 3 o 4 columnas según el ancho disponible.
-    const colCount = styles.gridTemplateColumns.split(" ").length;
-    expect(colCount).toBeGreaterThanOrEqual(2);
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(4);
+  });
+
+  test("el grid de pricing muestra 2 columnas en tablet", async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 800 });
+    const grid = page.locator(".ak-tiers-grid");
+    await expect(grid).toBeVisible();
+    const styles = await grid.evaluate((el) => {
+      return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
+    });
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(2);
   });
 
   test("el grid de pricing se apila en una columna en móvil", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     const grid = page.locator(".ak-tiers-grid");
+    await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
     });
@@ -79,9 +91,8 @@ test.describe("/servicios", () => {
     expect(styles.transform).not.toBe("none");
   });
 
-  test("la sección de extras se distribuye en columnas responsivas en desktop", async ({
-    page,
-  }) => {
+  test("la sección de extras muestra 4 columnas en desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
     const grid = page.locator(".ak-addons-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
@@ -89,9 +100,27 @@ test.describe("/servicios", () => {
       return { display: s.display, gridTemplateColumns: s.gridTemplateColumns };
     });
     expect(styles.display).toBe("grid");
-    // auto-fit: el grid puede mostrar 2, 3 o 4 columnas según el ancho disponible.
-    const colCount = styles.gridTemplateColumns.split(" ").length;
-    expect(colCount).toBeGreaterThanOrEqual(2);
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(4);
+  });
+
+  test("la sección de extras muestra 2 columnas en tablet", async ({ page }) => {
+    await page.setViewportSize({ width: 800, height: 800 });
+    const grid = page.locator(".ak-addons-grid");
+    await expect(grid).toBeVisible();
+    const styles = await grid.evaluate((el) => {
+      return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
+    });
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(2);
+  });
+
+  test("la sección de extras se apila en una columna en móvil", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    const grid = page.locator(".ak-addons-grid");
+    await expect(grid).toBeVisible();
+    const styles = await grid.evaluate((el) => {
+      return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
+    });
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(1);
   });
 
   test("el acordeón de FAQ abre y cierra", async ({ page }) => {

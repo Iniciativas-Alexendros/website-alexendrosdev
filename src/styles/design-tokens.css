@@ -135,7 +135,16 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
   /* ----- Layout ----- */
-  --container-max: 1280px;
+  --container-max: 1120px;
+
+  /* ----- Z-index scale ----- */
+  --z-base: 1;
+  --z-content: 10;
+  --z-sticky: 40;
+  --z-header: 50;
+  --z-overlay: 60;
+  --z-modal: 70;
+  --z-tooltip: 80;
 }
 
 /* ----------------------------------------------------------
