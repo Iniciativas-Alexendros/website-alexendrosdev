@@ -145,6 +145,7 @@
   }
   .ak-tile-link {
     display: block;
+    position: relative;
     background: hsl(var(--bg-elevated));
     border: 1px solid hsl(var(--border-subtle));
     border-radius: var(--radius-xl);
@@ -162,6 +163,7 @@
     border-color: hsl(var(--border));
   }
   .ak-tile-media {
+    position: relative;
     aspect-ratio: 4 / 3;
   }
   .ak-tile-img {
