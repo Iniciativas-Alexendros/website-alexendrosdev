@@ -1,14 +1,45 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("/servicios", () => {
+  const errors: string[] = [];
+
   test.beforeEach(async ({ page }) => {
+    errors.length = 0;
+    page.on("pageerror", (err) => errors.push(err.message));
+    page.on("console", (msg) => {
+      // Solo console.error() JS explícito; 404s HTTP los captura response listener
+      const text = msg.text();
+      if (
+        msg.type() === "error" &&
+        !text.includes("/_vercel/") &&
+        !text.includes("Failed to load resource")
+      )
+        errors.push(`[console.error] ${text}`);
+    });
+    page.on("response", (res) => {
+      const status = res.status();
+      if (status >= 400) {
+        const url = res.url();
+        // Filter out expected localhost-only 4xx (Vercel Analytics, Next.js internals)
+        if (
+          !url.includes("/_vercel/") &&
+          !url.includes("__nextjs") &&
+          !url.endsWith("/favicon.ico")
+        )
+          errors.push(`[HTTP ${status}] ${url}`);
+      }
+    });
     await page.goto("/servicios");
   });
 
-  test("el grid de pricing muestra las cards en 3 columnas en desktop", async ({ page }) => {
+  test.afterEach(() => {
+    expect(errors).toEqual([]);
+  });
+
+  test("el grid de pricing muestra las cards responsivas en desktop", async ({ page }) => {
     const grid = page.locator(".ak-tiers-grid");
     await expect(grid).toBeVisible();
-    // El grid contiene 3 cards de proyecto; el DOM expone 4 nodos .ak-tier debido a wrappers internos.
+    // El grid contiene 4 cards de proyecto; el DOM expone 4 nodos .ak-tier.
     await expect(grid.locator(".ak-tier")).toHaveCount(4);
 
     const styles = await grid.evaluate((el) => {
@@ -16,7 +47,9 @@ test.describe("/servicios", () => {
       return { display: s.display, gridTemplateColumns: s.gridTemplateColumns };
     });
     expect(styles.display).toBe("grid");
-    expect(styles.gridTemplateColumns.split(" ").length).toBe(3);
+    // auto-fit: el grid puede mostrar 2, 3 o 4 columnas según el ancho disponible.
+    const colCount = styles.gridTemplateColumns.split(" ").length;
+    expect(colCount).toBeGreaterThanOrEqual(2);
   });
 
   test("el grid de pricing se apila en una columna en móvil", async ({ page }) => {
@@ -46,7 +79,9 @@ test.describe("/servicios", () => {
     expect(styles.transform).not.toBe("none");
   });
 
-  test("la sección de extras se distribuye en 3 columnas en desktop", async ({ page }) => {
+  test("la sección de extras se distribuye en columnas responsivas en desktop", async ({
+    page,
+  }) => {
     const grid = page.locator(".ak-addons-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
@@ -54,7 +89,9 @@ test.describe("/servicios", () => {
       return { display: s.display, gridTemplateColumns: s.gridTemplateColumns };
     });
     expect(styles.display).toBe("grid");
-    expect(styles.gridTemplateColumns.split(" ").length).toBe(3);
+    // auto-fit: el grid puede mostrar 2, 3 o 4 columnas según el ancho disponible.
+    const colCount = styles.gridTemplateColumns.split(" ").length;
+    expect(colCount).toBeGreaterThanOrEqual(2);
   });
 
   test("el acordeón de FAQ abre y cierra", async ({ page }) => {

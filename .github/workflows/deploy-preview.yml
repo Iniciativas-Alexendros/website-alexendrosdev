@@ -54,7 +54,7 @@ jobs:
             --method POST \
             -f ref="${{ github.event.workflow_run.head_sha }}" \
             -f environment="Preview" \
-            -f auto_merge=false \
+            -F auto_merge=false \
             --jq '.id')
           gh api "repos/$GITHUB_REPOSITORY/deployments/$DEPLOY_ID/statuses" \
             --method POST \

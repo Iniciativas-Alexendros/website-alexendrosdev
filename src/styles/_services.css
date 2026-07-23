@@ -2,119 +2,121 @@
    BUGFIX — /servicios: missing component classes
    ===================================================================== */
 
-/* Pricing tier grid alias (.ak-tiers-grid) */
-.ak-tiers-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  align-items: center;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-@media (max-width: 900px) {
+@layer components {
+  /* Pricing tier grid alias (.ak-tiers-grid) */
   .ak-tiers-grid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    align-items: start;
+    max-width: 1000px;
+    margin: 0 auto;
   }
-}
+  @media (max-width: 900px) {
+    .ak-tiers-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
-/* Pro tier state when rendered as .ak-tier.pro (keep .ak-tier-pro for compat) */
-.ak-tier.pro {
-  border: 2px solid hsl(var(--primary-400));
-  transform: scale(1.03);
-  box-shadow: var(--elev-lg);
-}
-.dark .ak-tier.pro {
-  border-color: hsl(var(--primary-200));
-}
-.ak-tier.pro .ak-tier-name {
-  color: hsl(var(--text-link));
-}
+  /* Pro tier state when rendered as .ak-tier.pro (keep .ak-tier-pro for compat) */
+  .ak-tier.pro {
+    border: 2px solid hsl(var(--primary-400));
+    transform: scale(1.03);
+    box-shadow: var(--elev-lg);
+  }
+  .dark .ak-tier.pro {
+    border-color: hsl(var(--primary-200));
+  }
+  .ak-tier.pro .ak-tier-name {
+    color: hsl(var(--text-link));
+  }
 
-/* Add-ons inner grid (.ak-addons-grid) */
-.ak-addons-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
-@media (max-width: 900px) {
+  /* Add-ons inner grid (.ak-addons-grid) */
   .ak-addons-grid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
   }
-}
+  @media (max-width: 900px) {
+    .ak-addons-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 
-/* FAQ native <details>/<summary> */
-.ak-faq-item summary {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 17px 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font: 600 15px var(--font-sans);
-  color: hsl(var(--text-primary));
-  list-style: none;
-}
-.ak-faq-item summary::-webkit-details-marker {
-  display: none;
-}
-.ak-faq-item summary .ak-faq-icon {
-  color: hsl(var(--text-link));
-  transition: transform var(--duration-base);
-  flex: none;
-}
-.ak-faq-item[open] .ak-faq-icon {
-  transform: rotate(180deg);
-}
-.ak-faq-item .ak-faq-answer {
-  padding: 0 20px 18px;
-  font-size: var(--fs-body-sm);
-  line-height: 1.6;
-  color: hsl(var(--text-secondary));
-}
+  /* FAQ native <details>/<summary> */
+  .ak-faq-item summary {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font: 600 15px var(--font-sans);
+    color: hsl(var(--text-primary));
+    list-style: none;
+  }
+  .ak-faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .ak-faq-item summary .ak-faq-icon {
+    color: hsl(var(--text-link));
+    transition: transform var(--duration-base);
+    flex: none;
+  }
+  .ak-faq-item[open] .ak-faq-icon {
+    transform: rotate(180deg);
+  }
+  .ak-faq-item .ak-faq-answer {
+    padding: 0 20px 18px;
+    font-size: var(--fs-body-sm);
+    line-height: 1.6;
+    color: hsl(var(--text-secondary));
+  }
 
-/* Comparison table */
-.ak-comparison-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius-xl);
-  border: 1px solid hsl(var(--border-subtle));
-  background: hsl(var(--bg-elevated));
-  box-shadow: var(--elev-sm);
-}
-.ak-comparison {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-body-sm);
-}
-.ak-comparison th,
-.ak-comparison td {
-  padding: 14px 16px;
-  border-bottom: 1px solid hsl(var(--border-subtle));
-  text-align: left;
-}
-.ak-comparison thead th {
-  font-weight: 600;
-  color: hsl(var(--text-primary));
-  background: hsl(var(--bg-sunken));
-}
-.ak-comparison tbody tr:nth-child(even) {
-  background: hsl(var(--bg-sunken) / 0.5);
-}
-.ak-comparison tbody tr:last-child td {
-  border-bottom: none;
-}
+  /* Comparison table */
+  .ak-comparison-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-xl);
+    border: 1px solid hsl(var(--border-subtle));
+    background: hsl(var(--bg-elevated));
+    box-shadow: var(--elev-sm);
+  }
+  .ak-comparison {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-body-sm);
+  }
+  .ak-comparison th,
+  .ak-comparison td {
+    padding: 14px 16px;
+    border-bottom: 1px solid hsl(var(--border-subtle));
+    text-align: left;
+  }
+  .ak-comparison thead th {
+    font-weight: 600;
+    color: hsl(var(--text-primary));
+    background: hsl(var(--bg-sunken));
+  }
+  .ak-comparison tbody tr:nth-child(even) {
+    background: hsl(var(--bg-sunken) / 0.5);
+  }
+  .ak-comparison tbody tr:last-child td {
+    border-bottom: none;
+  }
 
-/* Lead CTA inner layout */
-.ak-cta-lead-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 20px;
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 56px 32px;
-}
+  /* Lead CTA inner layout */
+  .ak-cta-lead-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 56px 32px;
+  }
+} /* end @layer components */
