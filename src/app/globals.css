@@ -1,6 +1,11 @@
 @import "tailwindcss" source(none);
 @source "../../src/**/*.{ts,tsx,js,jsx,css}";
 @import "../styles/design-tokens.css";
+
+/* Custom components layer — all `ak-*` classes live here.
+   Cascade is managed by @layer components, not by @import order.
+   Tailwind utilities (same file, via @import "tailwindcss") sit
+   one layer above and can still override these component styles. */
 @import "../styles/site.css";
 @import "../styles/_services.css";
 @import "../styles/_projects.css";
