@@ -13,7 +13,7 @@
     display: none;
   }
   .sv-faq-item summary .sv-faq-icon {
-    @apply text-link transition-transform duration-base;
+    @apply text-link transition-transform duration-200;
   }
   .sv-faq-item[open] .sv-faq-icon {
     transform: rotate(180deg);
