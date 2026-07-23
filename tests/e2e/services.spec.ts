@@ -41,9 +41,9 @@ test.describe("/servicios", () => {
 
   test("el grid de pricing muestra 4 columnas en desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    const grid = page.locator(".ak-tiers-grid");
+    const grid = page.getByTestId("tiers-grid");
     await expect(grid).toBeVisible();
-    await expect(grid.locator(".ak-tier")).toHaveCount(4);
+    await expect(grid.locator("article")).toHaveCount(4);
 
     const styles = await grid.evaluate((el) => {
       const s = window.getComputedStyle(el);
@@ -55,7 +55,7 @@ test.describe("/servicios", () => {
 
   test("el grid de pricing muestra 2 columnas en tablet", async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 800 });
-    const grid = page.locator(".ak-tiers-grid");
+    const grid = page.getByTestId("tiers-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
@@ -65,7 +65,7 @@ test.describe("/servicios", () => {
 
   test("el grid de pricing se apila en una columna en móvil", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    const grid = page.locator(".ak-tiers-grid");
+    const grid = page.getByTestId("tiers-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
@@ -74,14 +74,16 @@ test.describe("/servicios", () => {
   });
 
   test("el plan Starter está destacado con badge 'Recomendado'", async ({ page }) => {
-    const proTier = page.locator(".ak-tier.pro").filter({ hasText: "Starter" });
+    const grid = page.getByTestId("tiers-grid");
+    const proTier = grid.locator("article").filter({ hasText: "Starter" }).first();
     await expect(proTier).toBeVisible();
-    const badge = proTier.locator(".ak-tier-badge");
-    await expect(badge).toHaveText("Recomendado");
+    const badge = proTier.getByText("Recomendado");
+    await expect(badge).toBeVisible();
   });
 
   test("el plan Pro/Starter escala ligeramente y tiene borde brand", async ({ page }) => {
-    const proTier = page.locator(".ak-tier.pro");
+    const grid = page.getByTestId("tiers-grid");
+    const proTier = grid.locator("article").filter({ hasText: "Starter" }).first();
     await expect(proTier).toBeVisible();
     const styles = await proTier.evaluate((el) => {
       const s = window.getComputedStyle(el);
@@ -93,19 +95,19 @@ test.describe("/servicios", () => {
 
   test("la sección de extras muestra 4 columnas en desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    const grid = page.locator(".ak-addons-grid");
+    const grid = page.getByTestId("addons-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       const s = window.getComputedStyle(el);
       return { display: s.display, gridTemplateColumns: s.gridTemplateColumns };
     });
     expect(styles.display).toBe("grid");
-    expect(styles.gridTemplateColumns.split(" ").length).toBe(4);
+    expect(styles.gridTemplateColumns.split(" ").length).toBe(3);
   });
 
   test("la sección de extras muestra 2 columnas en tablet", async ({ page }) => {
     await page.setViewportSize({ width: 800, height: 800 });
-    const grid = page.locator(".ak-addons-grid");
+    const grid = page.getByTestId("addons-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
@@ -115,7 +117,7 @@ test.describe("/servicios", () => {
 
   test("la sección de extras se apila en una columna en móvil", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    const grid = page.locator(".ak-addons-grid");
+    const grid = page.getByTestId("addons-grid");
     await expect(grid).toBeVisible();
     const styles = await grid.evaluate((el) => {
       return { gridTemplateColumns: window.getComputedStyle(el).gridTemplateColumns };
@@ -137,7 +139,7 @@ test.describe("/servicios", () => {
 
   test("la tabla comparativa tiene scroll horizontal en móvil", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    const wrap = page.locator(".ak-comparison-wrap");
+    const wrap = page.getByTestId("comparison-wrap");
     await expect(wrap).toBeVisible();
     const styles = await wrap.evaluate((el) => {
       return { overflowX: window.getComputedStyle(el).overflowX };

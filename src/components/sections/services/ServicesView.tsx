@@ -57,7 +57,7 @@ function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: nu
 function ComparisonTable() {
   return (
     <Reveal>
-      <div className="sv-comparison-wrap">
+      <div className="sv-comparison-wrap" data-testid="comparison-wrap">
         <table className="sv-comparison">
           <thead>
             <tr>
@@ -141,7 +141,10 @@ function AddonsSection() {
           <h2 className="ak-h2">Extras a la carta</h2>
           <p className="ak-section-sub">Servicios puntuales sin compromiso de continuidad.</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+          data-testid="addons-grid"
+        >
           {ADDONS.map((a, i) => (
             <Reveal key={i} delay={i * 0.06}>
               <article className="flex h-full flex-col rounded-xl border border-border-subtle bg-elevated p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
@@ -179,7 +182,10 @@ export default function ServicesView() {
               Tres niveles. Eliges el que encaja. Sin sorpresas, sin letra pequeña.
             </p>
           </div>
-          <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div
+            className="grid grid-cols-1 items-start gap-5 md:grid-cols-2 lg:grid-cols-4"
+            data-testid="tiers-grid"
+          >
             {TIERS.proyecto.map((t, i) => (
               <TierCard key={t.name} tier={t} index={i} />
             ))}
