@@ -1,17 +1,17 @@
 /* Arctic Ocean — Portfolio site styles. Pairs with ./colors_and_type.css tokens. */
 
-@layer components {
-
-/* Cascade fix: Tailwind v4 generates unlayered `a, .link` (max priority),
-   which overrides utility classes like `text-on-primary` on <a> elements.
-   This rule restores the correct text color on primary buttons rendered as <a>.
-   Specificity (0,2,0) via :where(a):is(.class) beats unlayered `a` (0,0,1). */
+/* Cascade fix: This MUST stay unlayered to beat the unlayered `a { color }` from
+   design-tokens.css (unlayered > any layered style regardless of specificity).
+   Tailwind v4 generates unlayered `a, .link` (max priority) which overrides
+   utility classes like `text-on-primary` on <a> elements. */
 :where(a):is(.bg-primary, .bg-cta, .text-on-primary) {
   color: hsl(var(--text-on-primary));
 }
 :where(a):is(.bg-primary, .bg-cta, .text-on-primary):hover {
   color: hsl(var(--text-on-primary));
 }
+
+@layer components {
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
