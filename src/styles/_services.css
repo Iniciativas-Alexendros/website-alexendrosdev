@@ -6,9 +6,9 @@
   /* Pricing tier grid alias (.ak-tiers-grid) */
   .ak-tiers-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
-    align-items: center;
+    align-items: start;
     max-width: 1000px;
     margin: 0 auto;
   }
@@ -34,7 +34,7 @@
   /* Add-ons inner grid (.ak-addons-grid) */
   .ak-addons-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 18px;
   }
   @media (max-width: 900px) {

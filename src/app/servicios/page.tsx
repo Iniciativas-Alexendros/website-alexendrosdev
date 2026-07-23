@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
   return (
-    <>
+    <div className="ak-container">
       <JsonLd data={makeProfessionalServiceJsonLd()} />
       <ServicesView />
-    </>
+    </div>
   );
 }
