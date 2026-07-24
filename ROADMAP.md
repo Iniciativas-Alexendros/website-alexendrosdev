@@ -14,17 +14,16 @@
 
 ## REESTRUCTURACIÓN 2026-07-12 (auditoría → nuevo orden de prioridades)
 
-> La auditoría previa (`docs/AUDITORIA-CRITICA.md`, base F10) está **obsoleta**: los defectos
-> DEFECTO-001/002/003/004/005/007 ya están resueltos en código. La auditoría del 2026-07-12
-> detectó que el problema real es de **orden de inversión**: se construyó automatización interna
-> (CRM, Notion sync, agentes IA) antes de las bases para vender y parecer profesional.
-> Plan completo: `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md`.
+> La auditoría del 2026-07-12 detectó que el problema real era de **orden de inversión**: se
+> construyó automatización interna (CRM, Notion sync, agentes IA) antes de las bases para vender y
+> parecer profesional. Los defectos previos de la auditoría DEFECTO-001..007 ya están resueltos en
+> código.
 >
 > **Nuevo orden (P0→P4):** P0 hardening seguridad del código nuevo · P1 Profesionalización &
 > Comercialización (prioridad) · P2 Monitorización (F17 sube) · P3 Agentes IA mínimo/congelar ·
 > P4 Pulido & gates CI. Decisiones: comercializar primero; tiers de proyecto = "a consultar".
 >
-> **Hallazgos NUEVO-1..10 (ver plan de reestructuración):**
+> **Hallazgos NUEVO-1..10:**
 > ✅ NUEVO-1 (timing-safe + rate-limit) — RESUELTO: `crm-auth.ts` usa `timingSafeEqual` + rate-limit 30/min IP
 > ✅ NUEVO-2 (ruta /tasks) — RESUELTO: `src/app/api/crm/tasks/route.ts` con GET/POST
 > ✅ NUEVO-3 (notion-webhook traga errores) — RESUELTO: devuelve 500 en fallos de persistencia
@@ -206,8 +205,8 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 | 11.3 | Deprecar `checkout.ts` (reexporta `PURCHASABLES` desde catálogo para compatibilidad)                            | hecho  | 11.1    | —             |
 | 11.4 | `formatPrice` en `checkout.ts` (locale `es-ES`)                                                                 | hecho  | 11.3    | F12           |
 
-> Spec: `specs/catalog-pipeline-stripe/spec.md` RF1. Precios server-trusted (céntimos). Verificados
-> y sin TODOs. 10 tests unit green en `tests/unit/catalog.test.ts` (T1.1–T1.10 del test-plan).
+> Precios server-trusted (céntimos). Verificados y sin TODOs. 10 tests unit green en
+> `tests/unit/catalog.test.ts` (T1.1–T1.10).
 
 ## F12 · Checkout unified (subscription mode)
 
@@ -349,7 +348,107 @@ Handlers, validación, rate-limit, degradación null-safe) y las islas cliente.
 
 ---
 
-## Tracks paralelos (reestructuración 2026-07-12)
+## F19 · Design System Truth — Auditoría y saneamiento CSS
+
+> Auditoría completa del design system iniciada 2026-07-24. 4 fases (F0-F3) + 2 batches de
+> auto-fix. **Pendiente de commit**: todos los cambios están staged/modificados en el working tree.
+>
+> Spec central: `specs/design-system-truth/`. Especifica 12 RFs, 48 ACs, 24 tests planificados,
+> scoreboard ponderado con 6 dimensiones.
+>
+> Resultado scoreboard real (tras F0-F3 + batch2 + batch3):
+>
+> | Dimensión        | Score auditoría | Score corregido |
+> | ---------------- | --------------- | --------------- |
+> | Token system     | 90% (erróneo)   | 100%            |
+> | Componentes UI   | 40%             | 65%             |
+> | ARIA / A11y      | 55%             | 55%             |
+> | CSS Architecture | 35%             | 85%             |
+> | Documentación    | 25%             | 80%             |
+> | Testing / QA     | 30%             | 70%             |
+> | **Global**       | **47%**         | **76%**         |
+
+### F19.0 · Fundaciones — audit + spec + tests (wt/design-system-truth-f0)
+
+| #   | Tarea                                                                          | Estado | Bloquea | Desbloquea |
+| --- | ------------------------------------------------------------------------------ | ------ | ------- | ---------- |
+| 0.1 | Crear 7 unit tests F0 (design-system-audit, css-invariants, z-index-tokens, …) | hecho  | —       | 0.2        |
+| 0.2 | Endurecer `scripts/audit-hardcoded-colors.mjs`                                 | hecho  | 0.1     | 0.3        |
+| 0.3 | Crear `scripts/audit-spec-coherence.mjs` — auto-validador cross-ref RF↔AC↔TU   | hecho  | 0.2     | F19.1      |
+
+### F19.1 · DESIGN.md reescritura — errores factuales corregidos + 5 secciones nuevas
+
+| #   | Tarea                                                                                                                                | Estado | Bloquea | Desbloquea |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------ | ------ | ------- | ---------- |
+| 1.1 | Corregir ERROR 1 (z-index existe, eliminado ❌ de gaps) + ERROR 2 (reescribir §2.6) + ERROR 3 (§2.17 RSC) + ERROR 4 (score 90%→100%) | hecho  | F19.0   | F19.2      |
+| 1.2 | Añadir §6 Mapa de Archivos CSS, §7 Regla ak-* vs Tailwind, §8 ADR Cascade, §9 Animations, §10 Inventario de clases ak-*              | hecho  | 1.1     | —          |
+
+### F19.2 · CSS refactor — dedups + tokens + keyframes + ":where" + ServicesView
+
+> Implementa RF6-RF10 del spec.
+
+| #   | Tarea                                                                        | Estado | Bloquea | Desbloquea |
+| --- | ---------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 2.1 | RF6: Mover @keyframes rise/reveal/bob/pulse-ring/blink/marquee a site.css    | hecho  | F19.1   | 2.2        |
+| 2.2 | RF7: Deduplicar DUP-1..9 (ak-btn gap, ak-eyebrow, ak-form-card, skeleton, …) | hecho  | 2.1     | 2.3        |
+| 2.3 | RF8: Crear tokens --container-px, --header-height, --fs-price, --fs-metric   | hecho  | 2.2     | 2.4        |
+| 2.4 | RF9: Extender :where(a):is() a 11 selectores (antes 3) + ampliar .dark       | hecho  | 2.3     | 2.5        |
+| 2.5 | RF10: Mover ServicesView.css → _services.css + eliminar import duplicado     | hecho  | 2.4     | —          |
+
+### F19.3 · Verification — snapshots, axe, CWV
+
+| #   | Tarea                                                                    | Estado         | Bloquea | Desbloquea |
+| --- | ------------------------------------------------------------------------ | -------------- | ------- | ---------- |
+| 3.1 | Playwright visual snapshots de las 3 cards (Purchase, Transfer, Contact) | hecho (código) | F19.2   | —          |
+| 3.2 | axe-core gates en /contacto, /checkout, /proyectos, /blog, /stack        | hecho (código) | F19.2   | —          |
+| 3.3 | Lighthouse CWV baseline + reporte                                        | hecho (código) | F19.2   | —          |
+| 3.4 | TE-* snapshots lock-in en spec design-system-truth                       | hecho (código) | 3.1-3.3 | —          |
+
+### F19.4 · Batch2 — Auto-fix token fallbacks + sub-spec
+
+> Especificado en `specs/design-system-fixes-batch2/` como sub-spec delta de `design-system-truth/`.
+
+| #   | Tarea                                                                              | Estado    | Bloquea | Desbloquea |
+| --- | ---------------------------------------------------------------------------------- | --------- | ------- | ---------- |
+| 4.1 | PurchaseCard.tsx L216+L231: var(--ak-border, rgba(…)) → hsl(var(--border))         | hecho     | F19.2   | 4.2        |
+| 4.2 | Nota de deprecation en DESIGN.md §1 para 18 unused legacy tokens                   | pendiente | 4.1     | 4.3        |
+| 4.3 | Sub-spec design-system-fixes-batch2 (spec/contract/scenarios/test-plan) 4 archivos | hecho     | 4.1     | —          |
+| 4.4 | Tests TU-1.* (unit) + TE-1.* (e2e axe+computed-style) lock-in                      | hecho     | 4.3     | —          |
+
+### F19.5 · Batch3 — Parser nested-parens + fix-token-coverage rewrite
+
+> Bug real: regex `[^()]*` silenciosamente fallaba con fallbacks que contenían paréntesis
+> anidados (rgba(), hsl(var(--x)), calc(), clamp(), color-mix()). Script emitía exit 0
+> mintiendo "ya aplicado". Solución: linear scanner O(N) con depth counter.
+
+| #   | Tarea                                                                                                                         | Estado | Bloquea | Desbloquea |
+| --- | ----------------------------------------------------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 5.1 | `scripts/utils/css-var-parser.mjs` — linear scanner con paren-depth + 4-state machine                                         | hecho  | —       | 5.2        |
+| 5.2 | `tests/unit/css-var-parser.test.ts` — 48 stress tests en 7 categorías (happy/nested/edge/chained/false-positive/modern/apply) | hecho  | 5.1     | 5.3        |
+| 5.3 | `scripts/fix-token-coverage.mjs` reescrito — applyVarReplacements con auto-detect quote wrapping                              | hecho  | 5.2     | —          |
+
+### F19.6 · Audit scripts + dashboards
+
+| #   | Tarea                                                                                       | Estado | Bloquea | Desbloquea |
+| --- | ------------------------------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 6.1 | `scripts/audit-token-coverage.mjs` — tokens definidos vs usados, hardcoded literales en JSX | hecho  | —       | 6.4        |
+| 6.2 | `scripts/audit-spec-coherence.mjs` — cross-ref RF↔AC↔TU/TE↔fuera, orphan detection          | hecho  | —       | 6.4        |
+| 6.3 | `scripts/coverage-trend.mjs` — sparkline histórico de coverage % sobre últimos 20 commits   | hecho  | 6.1     | 6.4        |
+| 6.4 | `scripts/audit-design-system.mjs` — dashboard unificado de los 3 audit scripts anteriores   | hecho  | 6.1-6.3 | —          |
+| 6.5 | Wire-up `pnpm audit:tokens`, `pnpm spec:audit`, `pnpm design:audit:batch2` en package.json  | hecho  | 6.4     | —          |
+
+### F19.7 · Cleanup — archivos descatalogados eliminados
+
+| #   | Tarea                                                                   | Estado | Bloquea | Desbloquea |
+| --- | ----------------------------------------------------------------------- | ------ | ------- | ---------- |
+| 7.1 | Eliminar `specs/catalog-pipeline-stripe/` (contenido migrado a trunk)   | hecho  | —       | —          |
+| 7.2 | Eliminar `.cursorignore`, `.superpowers/` (herramienta descatalogada)   | hecho  | —       | —          |
+| 7.3 | Eliminar `docs/superpowers/` (contenido obsoleto, backup si necesario)  | hecho  | —       | —          |
+| 7.4 | Eliminar `docs/AUDITORIA-CRITICA.md` (reemplazado por auditorías vivas) | hecho  | —       | —          |
+
+---
+
+## Tracks paralelos (reestructuración 2026-07-12, actualizada 2026-07-24)
 
 Nuevo orden por prioridad de negocio (ver plan). P0→P4 secuencia; P1 y P2 en paralelo.
 
@@ -361,15 +460,18 @@ P0 ─────────────────────────�
                                    P3 (Agentes IA F15: mínimo/congelar)
                                      │
                                    P4 (Pulido & gates CI)
+                                     │
+                                   P5 (Design System Truth — saneamiento CSS)
 ```
 
-| Track | Fase | Nombre                                | Depende de         |
-| ----- | ---- | ------------------------------------- | ------------------ |
-| 0     | P0   | Hardening seguridad del código nuevo  | F14, F14b          |
-| 1     | P1   | Profesionalización & Comercialización | P0                 |
-| 2     | P2   | Monitorización full-stack (F17)       | — (paralelo a P1)  |
-| 3     | P3   | Agentes IA (F15) mínimo/congelar      | P0.2 (ruta /tasks) |
-| 4     | P4   | Pulido & gates CI                     | P1, P2             |
+| Track | Fase | Nombre                                | Depende de              |
+| ----- | ---- | ------------------------------------- | ----------------------- |
+| 0     | P0   | Hardening seguridad del código nuevo  | F14, F14b               |
+| 1     | P1   | Profesionalización & Comercialización | P0                      |
+| 2     | P2   | Monitorización full-stack (F17)       | — (paralelo a P1)       |
+| 3     | P3   | Agentes IA (F15) mínimo/congelar      | P0.2 (ruta /tasks)      |
+| 4     | P4   | Pulido & gates CI                     | P1, P2                  |
+| 5     | P5   | Design System Truth (F19)             | commit del working tree |
 
 ## Configuración pendiente del operador
 
@@ -385,15 +487,17 @@ sin ellas (degradación null-safe al estilo Stripe/Resend).
 
 ## Desbloqueos recientes
 
-- **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK. Detalle en F7-activ. + F7-activ.5b dentro de F7.
+- **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK.
 - **F14 + F14b** (2026-07-09): webhook ampliado + CRM REST (8 endpoints) + pipeline 9 stages + Notion sync. 229 tests, 32 files, 0 lint/typecheck.
 - **F11 + F12 + F13** (2026-07-05): catálogo unificado, checkout unified (subscription mode) y canal secundario implementados y desplegados.
+- **F19 · Design System Truth** (2026-07-24): auditoría completa CSS + 3 batches de saneamiento + 5 audit scripts + 2 specs activos. **Pendiente de commit.**
 
 ## Referencias
 
-- **Reestructuración 2026-07-12:** `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md` (nuevo orden P0→P4 + hallazgos NUEVO-1..10)
-- Auditoría previa (obsoleta, base F10): `docs/AUDITORIA-CRITICA.md`
-- Specs: `specs/catalog-pipeline-stripe/` · `docs/superpowers/specs/2026-07-11-roadmap-reformulation-design.md`
+- Specs activos:
+  - `specs/design-system-truth/` — single source of truth del design system (12 RFs, 48 ACs, 24 tests)
+  - `specs/design-system-fixes-batch2/` — sub-spec delta (RF11-RF13, token coverage 90%)
+- Especificación archivada: `docs/archive/2026-07-09-f15-agentes-ia-design.md` (histórico F15, congelado en P3)
 - Arquitectura: `ARCHITECTURE.md` — stack, rutas, modelos, testing
 - Testing: `tests/README.md` — pirámide completa, patrones, cobertura
-- AGENTS.md: contexto del proyecto, comandos, infraestructura, variables
+- AGENTS.md: contexto del proyecto, comandos, infraestructura, variables, métricas actuales

@@ -1,17 +1,54 @@
 /* =====================================================================
    SERVICES — remaining global styles not yet migrated to Tailwind
+   + contenido migrado de src/components/sections/services/ServicesView.css (RF10)
    ===================================================================== */
 
 @layer components {
-  /* FAQ base layout kept as a semantic hook; visual details moved to
-     ServicesView.css via @apply so the <details> state still works. */
+  /* ---- FAQ con <details>/<summary> ---- */
   .ak-faq {
     display: flex;
     flex-direction: column;
   }
+  .sv-faq-item summary {
+    @apply w-full flex justify-between items-center gap-3 py-4 px-5 bg-transparent border-none cursor-pointer text-left font-semibold text-base text-foreground;
+    list-style: none;
+  }
+  .sv-faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .sv-faq-item summary .sv-faq-icon {
+    @apply text-link transition-transform duration-200;
+  }
+  .sv-faq-item[open] .sv-faq-icon {
+    transform: rotate(180deg);
+  }
+  .sv-faq-item .sv-faq-answer {
+    @apply px-5 pb-4 text-sm leading-relaxed text-text-secondary;
+  }
 
-  /* Lead CTA section wrapper (layout shared with other pages) */
+  /* ---- Tabla comparativa ---- */
+  .sv-comparison-wrap {
+    @apply overflow-x-auto rounded-xl border border-border-subtle bg-elevated shadow-sm;
+  }
+  .sv-comparison {
+    @apply w-full border-collapse text-sm;
+  }
+  .sv-comparison th,
+  .sv-comparison td {
+    @apply p-4 border-b border-border-subtle text-left;
+  }
+  .sv-comparison thead th {
+    @apply font-semibold text-foreground bg-sunken;
+  }
+  .sv-comparison tbody tr:nth-child(even) {
+    background: hsl(var(--bg-sunken) / 0.5);
+  }
+  .sv-comparison tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* ---- Lead CTA section wrapper (shared with /servicios y otras páginas) ---- */
   .ak-cta-lead {
-    /* background, spacing and children styles remain in site.css */
+    /* background, spacing y children styles viven en site.css.ak-cta* */
   }
 } /* end @layer components */

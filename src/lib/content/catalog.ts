@@ -12,7 +12,6 @@ import type { CatalogItem, CatalogItemType, CatalogCategory } from './types'
 // `price_data` si falta el ID del modo activo.
 //
 // Precios verificados y coherentes con el ancla publicada (~€40-45/h).
-// Sin TODOs: ver specs/catalog-pipeline-stripe/contract.md para detalle.
 
 export const CATALOG: CatalogItem[] = [
   // ─── Addons (one_time, comprables directos) ──────────────────────

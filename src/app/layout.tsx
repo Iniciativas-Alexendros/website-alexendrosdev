@@ -30,7 +30,10 @@ const jetbrainsMono = JetBrains_Mono({
 
 const SITE_URL = "https://alexendros.dev";
 
-const SITE_TITLE = "Alejandro Domingo Agustí · Desarrollo a medida en Valencia";
+// Brand-first title: "Alexendros" debe aparecer para que el regex te-3.1
+// `expect(page).toHaveTitle(/Alexendros/)` pase, manteniendo el nombre completo
+// para smoke.spec.ts que espera /Alejandro Domingo Agustí/.
+const SITE_TITLE = "Alexendros · Alejandro Domingo Agustí · Desarrollo a medida en Valencia";
 const SITE_DESCRIPTION =
   "Desarrollo plataformas, webs y aplicaciones a medida en Valencia. Tecnología moderna, código que es tuyo y precios pensados para empresas nuevas y pequeñas.";
 const OG_IMAGE = "/opengraph-image";
@@ -70,7 +73,10 @@ export const metadata: Metadata = {
 
 // Script bloqueante: aplica el tema antes del primer paint para evitar el
 // flash de tema incorrecto. Lee localStorage 'ao-theme' (igual que el toggle).
-const themeScript = `(function(){try{var t=localStorage.getItem('ao-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');}catch(e){}})();`;
+// Mantiene en sincronía tanto classList("dark") como el atributo
+// data-theme="dark|light" — este último es el contrato del e2e gate te-3.1
+// ("theme toggle flips data-theme on <html>").
+const themeScript = `(function(){try{var t=localStorage.getItem('ao-theme');var wantDark=(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches));document.documentElement.setAttribute('data-theme',wantDark?'dark':'light');document.documentElement.classList.toggle('dark',wantDark);}catch(e){}})();`;
 
 export default async function RootLayout({
   children,

@@ -138,11 +138,11 @@ export const easingValues = {
 // ─── Shadows ────────────────────────────────────────────────────────────────
 
 export const shadow = {
-  sm: "0 1px 2px hsl(213 30% 15% / 0.05)",
-  md: "0 4px 12px hsl(213 30% 15% / 0.08)",
-  lg: "0 12px 40px hsl(213 30% 15% / 0.12)",
-  xl: "0 24px 60px hsl(213 30% 15% / 0.16)",
-  focus: "0 0 0 3px hsl(214 38% 47% / 0.3)",
+  sm: `0 1px 2px ${hslWithOpacity(colors.text.primary, 0.05)}`,
+  md: `0 4px 12px ${hslWithOpacity(colors.text.primary, 0.08)}`,
+  lg: `0 12px 40px ${hslWithOpacity(colors.text.primary, 0.12)}`,
+  xl: `0 24px 60px ${hslWithOpacity(colors.text.primary, 0.16)}`,
+  focus: `0 0 0 3px ${hslWithOpacity(colors.border.focus, 0.3)}`,
 } as const;
 
 // ─── Layout ─────────────────────────────────────────────────────────────────

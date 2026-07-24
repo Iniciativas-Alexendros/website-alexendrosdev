@@ -281,6 +281,24 @@ lo que permite alternar test ↔ live dentro de la misma suite.
 
 ```
 
+## Specs y artefactos de diseño
+
+**Spec única activa**: `specs/design-system-truth/` es la single source of truth del design
+system (4 artifacts: `spec.md` · `contract.md` · `scenarios.md` · `test-plan.md`). Auto-validador
+`scripts/audit-spec-coherence.mjs` cross-referencia RF↔AC↔TU/TE/TS↔filesystem y reporta el score
+global. Orquestador `scripts/audit-design-system.mjs` combina tokens + colors + spec en un
+scoreboard unificado con semáforo.
+
+**Histórico archivado**: `docs/archive/` contiene artifacts cuyo ciclo de planificación
+concluyó:
+
+- `docs/archive/2026-07-09-f15-agentes-ia-design.md` — diseño Agentes IA (F15 congelado en P3).
+
+**Fases F11–F16 (catálogo + checkout + CRM) sin spec externa.** Las decisiones contractuales vividas
+hoy son los tests (`tests/unit/catalog.test.ts`, `tests/integration/{checkout,crm-*}.test.ts`,
+`tests/integration/stripe-webhook.test.ts`) y `tests/README.md`. Códigos hash de las fases
+consolidadas: F11 (catálogo) `bbbc6a8`, F14+F14b (CRM + Notion) `3c8fbd8`.
+
 ## Monitorización y salud (F17, Track P2)
 
 > Track P2 en paralelo a F18 (P1). `/api/health` ya existe; SigNoz/OTel y alertas están planificadas.

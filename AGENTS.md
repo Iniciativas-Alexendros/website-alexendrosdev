@@ -22,46 +22,49 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | Contenido          | Módulos TS tipados (`src/lib/content/`) + blog MDX (`content/blog/`)                            |
 | Backend            | Route Handlers + zod + Prisma/Supabase + Stripe Checkout + Resend + React Email                 |
 | Catálogo unificado | `src/lib/content/catalog.ts` — fuente de verdad de precios (céntimos), server-trusted           |
-| Calidad            | ESLint, Prettier, tsc, Vitest (47 ficheros, 436 tests), Playwright + axe, Lighthouse/CWV        |
+| Calidad            | ESLint, Prettier, tsc, Vitest (61 ficheros, 600 tests), Playwright + axe, Lighthouse/CWV        |
 | Gestor             | pnpm 11.5.2                                                                                     |
 
 ### Fases (ROADMAP.md)
 
-| Fase     | Nombre                                                                           | Estado                                                                                                           |
-| -------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| F0       | Prepare — cimientos, docs, repo                                                  | hecho                                                                                                            |
-| F1       | Sistema de diseño y layout global                                                | hecho                                                                                                            |
-| F2       | Páginas estáticas                                                                | hecho                                                                                                            |
-| F3       | Contenido dinámico                                                               | hecho                                                                                                            |
-| F4       | Backend (Init) — Prisma, Supabase, Resend, formularios                           | parcial (4.3 bloqueado por `RESEND_API_KEY`)                                                                     |
-| F5       | SEO, a11y, performance                                                           | parcial (5.3 CWV sin medición real)                                                                              |
-| F6       | Verify & Consolidate — valoradores, CI, deploy                                   | hecho (6.4 deploy resuelto vía Git nativo Vercel)                                                                |
-| F7       | Pagos (Stripe Checkout) — client, checkout, webhook, UI                          | **hecho** (live activo, F7.5 completado vía F7-activ.)                                                           |
-| F8       | Deploy automatizado (Vercel)                                                     | hecho (integración Git nativa, workflow CLI descartado)                                                          |
-| F9       | Escaparate + deploy en vivo                                                      | hecho                                                                                                            |
-| F10      | Estrategia de testing — pirámide completa, gate cobertura                        | hecho (150 tests, gate 93/86/95/92)                                                                              |
-| **F11**  | Catálogo unificado (`catalog.ts`, refactor `services.ts`/`checkout.ts`)          | **hecho** — 10 tests unit green                                                                                  |
-| **F12**  | Checkout unified (subscription mode)                                             | **hecho** — 6 tests integración green                                                                            |
-| **F13**  | Canal secundario (transferencia + Stripe Payment Link fallback)                  | **hecho** — 10 tests integración green                                                                           |
-| **F14**  | Webhook ampliado + CRM API (8 handlers REST) + Pipeline 9 stages + 3 migraciones | **hecho** — 188 tests, commit `bbbc6a8`                                                                          |
-| **F14b** | Notion bidirectional sync (client, mapper, outbound, inbound webhook)            | **hecho** — 219 tests, commit `3c8fbd8`                                                                          |
-| **F15**  | Agentes IA + Hardening (TS integrado, Gemini 3.5 Flash + Zen)                    | **parcial (código hecho)** — re-priorizado a **P3 (mínimo/congelar)**; véase ROADMAP reestructuración 2026-07-12 |
-| **F16**  | E2E + Gates finales — lock-in cobertura 85/80/85/85                              | **hecho** — gates finales completados; desbloquea F18/F17                                                        |
-| **F17**  | Monitorización full-stack (SigNoz, health, alertas)                              | **parcial** (`/api/health` hecho) — en curso en paralelo (**Track P2**)                                          |
-| **F18**  | Contenido & Marketing (blog, newsletter, analytics)                              | **pendiente — próximo foco P1** (Track P1)                                                                       |
+| Fase     | Nombre                                                                           | Estado                                                                    |
+| -------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| F0       | Prepare — cimientos, docs, repo                                                  | hecho                                                                     |
+| F1       | Sistema de diseño y layout global                                                | hecho                                                                     |
+| F2       | Páginas estáticas                                                                | hecho                                                                     |
+| F3       | Contenido dinámico                                                               | hecho                                                                     |
+| F4       | Backend (Init) — Prisma, Supabase, Resend, formularios                           | parcial (4.3 bloqueado por `RESEND_API_KEY`)                              |
+| F5       | SEO, a11y, performance                                                           | parcial (5.3 CWV sin medición real)                                       |
+| F6       | Verify & Consolidate — valoradores, CI, deploy                                   | hecho (6.4 deploy resuelto vía Git nativo Vercel)                         |
+| F7       | Pagos (Stripe Checkout) — client, checkout, webhook, UI                          | **hecho** (live activo, F7.5 completado vía F7-activ.)                    |
+| F8       | Deploy automatizado (Vercel)                                                     | hecho (integración Git nativa, workflow CLI descartado)                   |
+| F9       | Escaparate + deploy en vivo                                                      | hecho                                                                     |
+| F10      | Estrategia de testing — pirámide completa, gate cobertura                        | hecho (gate 85/70/88/85, ver ROADMAP)                                     |
+| **F11**  | Catálogo unificado (`catalog.ts`, refactor `services.ts`/`checkout.ts`)          | **hecho** — 10 tests unit green                                           |
+| **F12**  | Checkout unified (subscription mode)                                             | **hecho** — 6 tests integración green                                     |
+| **F13**  | Canal secundario (transferencia + Stripe Payment Link fallback)                  | **hecho** — 10 tests integración green                                    |
+| **F14**  | Webhook ampliado + CRM API (8 handlers REST) + Pipeline 9 stages + 3 migraciones | **hecho** — 188 tests                                                     |
+| **F14b** | Notion bidirectional sync (client, mapper, outbound, inbound webhook)            | **hecho** — 219 tests                                                     |
+| **F15**  | Agentes IA + Hardening (TS integrado, Gemini 3.5 Flash + Zen)                    | **parcial (código hecho)** — re-priorizado a **P3 (mínimo/congelar)**     |
+| **F16**  | E2E + Gates finales — lock-in cobertura 85/80/85/85                              | **hecho** — gates finales completados                                     |
+| **F17**  | Monitorización full-stack (SigNoz, health, alertas)                              | **parcial** (`/api/health` hecho) — **Track P2**                          |
+| **F18**  | Contenido & Marketing (blog, newsletter, analytics)                              | **pendiente — Track P1**                                                  |
+| **F19**  | Design System Truth — auditoría y saneamiento CSS                                | **hecho (código)** — 8 fases completadas, **pendiente de commit y merge** |
 
-> **Reestructuración 2026-07-12 (auditoría):** nuevo orden P0→P4 en `ROADMAP.md` y
-> `docs/superpowers/plans/2026-07-12-roadmap-restructuring-plan.md`. Prioridad = comercializar
-> primero; tiers de proyecto = "a consultar".
+> **Reestructuración 2026-07-12 (auditoría), actualizada 2026-07-24:**
+> nuevo orden P0→P4 + P5 (Design System Truth) en `ROADMAP.md`.
+> Tras merge del working tree actual, se retoma P1/F18.
 
 ### Specs activos
 
-`specs/catalog-pipeline-stripe/` — 4 artifacts:
+| Spec                          | Archivos | RFs | ACs | Tests planif. | Descripción                           |
+| ----------------------------- | -------- | --- | --- | ------------- | ------------------------------------- |
+| `design-system-truth/`        | 4        | 12  | 48  | 24            | Single source of truth del design sys |
+| `design-system-fixes-batch2/` | 4        | 3   | 12  | 11            | Sub-spec delta (token fallbacks)      |
 
-- `spec.md` — requerimientos RF1-RF7, criterios AC1-AC23, DAG de dependencias
-- `contract.md` — schemas Zod, Shape de API, migraciones, variables de entorno
-- `scenarios.md` — happy paths (HP1-HP7), edge cases (EC1-EC13), diagramas de flujo
-- `test-plan.md` — 104 tests planificados (F11-F16), instrucciones para el modelo que el sistema recomiende como orquestador
+**Auto-validador**: `scripts/audit-spec-coherence.mjs` — cross-reference RF↔AC↔TU/TE↔en-`tests/`, emite dashboard de coherencia.
+
+Archivados (referencia histórica, no activos): `docs/archive/2026-07-09-f15-agentes-ia-design.md` — diseño Agentes IA (F15 congelado en P3).
 
 ### Comandos
 
@@ -81,7 +84,7 @@ pnpm format           # Prettier --write
 
 ### Testing
 
-Pirámide completa documentada en `tests/README.md`. **436 tests**, 47 ficheros.
+Pirámide completa documentada en `tests/README.md`. **600 tests**, **61 ficheros** (11 nuevos del proyecto Design System Truth).
 
 Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 
@@ -93,6 +96,22 @@ Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 | Lines      | **91.42%** ≥ 85% ✅ |
 
 **Todos los gates superados.** Branches subió de 72.08% → 80.00% (+7.92 pp) en esta sesión.
+
+**Tests nuevos (Design System Truth, F19):**
+
+| Archivo                              | Tipo | Tests | Categoría                              |
+| ------------------------------------ | ---- | ----- | -------------------------------------- |
+| `design-system-audit.test.ts`        | unit | T0.1  | Tokens z-index, DESIGN.md truths       |
+| `css-invariants.test.ts`             | unit | T0.2  | Reglas de cascade, colores             |
+| `z-index-tokens.test.ts`             | unit | T0.3  | Z-index scale completa                 |
+| `header-height.test.ts`              | unit | T0.4  | Token header-height                    |
+| `css-architecture.test.ts`           | unit | T0.5  | Archivos CSS, @layer, imports          |
+| `css-sticky-tops.test.ts`            | unit | T0.6  | sticky top con header-height           |
+| `inventory-coverage.test.ts`         | unit | T0.7  | Clases ak-* documentadas               |
+| `design-system-fixes-batch2.test.ts` | unit | TU-1  | PurchaseCard fix lock-in               |
+| `css-var-parser.test.ts`             | unit | TU-2  | 48 stress tests parser                 |
+| `design-system-fixes-batch2.spec.ts` | e2e  | TE-1  | axe + computed-style en pagos/contacto |
+| `design-system-visual.spec.ts`       | e2e  | TE-3  | Visual snapshots 3 cards               |
 
 **Regla RSC**: Server Components asíncronos (páginas, `/proyectos/[slug]`, `/blog/[slug]`) se cubren por e2e, no por Vitest.
 
@@ -108,6 +127,18 @@ Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 | **MCP**        | Stripe CLI 1.43.6 + plugin projects 0.22.0 en `~/.local/bin`                                                  | `stripe-projects` skill en `~/.agents/skills/`                                                                                                                              |
 | **Gemini API** | ✅ gratuita (provider LLM primario F15, en P3)                                                                | Tier free de Google AI Studio. Plan: 15 RPM, 1M TPM, 1500 RPD.                                                                                                              |
 | **Analytics**  | ✅ `@vercel/analytics` (cookieless) ya en `layout.tsx` — F18.6 planteaba Plausible, descartado por redundante | Privacidad-first, sin banner de consentimiento. Falta script de conversión/objetivos.                                                                                       |
+
+### Scripts de auditoría (Design System, F19)
+
+| Script                               | Líneas     | Función                                                      |
+| ------------------------------------ | ---------- | ------------------------------------------------------------ |
+| `scripts/audit-token-coverage.mjs`   | 571        | Tokens definidos vs usados, detección de hardcoded literales |
+| `scripts/audit-spec-coherence.mjs`   | 546        | Cross-ref RF↔AC↔TU en specs activos, orphans detection       |
+| `scripts/audit-design-system.mjs`    | 635        | Dashboard unificado: tokens + spec + hardcoded colors        |
+| `scripts/audit-hardcoded-colors.mjs` | endurecido | Detección de colores literales en CSS/JSX                    |
+| `scripts/coverage-trend.mjs`         | 509        | Sparkline histórico coverage % sobre últimos 20 commits      |
+| `scripts/fix-token-coverage.mjs`     | 562        | Auto-fix con parser nested-parens (dry-run/--apply)          |
+| `scripts/utils/css-var-parser.mjs`   | 339        | Linear scanner O(N) con depth counter y state machine        |
 
 ### Variables de entorno críticas
 
