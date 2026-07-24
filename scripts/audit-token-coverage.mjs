@@ -54,6 +54,20 @@ const ARGS = new Set(process.argv.slice(2));
 const JSON_MODE = ARGS.has("--json");
 const STRICT = ARGS.has("--strict");
 
+/**
+ * Tokens intencionalmente reservados (no legacy ni deprecation candidates).
+ * Se definen en CSS para uso futuro y no tienen referencias activas.
+ * No deben causar failure en modo --strict.
+ * Actualizado post-F19: ease-bounce + z-modal/overlay/sticky/tooltip.
+ */
+const INTENTIONALLY_RESERVED = new Set([
+  "ease-bounce",
+  "z-modal",
+  "z-overlay",
+  "z-sticky",
+  "z-tooltip",
+]);
+
 // ───────────────────────────────────────────────────────────────────────
 // Paths
 // ───────────────────────────────────────────────────────────────────────
@@ -380,7 +394,9 @@ function main() {
   // Compute derived metrics
   const usedTokenCount = usedTokens.size;
   const definedTokenCount = definedTokens.size;
-  const unusedTokens = [...definedTokens.keys()].filter((t) => !usedTokens.has(t));
+  const unusedAll = [...definedTokens.keys()].filter((t) => !usedTokens.has(t));
+  const unusedTokens = unusedAll.filter((t) => !INTENTIONALLY_RESERVED.has(t));
+  const reservedTokens = unusedAll.filter((t) => INTENTIONALLY_RESERVED.has(t));
   const coveragePercent =
     definedTokenCount > 0 ? Math.round((usedTokenCount / definedTokenCount) * 100) : 0;
 
@@ -407,6 +423,7 @@ function main() {
         ]),
       ),
       unusedTokens: unusedTokens.sort(),
+      reservedTokens: reservedTokens.sort(),
       doubleViolations,
       unmappedClasses,
       violations: {
@@ -480,24 +497,46 @@ function main() {
   // (b) Tokens no usados
   lines.push("## 3 · (b) Tokens definidos pero no usados (deprecation candidates)");
   lines.push("");
-  if (unusedTokens.length === 0) {
+  if (unusedAll.length === 0) {
     lines.push("✅ **Todos los tokens definidos tienen al menos un uso.**");
   } else {
-    lines.push(
-      `**${unusedTokens.length} tokens** en \`design-tokens.css\` sin referencia alguna. Sugerencia: revisar si fueron duplicados o expansiones F2.1 (type scale, layout) que nunca llegaron a usarse.`,
-    );
-    lines.push("");
-    lines.push("```");
-    // Mostrar todos los nombres en columnas
-    const cols = 4;
-    const perCol = Math.ceil(unusedTokens.length / cols);
-    const colRows = Array.from({ length: perCol }, () => []);
-    unusedTokens.forEach((t, i) => colRows[Math.floor(i / cols)].push(t));
-    for (let r = 0; r < perCol; r++) {
-      const row = colRows.map((c) => (c[r] || "").padEnd(28)).join(" ");
-      lines.push(row.trimEnd());
+    if (unusedTokens.length > 0) {
+      lines.push(
+        `**${unusedTokens.length} tokens** en \`design-tokens.css\` sin referencia alguna (excluyendo ${reservedTokens.length} intencionalmente reservados). Sugerencia: revisar si fueron duplicados o expansiones F2.1 (type scale, layout) que nunca llegaron a usarse.`,
+      );
+      lines.push("");
+      lines.push("```");
+      const cols = 4;
+      const perCol = Math.ceil(unusedTokens.length / cols);
+      const colRows = Array.from({ length: perCol }, () => []);
+      unusedTokens.forEach((t, i) => colRows[Math.floor(i / cols)].push(t));
+      for (let r = 0; r < perCol; r++) {
+        const row = colRows.map((c) => (c[r] || "").padEnd(28)).join(" ");
+        lines.push(row.trimEnd());
+      }
+      lines.push("```");
     }
-    lines.push("```");
+    if (reservedTokens.length > 0) {
+      if (unusedTokens.length === 0) {
+        lines.push(
+          "✅ **Sin tokens legacy sin usar.** Los tokens sin uso activo están intencionalmente reservados:",
+        );
+      } else {
+        lines.push("");
+        lines.push("**Reservados intencionalmente** (no cuentan como deprecation):");
+      }
+      lines.push("");
+      lines.push("```");
+      const cols = 4;
+      const perCol = Math.ceil(reservedTokens.length / cols);
+      const colRows = Array.from({ length: perCol }, () => []);
+      reservedTokens.forEach((t, i) => colRows[Math.floor(i / cols)].push(t));
+      for (let r = 0; r < perCol; r++) {
+        const row = colRows.map((c) => (c[r] || "").padEnd(28)).join(" ");
+        lines.push(row.trimEnd());
+      }
+      lines.push("```");
+    }
   }
   lines.push("");
 
