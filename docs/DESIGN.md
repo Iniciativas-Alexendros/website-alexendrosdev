@@ -20,7 +20,7 @@
 | **Token coverage**   | ✅ 100% (89/89 usados) — auto-validado por `scripts/audit-token-coverage.mjs` (`pnpm audit:tokens:strict` en CI) | 100%  |
 | **Documentación**    | 🆕 Métrica añadida: este docs/DESIGN.md medido por tests TU-0.1                                                  | 25%   |
 
-**Puntuación global revisada: 47/100** — recalibrada tras auditoría 2026-07-23 (SHA `5f8fd9b`). Puntuación previa 60/100 estaba basada en el documento mintiendo sobre el estado real del token system (decía 90% cuando ya era 100%).
+**Puntuación global revisada: 47/100** — recalibrada tras auditoría 2026-07-23 (SHA `5f8fd9b`, corregida hasta `8448a69`). Puntuación previa 60/100 estaba basada en el documento mintiendo sobre el estado real del token system (decía 90% cuando ya era 100%).
 
 ### Token Coverage — Live Snapshot (`pnpm audit:tokens`)
 
@@ -86,8 +86,8 @@ ease-bounce, z-modal, z-overlay, z-sticky, z-tooltip
 - **Dark mode:** Todos los colores tienen override en `.dark` (37/37)
 - **Shadows:** 4 elevations + focus, con composición `hsl(var(--shadow-*))`
 - **Typography:** 11 tamaños + 3 familias (vía next/font)
-- **Spacing:** 10 steps (0.25rem → 6rem)
-- **Radius:** 7 steps (6px → 9999px)
+- **Spacing:** 8 steps (`space-{2xs,xs,sm,md,lg,xl,2xl,3xl}` vía `@theme inline`; legacy `--space-1..24` eliminados)
+- **Radius:** 6 steps (6px → 9999px) — `--radius-{sm,md,lg,xl,2xl,full}` (legacy `--radius-interactive` eliminado, reemplazado por `--radius-full`)
 - **Motion:** 3 durations + 3 easings
 
 ### Z-index scale
@@ -497,4 +497,4 @@ Cuando se use `<Image>` de Next.js con URL placeholder dinámica (picsum.photos,
 
 ---
 
-_Generado contra SHA: `5f8fd9b9911385e7a7b5e032e611c0705997481b`. Próxima revisión: post-implementación de F2 (refactor CSS)._
+_Generado contra SHA: `8448a69`. Próxima revisión: post-cierre de F19 (cleanup tokens legacy completado)._
