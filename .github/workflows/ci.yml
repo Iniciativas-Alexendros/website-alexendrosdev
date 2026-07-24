@@ -93,8 +93,8 @@ jobs:
         run: bash scripts/validate-tokens.sh
       - name: Audit hardcoded colors
         run: node scripts/audit-hardcoded-colors.mjs
-      - name: Audit token coverage (gate — fails on real violations; deprecation candidates are info-only)
-        run: pnpm audit:tokens
+      - name: Audit token coverage (strict — violations + unused → fail)
+        run: pnpm audit:tokens:strict
       - run: pnpm build
 
   e2e:
