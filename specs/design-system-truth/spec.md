@@ -34,7 +34,7 @@ Eliminar las siguientes afirmaciones erróneas y sustituirlas por contenido veri
 - **RF1.3** El §2.17 _RSC awareness_ se reescribe: `forwardRef` NO convierte automáticamente un componente en Client Component. Sólo el uso de hooks (`useState`/`useEffect`), event handlers, o APIs del navegador fuerza `"use client"`.
 - **RF1.4** El resumen ejecutivo pasa de 60/100 a la distribución real: Token system 100%, Componentes UI 40%, ARIA/A11y 55%, Testing/QA 30%, **CSS Architecture 35%**, **Documentación 25%** (nuevas subdimensiones).
 
-**AC asociados:** AC1–AC4.
+**AC asociados:** AC1, AC2, AC3, AC4.
 
 ### RF2 — Mapa de archivos CSS en DESIGN.md (P1)
 
@@ -90,27 +90,27 @@ Tabla con 3 ejemplos correctos y 3 incorrectos. `AC6`.
 
 Cada DUP-* se cierra con una decisión única verificable:
 
-- **DUP-1 `.ak-btn { gap: 6px }`** declarado dos veces → mover `gap: 6px` al bloque base único `.ak-btn` (línea ~22 de `site.css`); eliminar la segunda declaración de la sección "Buttons with icons" (~línea 341).
-- **DUP-2 `.ak-cta-form input { flex: 1 }`** declarado dos veces consecutivamente → consolidar a una sola declaración (línea 151) con todo el bloque completo.
-- **DUP-3 `.ak-eyebrow`** definido dos veces (línea 90: `font-family + font-size + color`; línea 279: `letter-spacing: 0 + white-space: nowrap`) → unificar en línea 90 con todas las propiedades.
-- **DUP-4 `.ak-form-card`** en dos archivos con valores distintos → mantener sólo la versión de `_contact.css` (radius-xl, padding: 28px 32px). Eliminar de `site.css` (línea 585: radius-2xl, padding 40px, max-width 520px).
-- **DUP-5 `.ak-field`, `.ak-label`, `.ak-input`, `.ak-textarea`** en `site.css` (compactas) y `_contact.css` (expandidas con `:focus`, `.err`, `.dark`, transitions) → mantener sólo la versión de `_contact.css`. Eliminar las versiones de `site.css` (líneas 587-590). `_contact.css` es la **fuente de verdad** del formulario (documentado en §6).
-- **DUP-6 `@keyframes rise` vs `reveal`** → resuelto en RF6.5.
-- **DUP-7 `.ak-skeleton`** con dos implementaciones distintas (shimmer en `site.css:608` vs pulse en `_contact.css`) → **gana shimmer** (más estándar, gradient animado). Eliminar la versión pulse de `_contact.css`. Variantes (eyebrow/title/lead/col/row/graph/panel/cal/channels/step/input) permanecen en sus archivos respectivos sin sobrescribir la animación base.
-- **DUP-8 `.ak-panel`** con padding distinto (18px en `site.css:523`; 22px en `_contact.css`) → site.css mantiene `padding: 18px` como versión base (más antigua, más usada). Renombrar la versión de _contact.css a **`.ak-panel--md`** con `padding: 22px`. No se duplica la base.
-- **DUP-9 `.ak-side-group-t`** duplicado exacto → mantener sólo la versión de `site.css:485` y eliminar la de `_contact.css`.
+- **DUP-1 (AC11)** `.ak-btn { gap: 6px }` declarado dos veces → mover `gap: 6px` al bloque base único `.ak-btn` (línea ~22 de `site.css`); eliminar la segunda declaración de la sección "Buttons with icons" (~línea 341).
+- **DUP-2 (AC12)** `.ak-cta-form input { flex: 1 }` declarado dos veces consecutivamente → consolidar a una sola declaración (línea 151) con todo el bloque completo.
+- **DUP-3 (AC13)** `.ak-eyebrow` definido dos veces (línea 90: `font-family + font-size + color`; línea 279: `letter-spacing: 0 + white-space: nowrap`) → unificar en línea 90 con todas las propiedades.
+- **DUP-4 (AC14)** `.ak-form-card` en dos archivos con valores distintos → mantener sólo la versión de `_contact.css` (radius-xl, padding: 28px 32px). Eliminar de `site.css` (línea 585: radius-2xl, padding 40px, max-width 520px).
+- **DUP-5 (AC15)** `.ak-field`, `.ak-label`, `.ak-input`, `.ak-textarea` en `site.css` (compactas) y `_contact.css` (expandidas con `:focus`, `.err`, `.dark`, transitions) → mantener sólo la versión de `_contact.css`. Eliminar las versiones de `site.css` (líneas 587-590). `_contact.css` es la **fuente de verdad** del formulario (documentado en §6).
+- **DUP-6** `@keyframes rise` vs `reveal` → resuelto en RF6.5.
+- **DUP-7 (AC17)** `.ak-skeleton` con dos implementaciones distintas (shimmer en `site.css:608` vs pulse en `_contact.css`) → **gana shimmer** (más estándar, gradient animado). Eliminar la versión pulse de `_contact.css`. Variantes (eyebrow/title/lead/col/row/graph/panel/cal/channels/step/input) permanecen en sus archivos respectivos sin sobrescribir la animación base.
+- **DUP-8 (AC16)** `.ak-panel` con padding distinto (18px en `site.css:523`; 22px en `_contact.css`) → site.css mantiene `padding: 18px` como versión base (más antigua, más usada). Renombrar la versión de _contact.css a **`.ak-panel--md`** con `padding: 22px`. No se duplica la base.
+- **DUP-9 (AC18)** `.ak-side-group-t` duplicado exacto → mantener sólo la versión de `site.css:485` y eliminar la de `_contact.css`.
 
-`AC10–AC18`.
+`AC10, AC11, AC12, AC13, AC14, AC15, AC16, AC17, AC18`.
 
 ### RF8 — Cerrar hardcoding con tokens (P3-HC-1…HC-7)
 
-- **HC-1 `.ak-tile-stat` y `.ak-tile-stat b`** en `site.css:236-237` usan `color: #fff` → reemplazar por `color: hsl(var(--text-on-primary))`.
-- **HC-2 `padding: 0 32px`** repetido ~6 veces → añadir `--container-px: 32px` a `design-tokens.css` §1 (después de `--container-max`). Reemplazar todas las ocurrencias por `padding-inline: var(--container-px)` en: `.ak-container`, `.ak-header-inner`, `.ak-footer-cols`, `.ak-footer-bottom`, `.ak-container-inner`, `.ak-cta` y otros.
-- **HC-3 `height: 64px`** no usa scale → añadir `--header-height: 64px` a `design-tokens.css` §1. `.ak-header-inner` (línea 41) usa `height: var(--header-height)`. Calcular `top: var(--header-height)` en todos los sticky (`.ak-projects-sidebar top: 88px` → `top: calc(var(--header-height) + 24px)`; `.ak-proj-side top: 88px` → mismo cálculo; `.ak-pcard-star z-index` verificación).
-- **HC-4 `font: 700 30px …` en `.ak-tier-price`** (línea 124) → añadir `--fs-price: 1.875rem` a design-tokens.css §1 (justificado: ancla de pricing, semánticamente distinto a títulos). `.ak-tier-price` usa `font: 700 var(--fs-price) var(--font-sans)`.
-- **HC-5 `font: 700 26px …` en `.ak-zz-idx b`** → mapear a `var(--fs-h2)` (que va de 1.5rem @mobile a 2.25rem @desktop, aceptable para el destacado de índice). `font: 700 22px …` en `.ak-zz-metric b` → añadir `--fs-metric: 1.375rem` (22px, justificado: distinto a h4).
-- **HC-6 `gap: 28px`** huérfano (escala va 24→32). Insertar `--gutter-md: 28px` en `design-tokens.css` §1. Usos en `.ak-header-inner` y `.ak-stackgrid` (línea 209) → `gap: var(--gutter-md)`.
-- **HC-7 `.ak-sr-only`** con `left: -9999px` → migrar al patrón clip moderno:
+- **HC-1 (AC19)** `.ak-tile-stat` y `.ak-tile-stat b` en `site.css:236-237` usan `color: #fff` → reemplazar por `color: hsl(var(--text-on-primary))`.
+- **HC-2 (AC20)** `padding: 0 32px` repetido ~6 veces → añadir `--container-px: 32px` a `design-tokens.css` §1 (después de `--container-max`). Reemplazar todas las ocurrencias por `padding-inline: var(--container-px)` en: `.ak-container`, `.ak-header-inner`, `.ak-footer-cols`, `.ak-footer-bottom`, `.ak-container-inner`, `.ak-cta` y otros.
+- **HC-3 (AC21, AC21b)** `height: 64px` no usa scale → añadir `--header-height: 64px` a `design-tokens.css` §1. `.ak-header-inner` (línea 41) usa `height: var(--header-height)`. Calcular `top: var(--header-height)` en todos los sticky (`.ak-projects-sidebar top: 88px` → `top: calc(var(--header-height) + 24px)` — AC21b; `.ak-proj-side top: 88px` → mismo cálculo; `.ak-pcard-star z-index` verificación).
+- **HC-4 (AC22)** `font: 700 30px …` en `.ak-tier-price` (línea 124) → añadir `--fs-price: 1.875rem` a design-tokens.css §1 (justificado: ancla de pricing, semánticamente distinto a títulos). `.ak-tier-price` usa `font: 700 var(--fs-price) var(--font-sans)`.
+- **HC-5 (AC23)** `font: 700 26px …` en `.ak-zz-idx b` → mapear a `var(--fs-h2)` (que va de 1.5rem @mobile a 2.25rem @desktop, aceptable para el destacado de índice). `font: 700 22px …` en `.ak-zz-metric b` → añadir `--fs-metric: 1.375rem` (22px, justificado: distinto a h4).
+- **HC-6 (AC24)** `gap: 28px` huérfano (escala va 24→32). Insertar `--gutter-md: 28px` en `design-tokens.css` §1. Usos en `.ak-header-inner` y `.ak-stackgrid` (línea 209) → `gap: var(--gutter-md)`.
+- **HC-7 (AC25)** `.ak-sr-only` con `left: -9999px` → migrar al patrón clip moderno:
 
 ```css
 .ak-sr-only {
@@ -126,18 +126,18 @@ Cada DUP-* se cierra con una decisión única verificable:
 }
 ```
 
-`AC19–AC25`.
+`AC19, AC20, AC21, AC21b, AC22, AC23, AC24, AC25`.
 
 ### RF9 — Cerrar bugs visuales activos (P3-VISUAL-1…VISUAL-6)
 
-- **VISUAL-1** `<a>` con `ak-btn-secondary` u otras variantes no cubiertas por `:where(a):is(.bg-primary, .bg-cta, .text-on-primary)` puede mostrar color de link en hover → **decisión por defecto: ampliar la lista `:is(...)`** con las clases que también tiñen enlaces: añadir `.bg-highlight`, `.bg-sunken`, `.ak-tier-pro`, `.ak-btn-primary`, `.ak-btn-secondary`, `.ak-toggle button.on`, `.ak-tag.on`, `.ak-chip.on`, `.ak-side-filters button.on`, `.ak-step.on .ak-step-dot`. El ADR §8 documenta el camino alternativo (mover `a` a `@layer base`).
-- **VISUAL-2** `.ak-form-card` con valores de padding/radius incorrectos fuera de /contacto → resuelto por RF7 DUP-4: la única versión válida vive en `_contact.css`.
-- **VISUAL-3** `.ak-skeleton` con dos comportamientos shimmer vs pulse → resuelto por RF7 DUP-7: shimmer canónico.
-- **VISUAL-4** Imágenes picsum sin width/height explícitos en Next.js `Image` → documentar en DESIGN.md §14. El operador proporciona esos attrs en cada `<Image>` que use placeholder URL.
+- **VISUAL-1 (AC26, AC27)** `<a>` con `ak-btn-secondary` u otras variantes no cubiertas por `:where(a):is(.bg-primary, .bg-cta, .text-on-primary)` puede mostrar color de link en hover → **decisión por defecto: ampliar la lista `:is(...)`** con las clases que también tiñen enlaces: añadir `.bg-highlight`, `.bg-sunken`, `.ak-tier-pro`, `.ak-btn-primary`, `.ak-btn-secondary`, `.ak-toggle button.on`, `.ak-tag.on`, `.ak-chip.on`, `.ak-side-filters button.on`, `.ak-step.on .ak-step-dot` — AC26. El ADR §8 documenta el camino alternativo (mover `a` a `@layer base`). El e2e hover test es AC27.
+- **VISUAL-2 (AC28)** `.ak-form-card` con valores de padding/radius incorrectos fuera de /contacto → resuelto por RF7 DUP-4: la única versión válida vive en `_contact.css`.
+- **VISUAL-3 (AC29)** `.ak-skeleton` con dos comportamientos shimmer vs pulse → resuelto por RF7 DUP-7: shimmer canónico.
+- **VISUAL-4 (AC30)** Imágenes picsum sin width/height explícitos en Next.js `Image` → documentar en DESIGN.md §14. El operador proporciona esos attrs en cada `<Image>` que use placeholder URL.
 - **VISUAL-5** `.ak-eyebrow` segunda definición silencia letter-spacing → resuelto por RF7 DUP-3 al unificar.
-- **VISUAL-6** `.ak-tl-dot.active { left: -30px }` vs base `left: -29px` → alinear `.ak-tl-dot.active { left: -29px; width: 12px; height: 12px; … }`. Eliminar micro-desalineación de 1px.
+- **VISUAL-6 (AC31)** `.ak-tl-dot.active { left: -30px }` vs base `left: -29px` → alinear `.ak-tl-dot.active { left: -29px; width: 12px; height: 12px; … }`. Eliminar micro-desalineación de 1px.
 
-`AC26–AC31`.
+`AC26, AC27, AC28, AC29, AC30, AC31`.
 
 ### RF10 — Convención arquitectónica CSS (P3-ARCH-5)
 
@@ -149,14 +149,14 @@ Cada DUP-* se cierra con una decisión única verificable:
 
 ### RF11 — Tests de regresión validadores (P0)
 
-- **RF11.1** Crear `tests/unit/design-system-audit.test.ts` con asserts `TU-0.1.a…e` que verifican la corrección de DESIGN.md.
-- **RF11.2** Crear `tests/unit/css-invariants.test.ts` (o ampliar `tests/unit/content-invariants.test.ts`) con asserts `TU-0.2.a…g` que verifican invariantes CSS (no duplicados, no hardcoding, etc.).
-- **RF11.3** Crear `tests/unit/z-index-tokens.test.ts` con asserts `TU-0.3.a`.
-- **RF11.4** Crear `tests/unit/header-height.test.ts` con asserts `TU-0.4.a`.
-- **RF11.5** Endurecer `scripts/audit-hardcoded-colors.mjs`: detecta `#fff` literal, hex crudo de 3/6/8 dígitos, `rgb(`/`rgba(` fuera de transparente. Salida JSON. Exit 1 si >0 hits.
-- **RF11.6** Extender `scripts/validate-tokens.mjs` o `scripts/validate-tokens.sh` con puertas para `--z-*`, `--header-height`, `--container-px`, `--gutter-md`.
+- **RF11.1 (AC33)** Crear `tests/unit/design-system-audit.test.ts` con asserts `TU-0.1.a…e` que verifican la corrección de DESIGN.md.
+- **RF11.2 (AC34)** Crear `tests/unit/css-invariants.test.ts` (o ampliar `tests/unit/content-invariants.test.ts`) con asserts `TU-0.2.a…g` que verifican invariantes CSS (no duplicados, no hardcoding, etc.).
+- **RF11.3 (AC35)** Crear `tests/unit/z-index-tokens.test.ts` con asserts `TU-0.3.a`.
+- **RF11.4 (AC36)** Crear `tests/unit/header-height.test.ts` con asserts `TU-0.4.a`.
+- **RF11.5 (AC37)** Endurecer `scripts/audit-hardcoded-colors.mjs`: detecta `#fff` literal, hex crudo de 3/6/8 dígitos, `rgb(`/`rgba(` fuera de transparente. Salida JSON. Exit 1 si >0 hits.
+- **RF11.6 (AC38)** Extender `scripts/validate-tokens.mjs` o `scripts/validate-tokens.sh` con puertas para `--z-*`, `--header-height`, `--container-px`, `--gutter-md`.
 
-`AC33–AC38`.
+`AC33, AC34, AC35, AC36, AC37, AC38, AC40, AC41, AC42, AC43, AC44`.
 
 ### RF12 — Inventario completo de clases ak-* (P2)
 
@@ -171,7 +171,7 @@ Cada DUP-* se cierra con una decisión única verificable:
 | Skeleton            | `.ak-skeleton (canónica shimmer), -eyebrow\|-title\|-lead\|-row\|-col\|-graph\|-panel\|-cal\|-channels\|-step\|-input`                                                                                                                          |
 | States              | `.ak-node.dim\.sel, .ak-step.on\.done, .ak-cal-day.av\.sel, .ak-tl-dot.active, .ak-tl2-card.now, .dark .ak-*` (inventario completo)                                                                                                             |
 
-`AC39`.
+`AC39, AC39a, AC39b, AC39c`.
 
 ## Criterios de aceptación
 
@@ -181,9 +181,9 @@ Cada DUP-* se cierra con una decisión única verificable:
 | AC2   | `docs/DESIGN.md` §1 incluye subsección "Z-index scale" sin ❌                                                                                                                                                                                                                                                              | RF1.1                     |
 | AC3   | `docs/DESIGN.md` §2.6 no contiene "como ausente" ni "@layer base falta"                                                                                                                                                                                                                                                    | RF1.2                     |
 | AC4   | `docs/DESIGN.md` §2.17 contiene "forwardRef NO convierte automáticamente"                                                                                                                                                                                                                                                  | RF1.3                     |
-| AC5   | `docs/DESIGN.md` §6 incluye tabla de 6+ filas de archivos CSS con @layer                                                                                                                                                                                                                                                   | RF2, RF11.1 TU-0.1.d      |
+| AC5   | `docs/DESIGN.md` §6 incluye tabla de 6+ filas de archivos CSS con @layer                                                                                                                                                                                                                                                   | RF2 RF11.1 TU-0.1.d       |
 | AC6   | `docs/DESIGN.md` §7 incluye regla ak-* vs Tailwind con ejemplos correctos/incorrectos                                                                                                                                                                                                                                      | RF3                       |
-| AC7   | `docs/DESIGN.md` §8 incluye ADR del `:where(a):is` con prohibición explícita                                                                                                                                                                                                                                               | RF4, RF11.1 TU-0.1.e      |
+| AC7   | `docs/DESIGN.md` §8 incluye ADR del `:where(a):is` con prohibición explícita                                                                                                                                                                                                                                               | RF4 RF11.1 TU-0.1.e       |
 | AC8   | `docs/DESIGN.md` §9 incluye tabla de 7+ keyframes con archivos canónicos y `rise` marcada DEPRECATED                                                                                                                                                                                                                       | RF5                       |
 | AC9   | `grep '@keyframes rise' src/styles/**/*.css` → 0 ocurrencias (TU-0.2.a)                                                                                                                                                                                                                                                    | RF6.5                     |
 | AC10  | `grep '@keyframes reveal' src/styles/**/*.css` ≥ 1 (TU-0.2.b)                                                                                                                                                                                                                                                              | RF6.3                     |
@@ -209,7 +209,7 @@ Cada DUP-* se cierra con una decisión única verificable:
 | AC29  | `.ak-skeleton` muestra shimmer (animation-name === 'skeleton-shimmer'), no pulse                                                                                                                                                                                                                                           | RF9 VISUAL-3              |
 | AC30  | `docs/DESIGN.md` §14 documenta convención: imágenes placeholder requieren `width`/`height` explícitos                                                                                                                                                                                                                      | RF9 VISUAL-4              |
 | AC31  | `.ak-tl-dot.active` y `.ak-tl-dot` tienen misma `left` (offset 0px en e2e)                                                                                                                                                                                                                                                 | RF9 VISUAL-6              |
-| AC32  | `grep '@/components/.*ServicesView.css\|services/ServicesView.css' src/app/globals.css` = 0. `grep '_services.css' src/app/globals.css` ≥ 1                                                                                                                                                                                | RF10                      |
+| AC32  | `grep 'ServicesView.css' src/app/globals.css` = 0 (sin import directo). `grep '_services.css' src/app/globals.css` ≥ 1 (nuevo import)                                                                                                                                                                                      | RF10                      |
 | AC33  | `tests/unit/design-system-audit.test.ts` existe y ≥5 asserts verdes                                                                                                                                                                                                                                                        | RF11.1                    |
 | AC34  | `tests/unit/css-invariants.test.ts` (o ampliado) existe y ≥7 asserts verdes                                                                                                                                                                                                                                                | RF11.2                    |
 | AC35  | `tests/unit/z-index-tokens.test.ts` existe y assert verde                                                                                                                                                                                                                                                                  | RF11.3                    |
@@ -220,11 +220,11 @@ Cada DUP-* se cierra con una decisión única verificable:
 | AC39a | Categoría "Layout Patterns" incluye ≥ 8 clases (ak-zz-row, ak-zz-row.rev, ak-railwrap, ak-rail, ak-stack-layout, ak-stack-side, ak-proj-layout, ak-proj-side, ak-proj-bar, ak-contact-grid)                                                                                                                                | RF12 substantive coverage |
 | AC39b | Categoría "Graph" incluye ≥ 7 clases (ak-graph(-inner/-svg), ak-node(-center/-cat/-leaf/.dim/.sel), ak-edge(.hot), ak-graph-controls, ak-dotgrid)                                                                                                                                                                          | RF12 substantive coverage |
 | AC39c | Categoría "Form System" incluye ≥ 15 clases (ak-steps(-step.on/-done/-dot/-line), ak-progress/-bar, ak-review/-row(.lbl/.val), ak-consent, ak-field/-row, ak-err-msg, ak-cal(-dow/-grid/-day(.av/.sel)))                                                                                                                   | RF12 substantive coverage |
-| AC40  | `pnpm lint` exit 0                                                                                                                                                                                                                                                                                                         | gates                     |
-| AC41  | `pnpm typecheck` exit 0                                                                                                                                                                                                                                                                                                    | gates                     |
-| AC42  | `pnpm build` exit 0, 32 rutas compilan                                                                                                                                                                                                                                                                                     | gates                     |
-| AC43  | `pnpm test:coverage` 4 gates verdes (stmts≥85, brchs≥80, funcs≥85, lines≥85)                                                                                                                                                                                                                                               | gates                     |
-| AC44  | Puntuación resumen ejecutivo: Token system 100%, Componentes UI ≥85%, ARIA ≥70%, Testing ≥75%, CSS Architecture ≥90%, Documentación ≥90%. Verificación: el script `scripts/audit-scoreboard.mjs` (crear si no existe) lee DESIGN.md, parsea la tabla resumen, assert cada uno de los 6 thresholds. Exit 1 si alguno falla. | global, lock-in           |
+| AC40  | `pnpm lint` exit 0                                                                                                                                                                                                                                                                                                         | RF11 gate                 |
+| AC41  | `pnpm typecheck` exit 0                                                                                                                                                                                                                                                                                                    | RF11 gate                 |
+| AC42  | `pnpm build` exit 0, 32 rutas compilan                                                                                                                                                                                                                                                                                     | RF11 gate                 |
+| AC43  | `pnpm test:coverage` 4 gates verdes (stmts≥85, brchs≥80, funcs≥85, lines≥85)                                                                                                                                                                                                                                               | RF11 gate                 |
+| AC44  | Puntuación resumen ejecutivo: Token system 100%, Componentes UI ≥85%, ARIA ≥70%, Testing ≥75%, CSS Architecture ≥90%, Documentación ≥90%. Verificación: el script `scripts/audit-scoreboard.mjs` (crear si no existe) lee DESIGN.md, parsea la tabla resumen, assert cada uno de los 6 thresholds. Exit 1 si alguno falla. | RF11 global lock-in       |
 
 ## Restricciones
 
