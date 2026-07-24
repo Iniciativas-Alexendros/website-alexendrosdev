@@ -129,9 +129,6 @@
   --container-px: 32px;       /* gutter horizontal estándar */
   --header-height: 64px;       /* altura del top bar sticky */
   --gutter-md: 28px;           /* gap huérfano 28px → alineado con scale */
-  --gutter-lg: 32px;
-  --gutter-sm: 24px;
-
   /* ----- Z-index scale ----- */
   --z-base: 1;
   --z-content: 10;
