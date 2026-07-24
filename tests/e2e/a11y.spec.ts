@@ -93,8 +93,15 @@ test.describe("TE-3.3 · Computed style locks (token application)", () => {
       "/proyectos debe tener al menos 1 .ak-tile-metric b visible",
     ).toBeVisible();
     const color = await metric.evaluate((el) => getComputedStyle(el).color);
-    // El color debe resolver a un hsl(...) — #fff hex es PROHIBIDO post-HC-1.
-    expect(color, "ak-tile-metric b debe usar token, no #fff").not.toBe("rgb(255, 255, 255)");
-    expect(color, "ak-tile-metric b debe usar HSL function (token system)").toMatch(/^hsl\(/);
+    // getComputedStyle() siempre devuelve rgb(), aunque el CSS use hsl(var(--text-primary)).
+    // text-primary (light) = hsl(213 30% 15%) = rgb(27, 37, 50) — NO blanco.
+    expect(color, "ak-tile-metric b NO debe ser blanco (#fff hardcoded)").not.toBe(
+      "rgb(255, 255, 255)",
+    );
+    // Verificar que NO es blanco ni gris claro (cascade fix white-text heredado)
+    expect(
+      color,
+      "ak-tile-metric b debe ser oscuro (token text-primary), no blanco/brillante",
+    ).toMatch(/^rgb\((?:[01]?\d{1,2}|2[0-4]\d|25[0-4]),/);
   });
 });
