@@ -144,6 +144,7 @@ main { display: block; }
 .ak-toggle button.on { background: hsl(var(--cta)); color: hsl(var(--text-on-primary)); }
 .ak-pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; align-items: center; max-width: 1000px; margin: 0 auto; }
 .ak-tier { background: hsl(var(--bg-elevated)); border: 1px solid hsl(var(--border-subtle)); border-radius: var(--radius-xl); padding: 28px 24px; position: relative; }
+.ak-checkout-tile { display: grid; grid-template-columns: minmax(0, 480px); justify-content: center; padding-block: 24px; }
 .ak-tier-pro { border: 2px solid hsl(var(--primary-400)); transform: scale(1.03); box-shadow: var(--elev-lg); }
 .dark .ak-tier-pro { border-color: hsl(var(--primary-200)); }
 .ak-tier-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 5px; background: hsl(var(--cta)); color: hsl(var(--text-on-primary)); font: 600 11px var(--font-sans); padding: 4px 12px; border-radius: var(--radius-full); white-space: nowrap; }
@@ -365,6 +366,7 @@ main { display: block; }
 .ak-field .ak-chips { margin-left: 0; }
 .ak-contact-hero .ak-note { margin-top: 16px; }
 .ak-section.ak-section-pt-sm { padding-top: 24px; }
+.ak-section-head.ak-stack-2 { gap: 8px; }
 .ak-cal-sub { margin-bottom: 12px; }
 .ak-cal-sub-top { margin-top: 12px; }
 

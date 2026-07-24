@@ -70,11 +70,11 @@ describe("TU-0.2.d · padding: 0 32px ≤ 0 (HC-2 cerrado)", () => {
 });
 
 describe("TU-0.2.e · --header-height usado en .ak-header-inner", () => {
-  it("design-tokens.css define --header-height: 64px", () => {
+  it("design-tokens.css define --header-height: 72px (F25-A3 lock)", () => {
     const body = readFileSync(TOKENS_CSS, "utf-8");
     expect(
-      /--header-height:\s*64px/.test(body),
-      "HC-3: añadir --header-height a design-tokens.css",
+      /--header-height:\s*72px/.test(body),
+      "F25-A3: header-height canónico en 72px (sidebar top = calc(72+24) = 96px, evita exclusion set /^88px|^64px|^90px/)",
     ).toBe(true);
   });
 

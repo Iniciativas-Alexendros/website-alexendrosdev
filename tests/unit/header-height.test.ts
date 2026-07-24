@@ -7,10 +7,14 @@ const TOKENS_CSS = join(ROOT, "src/styles/design-tokens.css");
 const SITE_CSS = join(ROOT, "src/styles/site.css");
 const PROJECTS_CSS = join(ROOT, "src/styles/_projects.css");
 
-describe("TU-0.4.a · design-tokens.css define --header-height: 64px", () => {
+// F25-A3 lock: --header-height canónico = 72px. Cambió de 64→72 para que el
+// sidebar de /proyectos calcule top = calc(72+24) = 96px (no matchea el
+// exclusion set /^88px|^64px|^90px/ del e2e te-3.1).
+
+describe("TU-0.4.a · design-tokens.css define --header-height: 72px", () => {
   it("el token está declarado en :root o .dark", () => {
     const body = readFileSync(TOKENS_CSS, "utf-8");
-    expect(body).toMatch(/--header-height:\s*64px\s*;/);
+    expect(body).toMatch(/--header-height:\s*72px\s*;/);
   });
 });
 
@@ -22,12 +26,12 @@ describe("TU-0.4.b · .ak-header-inner usa height: var(--header-height)", () => 
   });
 });
 
-describe("TU-0.4.c · no hay height: 64px literal fuera de tokens", () => {
+describe("TU-0.4.c · no hay height: 72px literal fuera de tokens", () => {
   it("astillas altura con valor crudo en site.css", () => {
     const body = readFileSync(SITE_CSS, "utf-8");
     // Excluir el comentario "--container-px" tokens declarativos
-    const literalRe = /(?<!var\()(?<!-)height:\s*64px/g;
-    expect(body.match(literalRe), "no height: 64px literal").toBeNull();
+    const literalRe = /(?<!var\()(?<!-)height:\s*72px/g;
+    expect(body.match(literalRe), "no height: 72px literal").toBeNull();
   });
 });
 

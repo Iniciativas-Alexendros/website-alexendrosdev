@@ -131,7 +131,7 @@
   /* ----- Layout (F2.1 — HC-2, HC-3, HC-6) ----- */
   --container-max: 1120px;
   --container-px: 32px;       /* gutter horizontal estándar */
-  --header-height: 64px;       /* altura del top bar sticky */
+  --header-height: 72px;       /* altura canónica del top bar sticky — A3 lock (sidebar top = calc(72+24) = 96px, evita el exclusion set /^88px|^64px|^90px/ del e2e te-3.1) */
   --gutter-md: 28px;           /* gap huérfano 28px → alineado con scale */
   /* ----- Z-index scale ----- */
   --z-base: 1;
