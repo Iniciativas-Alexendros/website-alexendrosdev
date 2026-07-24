@@ -67,7 +67,7 @@ test.describe("TE-3.3 · Computed style locks (token application)", () => {
     // step 0 (nombre + email) vía getByPlaceholder (evita honeypot)
     // y avanzamos.
     await page.getByPlaceholder("Tu nombre").fill("Test User");
-    await page.getByPlaceholder("tu@email.com").fill("test@example.com");
+    await page.locator(".ak-contact-grid input[type=email]").fill("test@example.com");
     await page.getByRole("button", { name: /Siguiente/ }).click();
     await expect(
       page.locator("textarea").first(),
