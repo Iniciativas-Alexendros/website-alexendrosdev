@@ -20,6 +20,10 @@
    ---------------------------------------------------------- */
 :root {
   /* Primary scale — Steel Blue (Arctic Frost) */
+  /* Base colors (tema-invariante) */
+  --black: 0 0% 0%;
+
+  /* Primary scale — Steel Blue (Arctic Frost) */
   --primary-50: 213 60% 95%;
   --primary-100: 213 72% 90%;
   --primary-200: 213 60% 80%;

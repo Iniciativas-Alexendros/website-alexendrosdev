@@ -135,7 +135,7 @@
   .ak-sidebar-overlay {
     position: fixed;
     inset: 0;
-    background: hsl(0 0% 0% / 0.4);
+    background: hsl(var(--black) / 0.4);
     z-index: 40;
     backdrop-filter: blur(4px);
   }
