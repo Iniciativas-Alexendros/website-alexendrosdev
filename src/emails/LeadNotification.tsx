@@ -1,14 +1,4 @@
-import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Hr,
-  Html,
-  Preview,
-  Section,
-  Text,
-} from "@react-email/components";
+import { Body, Container, Head, Heading, Hr, Html, Preview, Section, Text } from "react-email";
 
 interface LeadNotificationProps {
   name: string;

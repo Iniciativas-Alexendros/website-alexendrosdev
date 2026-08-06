@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 // Cabeceras de seguridad estáticas aplicadas a todas las rutas.
@@ -28,6 +29,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Explicit root prevents Next from selecting the parent repository when this
+  // app runs inside a Freebuff Git worktree with multiple lockfiles.
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   images: {
     remotePatterns: [
       // Capturas reales de proyectos con URLs externas conocidas.

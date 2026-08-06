@@ -1,9 +1,9 @@
 "use client";
 
-import type { ButtonHTMLAttributes, AnchorHTMLAttributes, ReactNode, Ref } from "react";
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode, Ref } from "react";
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
-import type { Variant, Size } from "@/tokens";
+import type { Size, Variant } from "@/tokens";
 
 interface BaseButtonProps {
   variant?: Variant;
@@ -39,7 +39,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   // Tokens from @theme — durations and easings are mapped to Tailwind utilities
   // via design-tokens.css @theme inline block
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold transition-[background-color,color,border-color,box-shadow,transform,filter] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex min-h-10 items-center justify-center gap-1.5 font-semibold transition-[background-color,color,border-color,box-shadow,transform,filter] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus focus-visible:shadow-[0_0_0_3px_hsl(var(--border-focus)/0.25)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
   const variantStyles: Record<Variant, string> = {
     primary:
@@ -51,7 +51,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   };
 
   const sizeStyles: Record<"sm" | "md" | "lg", string> = {
-    sm: "h-8 px-3 text-sm rounded-md",
+    sm: "min-h-8 px-3 text-sm rounded-md",
     md: "h-10 px-4 text-sm rounded-interactive",
     lg: "h-12 px-6 text-base rounded-interactive",
   };
