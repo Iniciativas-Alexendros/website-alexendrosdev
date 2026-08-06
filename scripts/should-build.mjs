@@ -3,7 +3,9 @@
  * Script de ignoreBuildStep para Vercel.
  *
  * Vercel ejecuta este script antes de cada build.
- * Exit 0 = build, Exit 1 = skip build.
+ * Vercel `ignoreCommand` invierte la intuición: Exit 0 = omitir build,
+ * Exit 1 = continuar con build. Este script devuelve 1 para ramas autorizadas
+ * y 0 para ramas que deben ignorarse.
  *
  * La lógica de decisión está en src/lib/deploy-guide.ts,
  * pero como Vercel ejecuta esto antes del build (sin TS compilado),
@@ -15,14 +17,18 @@ const ALLOWED_BRANCHES = process.env.ALLOWED_BRANCHES || "main,develop,feat/*,fi
 const ref = process.env.VERCEL_GIT_COMMIT_REF || "";
 const branch = ref.replace("refs/heads/", "");
 
-// Siempre buildear si VERCEL_ENV ya está decidido por Vercel
-if (process.env.VERCEL_ENV) {
-  process.exit(0);
+// Si Vercel ya decidió un entorno válido, debe continuar el build.
+// `ignoreCommand` considera exit 0 como "sin cambios: omitir".
+const knownVercelEnvironments = new Set(["production", "preview", "development"]);
+if (knownVercelEnvironments.has(process.env.VERCEL_ENV || "")) {
+  console.log(`✓ build autorizado: VERCEL_ENV=${process.env.VERCEL_ENV}`);
+  process.exit(1);
 }
 
-// Siempre buildear main
+// Siempre buildear main cuando Vercel no proporciona VERCEL_ENV.
 if (branch === "main") {
-  process.exit(0);
+  console.log("✓ build autorizado: branch=main");
+  process.exit(1);
 }
 
 // Verificar contra ALLOWED_BRANCHES
@@ -45,8 +51,8 @@ const allowed = ALLOWED_BRANCHES.split(",").some((p) => {
 
 if (allowed) {
   console.log(`✓ build autorizado: branch=${branch} matchea ALLOWED_BRANCHES`);
-  process.exit(0);
+  process.exit(1);
 }
 
-console.log(`✗ build saltado: branch=${branch} no matchea ALLOWED_BRANCHES (${ALLOWED_BRANCHES})`);
-process.exit(1);
+console.log(`✗ build omitido: branch=${branch} no matchea ALLOWED_BRANCHES (${ALLOWED_BRANCHES})`);
+process.exit(0);
