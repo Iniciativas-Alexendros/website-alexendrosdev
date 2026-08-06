@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       runner:
@@ -16,6 +17,11 @@ on:
           - self-hosted
   schedule:
     - cron: "0 6 * * *"
+
+# CI never needs repository write access. Keeping this at workflow scope also
+# protects newly added jobs from accidentally inheriting broader permissions.
+permissions:
+  contents: read
 
 # Cancela ejecuciones en curso de la misma rama cuando llega un push nuevo.
 concurrency:
