@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, Suspense, useState } from "react";
+import { Fragment, Suspense, useId, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { SITE } from "@/lib/content";
@@ -64,18 +64,27 @@ interface FieldProps {
 }
 
 function Field({ label, value, onChange, type = "text", placeholder, error }: FieldProps) {
+  const id = useId();
+  const fieldId = `contact-${id}`;
+  const errorId = `${fieldId}-error`;
   return (
     <div className="ak-field">
-      <label className="ak-label">{label}</label>
+      <label className="ak-label" htmlFor={fieldId}>
+        {label}
+      </label>
       <input
+        id={fieldId}
         className={`ak-input ${error ? "err" : ""}`.trim()}
         type={type}
         value={value}
         placeholder={placeholder}
+        autoComplete={type === "email" ? "email" : "name"}
+        aria-invalid={error ? "true" : "false"}
+        aria-describedby={error ? errorId : undefined}
         onChange={(e) => onChange(e.target.value)}
       />
       {error && (
-        <span className="ak-err-msg">
+        <span id={errorId} className="ak-err-msg" role="alert">
           <Icon name="alert-circle" size={13} />
           {error}
         </span>
@@ -169,6 +178,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
             Gracias{data.name ? `, ${data.name}` : ""}. Te respondo en menos de 24h.
           </p>
           <Button
+            type="button"
             variant="secondary"
             onClick={() => {
               setSent(false);
@@ -190,8 +200,13 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
     );
   }
 
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void submit();
+  };
+
   return (
-    <div className="ak-form-card">
+    <form className="ak-form-card" onSubmit={handleSubmit}>
       <div className="ak-steps">
         {STEPS.map((s, i) => (
           <Fragment key={s}>
@@ -221,7 +236,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         className="ak-sr-only"
       />
 
-      <div className="ak-fields">
+      <div className="ak-fields" aria-live="polite">
         {step === 0 && (
           <div className="ak-field-row">
             <Field
@@ -243,8 +258,8 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
         )}
         {step === 1 && (
           <>
-            <div className="ak-field">
-              <label className="ak-label">Tipo de proyecto</label>
+            <fieldset className="ak-field ak-fieldset">
+              <legend className="ak-label">Tipo de proyecto</legend>
               <div className="ak-chips">
                 {PROJ_TYPES.map((t) => (
                   <button
@@ -257,17 +272,23 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                   </button>
                 ))}
               </div>
-            </div>
+            </fieldset>
             <div className="ak-field">
-              <label className="ak-label">Cuéntame del proyecto</label>
+              <label className="ak-label" htmlFor="contact-message">
+                Cuéntame del proyecto
+              </label>
               <textarea
+                id="contact-message"
                 className={`ak-textarea ${errors.message ? "err" : ""}`.trim()}
                 value={data.message}
                 placeholder="Objetivo, alcance, plazos…"
+                autoComplete="off"
+                aria-invalid={errors.message ? "true" : "false"}
+                aria-describedby={errors.message ? "contact-message-error" : undefined}
                 onChange={(e) => set("message", e.target.value)}
               />
               {errors.message && (
-                <span className="ak-err-msg">
+                <span id="contact-message-error" className="ak-err-msg" role="alert">
                   <Icon name="alert-circle" size={13} />
                   {errors.message}
                 </span>
@@ -295,10 +316,13 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                 <span className="val ak-review-val">{data.message || "(sin mensaje)"}</span>
               </div>
             </div>
-            <label className="ak-consent">
+            <label className="ak-consent" htmlFor="contact-consent">
               <input
+                id="contact-consent"
                 type="checkbox"
                 checked={data.consent}
+                aria-invalid={errors.consent ? "true" : "false"}
+                aria-describedby={errors.consent ? "contact-consent-error" : undefined}
                 onChange={(e) => set("consent", e.target.checked)}
               />
               Acepto la{" "}
@@ -308,13 +332,13 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
               y el tratamiento de mis datos.
             </label>
             {errors.consent && (
-              <span className="ak-err-msg">
+              <span id="contact-consent-error" className="ak-err-msg" role="alert">
                 <Icon name="alert-circle" size={13} />
                 {errors.consent}
               </span>
             )}
             {errors.submit && (
-              <span className="ak-err-msg">
+              <span id="contact-submit-error" className="ak-err-msg" role="alert">
                 <Icon name="alert-circle" size={13} />
                 {errors.submit}
               </span>
@@ -325,7 +349,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
 
       <div className="ak-form-actions">
         {step > 0 ? (
-          <Button variant="ghost" onClick={back}>
+          <Button type="button" variant="ghost" onClick={back}>
             <Icon name="arrow-left" size={15} className="ak-ic-mr-sm" />
             Atrás
           </Button>
@@ -333,16 +357,16 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
           <span />
         )}
         {step < 2 ? (
-          <Button variant="primary" onClick={next}>
+          <Button type="button" variant="primary" onClick={next}>
             Siguiente <Icon name="arrow-right" size={15} className="ak-ic-ml-sm" />
           </Button>
         ) : (
-          <Button variant="primary" onClick={submit}>
+          <Button type="submit" variant="primary" disabled={sending}>
             {sending ? "Enviando…" : "Enviar mensaje"}
           </Button>
         )}
       </div>
-    </div>
+    </form>
   );
 }
 
@@ -363,33 +387,57 @@ const MONTHS = [
 
 function Calendar() {
   const [sel, setSel] = useState<number | null>(null);
+  const [monthOffset, setMonthOffset] = useState(0);
   const avail = [4, 9, 10, 16, 17, 23, 24, 25];
   const now = new Date();
-  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+  const displayedMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const daysInMonth = new Date(
+    displayedMonth.getFullYear(),
+    displayedMonth.getMonth() + 1,
+    0,
+  ).getDate();
+  const firstDay = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth(), 1).getDay();
   const offset = (firstDay + 6) % 7; // Monday-first offset
   return (
     <div className="ak-cal">
       <div className="ak-cal-head">
-        <span className="ak-label">Agenda una llamada</span>
+        <h2 className="ak-label">Agenda una llamada</h2>
         <span className="ak-cal-nav">
-          <button aria-label="Mes anterior">
+          <button
+            type="button"
+            aria-label="Mes anterior"
+            onClick={() => {
+              setMonthOffset((value) => value - 1);
+              setSel(null);
+            }}
+          >
             <Icon name="chevron-left" size={15} />
           </button>
-          <button aria-label="Mes siguiente">
+          <button
+            type="button"
+            aria-label="Mes siguiente"
+            onClick={() => {
+              setMonthOffset((value) => value + 1);
+              setSel(null);
+            }}
+          >
             <Icon name="chevron-right" size={15} />
           </button>
         </span>
       </div>
       <div className="ak-byline-sub ak-cal-sub">
-        {MONTHS[now.getMonth()]} {now.getFullYear()} · zona horaria detectada
+        {MONTHS[displayedMonth.getMonth()]} {displayedMonth.getFullYear()} · zona horaria detectada
       </div>
-      <div className="ak-cal-dow">
+      <div className="ak-cal-dow" aria-hidden="true">
         {["L", "M", "X", "J", "V", "S", "D"].map((d) => (
           <span key={d}>{d}</span>
         ))}
       </div>
-      <div className="ak-cal-grid">
+      <div
+        className="ak-cal-grid"
+        role="group"
+        aria-label={`${MONTHS[displayedMonth.getMonth()]} ${displayedMonth.getFullYear()}`}
+      >
         {Array.from({ length: offset }).map((_, i) => (
           <span key={`empty-${i}`} className="ak-cal-day" aria-hidden="true" />
         ))}
@@ -397,12 +445,17 @@ function Calendar() {
           const day = i + 1;
           const av = avail.includes(day);
           return (
-            <span
-              key={i}
-              className={`ak-cal-day ${av ? "av" : ""} ${sel === day ? "sel" : ""}`.trim()}
-              onClick={() => av && setSel(day)}
-            >
-              {day}
+            <span key={i} className="ak-cal-cell">
+              <button
+                type="button"
+                className={`ak-cal-day ${av ? "av" : ""} ${sel === day ? "sel" : ""}`.trim()}
+                disabled={!av}
+                aria-label={`${day} de ${MONTHS[displayedMonth.getMonth()]}`}
+                aria-pressed={sel === day}
+                onClick={() => av && setSel(day)}
+              >
+                {day}
+              </button>
             </span>
           );
         })}

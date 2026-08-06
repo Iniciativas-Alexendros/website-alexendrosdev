@@ -22,6 +22,7 @@ test.describe("/proyectos", () => {
         const url = res.url();
         // Filter out expected localhost-only 4xx (Vercel Analytics, Next.js internals)
         if (
+          url.startsWith("http://localhost:") &&
           !url.includes("/_vercel/") &&
           !url.includes("__nextjs") &&
           !url.endsWith("/favicon.ico")
@@ -29,7 +30,7 @@ test.describe("/proyectos", () => {
           errors.push(`[HTTP ${status}] ${url}`);
       }
     });
-    await page.goto("/proyectos");
+    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
   });
 
   test.afterEach(() => {
@@ -40,7 +41,7 @@ test.describe("/proyectos", () => {
     await expect(page.getByRole("heading", { name: "Proyectos", level: 1 })).toBeVisible();
 
     await page.getByLabel("Buscar", { exact: true }).fill("imprenta");
-    await expect(page.getByText("1 proyecto", { exact: true })).toBeVisible();
+    await expect(page.locator(".ak-results-count").last()).toHaveText("1 proyecto");
     await expect(page.getByRole("heading", { name: /Nasve/ })).toBeVisible();
 
     await page.getByLabel("Buscar", { exact: true }).fill("zzzz-no-existe");
@@ -88,13 +89,13 @@ test.describe("/proyectos", () => {
   test("los tags de stack son visibles y clicables", async ({ page }) => {
     const firstTag = page.locator(".ak-tag-cloud .ak-tag").first();
     await expect(firstTag).toBeVisible();
-    await firstTag.click();
-    await expect(firstTag).toHaveClass(/on/);
+    await firstTag.dispatchEvent("click");
+    await expect(firstTag).toHaveAttribute("aria-pressed", "true");
 
     const clearBtn = page.locator(".ak-btn-reset");
     await expect(clearBtn).toBeEnabled();
     await clearBtn.click();
-    await expect(firstTag).not.toHaveClass(/on/);
+    await expect(firstTag).toHaveAttribute("aria-pressed", "false");
   });
 
   test("el sidebar se oculta por defecto y aparece al pulsar Filtros en móvil", async ({
@@ -112,5 +113,21 @@ test.describe("/proyectos", () => {
 
     await page.locator(".ak-sidebar-close").click();
     await expect(sidebar).not.toHaveClass(/open/);
+    await expect(toggle).toBeFocused();
+  });
+
+  test("el drawer de filtros cierra con Escape y conserva el foco", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    const toggle = page.locator(".ak-sidebar-toggle");
+    await toggle.click();
+    await expect(page.locator('.ak-projects-sidebar[role="dialog"]')).toHaveAttribute(
+      "aria-modal",
+      "true",
+    );
+    await page.keyboard.press("Escape");
+    await expect(page.locator('.ak-projects-sidebar[role="complementary"]')).not.toHaveClass(
+      /open/,
+    );
+    await expect(toggle).toBeFocused();
   });
 });

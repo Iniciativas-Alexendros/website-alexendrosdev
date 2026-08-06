@@ -9,15 +9,15 @@
 
 ## Resumen Ejecutivo
 
-| Dimensión           | Estado                            | Score |
-| ------------------- | --------------------------------- | ----- |
-| **Token system**    | ✅ Sólido                         | 90%   |
-| **Componentes UI**  | ⚠️ Base sólida, faltan estándares | 65%   |
-| **ARIA / A11y**     | ⚠️ Parcial                        | 55%   |
-| **Testing / QA**    | ❌ Sin pipeline de diseño         | 30%   |
-| **Infraestructura** | ⚠️ Modern CSS sí, i18n/RTL no     | 60%   |
+| Dimensión           | Estado                             | Score |
+| ------------------- | ---------------------------------- | ----- |
+| **Token system**    | ✅ Sólido                          | 90%   |
+| **Componentes UI**  | ⚠️ Base sólida, faltan estándares  | 65%   |
+| **ARIA / A11y**     | ✅ Fundamentos reforzados          | 75%   |
+| **Testing / QA**    | ⚠️ Tests de comportamiento activos | 45%   |
+| **Infraestructura** | ⚠️ Modern CSS sí, i18n/RTL no      | 60%   |
 
-**Puntuación global: 60/100** · 12/21 estándares cumplidos (total o parcial)
+**Puntuación global: 68/100** · fundamentos de interacción y accesibilidad reforzados; el pipeline visual sigue pendiente
 
 ---
 
@@ -42,7 +42,7 @@
 - **Spacing:** 10 steps (0.25rem → 6rem)
 - **Radius:** 7 steps (6px → 9999px)
 - **Motion:** 3 durations + 3 easings
-- **Z-index:** ❌ No hay tokens de z-index. Solo `z-index: 50` hardcodeado en `.ak-header`
+- **Z-index:** ✅ Escala semántica en `design-tokens.css` (`--z-base` → `--z-tooltip`) y usada por header, overlay, modal y tooltip
 
 **✅ DTCG:** `tokens.json` exportado en formato W3C Design Tokens (60+ tokens, light + dark).
 **✅ Tailwind v4 `@theme`:** Todos los tokens expuestos como utilidades Tailwind en `@theme inline`.
@@ -59,9 +59,9 @@ Los colores/sombras usan tokens (`bg-primary`, `text-on-primary`, `hsl(var(--...
 - Valores de spacing en componentes JSX usan clases `p-6`, `gap-2` etc. de Tailwind — aceptable
 - `font-semibold` en Button es hardcodeado
 
-### ❌ 2. DESIGN.md como schema (NO)
+### ⚠️ 2. DESIGN.md como schema (PARCIAL)
 
-No existía DESIGN.md. Este documento es el primero. Faltan:
+Este documento actúa como referencia operativa. Aún faltan:
 
 - Matrix de estados por componente
 - Composición de layouts
@@ -89,21 +89,21 @@ Cada componente define sus props localmente. No hay `types.ts` compartido con `S
 - `ThemeToggle` component funcional
 - `useTheme` hook con persistencia y `prefers-color-scheme`
 
-### ❌ 8. Z-index explícito (NO)
+### ✅ 8. Z-index explícito (PASS)
 
-No hay `--z-*` tokens. El único z-index del sistema (`50` en `.ak-header`) está hardcodeado.
+La escala `--z-*` vive en `design-tokens.css`; overlays y modal de filtros usan `--z-overlay` y `--z-modal`.
 
 ### ✅ 9. Contrato DTCG (PASS)
 
 `src/tokens/tokens.json` sigue formato W3C con `$type`, `$value`, `$description`. Incluye light + dark. Se creó `src/tokens/index.ts` como barrel.
 
-### ⚠️ 10. ARIA obligatorio (PASS parcial)
+### ✅ 10. ARIA obligatorio (PASS reforzado)
 
-- `Input`: ✅ `aria-invalid`, `aria-describedby`, `role="alert"` en errores
-- `ThemeToggle`: ✅ `aria-label`
-- `Button`: ❌ Sin `aria-pressed` para toggle, sin `aria-disabled` (solo `disabled` HTML)
-- `Card`: ❌ Sin `role`, `aria-label` o `aria-describedby`
-- No hay hook/helper ARIA compartido (`useAriaLive` / `ariaAttributes.ts` referenciados pero no existen)
+- `Input`/`Textarea`: ✅ `aria-invalid`, `aria-describedby`, `role="alert"` en errores
+- Formularios de contacto/newsletter: ✅ labels asociados, autocomplete y regiones de estado
+- Calendario: ✅ botones semánticos, selección anunciada y navegación de meses
+- `ThemeToggle` y controles de filtros: ✅ nombres accesibles, estados y cierre con Escape
+- El foco visual se centraliza mediante tokens y `:focus-visible`
 
 ### ⚠️ 11. WCAG AA gate (PASS parcial)
 
@@ -126,9 +126,9 @@ No hay revisión automática contra heurísticas de usabilidad.
 - ❌ Imágenes picsum sin dimensiones explícitas pueden causar CLS
 - ❌ Sin script de verificación Lighthouse
 
-### ❌ 15. Pipeline QA (NO)
+### ⚠️ 15. Pipeline QA (PARCIAL)
 
-No hay workflow de diseño automatizado. Sin gates de contraste, ARIA, PE, stories.
+Existe cobertura de contraste, axe E2E y tests de comportamiento; sigue pendiente un workflow de diseño automatizado para snapshots, stories y presupuesto visual.
 
 ### ⚠️ 16. Islands mode (PASS parcial)
 
@@ -163,7 +163,7 @@ Sin script de verificación de progressive enhancement. No se verifica que el ma
 - ❌ Sin `templates/` layer (layout compositions)
 - ✅ `index.ts` barrel export en ui/
 
-### ❌ 21. i18n infra (NO)
+### ⚠️ 21. i18n infra (NO APLICABLE A CORTO PLAZO)
 
 - Sitio monolingüe (es-ES). Sin soporte RTL.
 - CSS margins/paddings direccionales (`margin-left`, `padding-right`) no usan logical properties (`margin-inline-start`, `padding-inline-end`)
@@ -239,7 +239,19 @@ const buttonVariants = cva("inline-flex ...", {
 
 ---
 
-## 4. Gaps Prioritarios
+## 4. Implementación realizada y gaps pendientes
+
+### Implementado en esta iteración
+
+- Skip link global hacia `#main-content`, con foco visible y destino navegable.
+- Formularios de contacto con labels/IDs, autocomplete, errores asociados y `role="alert"`.
+- Calendario con botones, `aria-pressed`, navegación de meses y controles deshabilitados solo cuando corresponde.
+- Drawer de proyectos con `role="dialog"`, `aria-modal`, foco inicial, retorno de foco, Escape, focus trap y bloqueo de scroll.
+- Escala de z-index y anillo de foco tokenizado.
+- Sustitución de `transition: all` en la superficie tocada por transiciones explícitas.
+- Newsletter con IDs estables por instancia y mensajes anunciados.
+
+### Gaps pendientes
 
 | Prioridad | Área                  | Acción                                                                   | Impacto | Esfuerzo |
 | --------- | --------------------- | ------------------------------------------------------------------------ | ------- | -------- |

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
 import { getProjectImageOrGradient } from "@/lib/project-images";
@@ -15,6 +15,61 @@ export function ProjectsList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 880px)").matches,
+  );
+  const filterTriggerRef = useRef<HTMLButtonElement>(null);
+  const filterCloseRef = useRef<HTMLButtonElement>(null);
+  const filterDialogRef = useRef<HTMLElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const wasSidebarOpen = useRef(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 880px)");
+    const update = () => setIsMobile(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!sidebarOpen) {
+      if (wasSidebarOpen.current) restoreFocusRef.current?.focus();
+      wasSidebarOpen.current = false;
+      return;
+    }
+
+    wasSidebarOpen.current = true;
+    filterCloseRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSidebarOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = filterDialogRef.current?.querySelectorAll<HTMLElement>(
+        "button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]",
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [sidebarOpen]);
 
   const filteredProjects = useMemo(() => {
     return PROJECTS.filter((p) => {
@@ -38,13 +93,21 @@ export function ProjectsList() {
   return (
     <div className="ak-projects-page">
       <aside
+        ref={filterDialogRef}
         className={`ak-projects-sidebar ${sidebarOpen ? "open" : ""}`}
-        role="complementary"
+        role={sidebarOpen ? "dialog" : "complementary"}
+        aria-modal={sidebarOpen ? "true" : undefined}
+        aria-labelledby="projects-filters-title"
         aria-label="Filtros de proyectos"
+        aria-hidden={!sidebarOpen && isMobile ? "true" : undefined}
       >
         <div className="ak-sidebar-header">
-          <h2 className="ak-h3">Filtros</h2>
+          <h2 id="projects-filters-title" className="ak-h3">
+            Filtros
+          </h2>
           <button
+            ref={filterCloseRef}
+            type="button"
             className="ak-sidebar-close"
             onClick={() => setSidebarOpen(false)}
             aria-label="Cerrar filtros"
@@ -91,8 +154,15 @@ export function ProjectsList() {
             {TAGS.map((tag) => (
               <button
                 key={tag}
+                type="button"
                 className={`ak-tag ${selectedTags.includes(tag) ? "on" : ""}`}
                 onClick={() => toggleTag(tag)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    toggleTag(tag);
+                  }
+                }}
                 aria-pressed={selectedTags.includes(tag)}
               >
                 {tag}
@@ -103,6 +173,7 @@ export function ProjectsList() {
 
         <div className="ak-filter-actions">
           <button
+            type="button"
             className="ak-btn-reset"
             onClick={() => {
               setSelectedCategory("Todas");
@@ -119,13 +190,24 @@ export function ProjectsList() {
         </div>
       </aside>
 
-      <main className="ak-projects-main">
+      <section
+        className="ak-projects-main"
+        aria-labelledby="projects-title"
+        aria-hidden={isMobile && sidebarOpen ? "true" : undefined}
+      >
         <header className="ak-projects-header">
           <div className="ak-header-top">
-            <h1 className="ak-page-title">Proyectos</h1>
+            <h1 id="projects-title" className="ak-page-title">
+              Proyectos
+            </h1>
             <button
+              ref={filterTriggerRef}
+              type="button"
               className="ak-sidebar-toggle"
-              onClick={() => setSidebarOpen(true)}
+              onClick={(event) => {
+                restoreFocusRef.current = event.currentTarget;
+                setSidebarOpen(true);
+              }}
               aria-label="Abrir filtros"
             >
               <Icon name="filter" size={20} />
@@ -145,6 +227,7 @@ export function ProjectsList() {
               No hay proyectos que coincidan con los filtros actuales.
             </p>
             <button
+              type="button"
               className="ak-btn ak-btn-secondary"
               onClick={() => {
                 setSelectedCategory("Todas");
@@ -228,7 +311,7 @@ export function ProjectsList() {
             })}
           </div>
         )}
-      </main>
+      </section>
 
       {sidebarOpen && (
         <div

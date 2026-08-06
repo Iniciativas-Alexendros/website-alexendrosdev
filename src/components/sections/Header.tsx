@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
@@ -11,18 +11,38 @@ const SCROLL_THRESHOLD = 24;
 export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const burgerRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
   const [scrolled, setScrolled] = useState(
     () => typeof window !== "undefined" && window.scrollY > SCROLL_THRESHOLD,
   );
 
   useEffect(() => {
+    if (!open) {
+      if (wasOpen.current) burgerRef.current?.focus();
+      wasOpen.current = false;
+    } else {
+      wasOpen.current = true;
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
     const sentinel = document.querySelector<HTMLElement>("[data-ak-header-sentinel]");
-    if (!sentinel) return;
+    if (!sentinel) {
+      return () => document.removeEventListener("keydown", onKeyDown);
+    }
     const observer = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting), {
       threshold: 0,
     });
     observer.observe(sentinel);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [pathname]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
@@ -72,6 +92,7 @@ export function Header() {
               Hablemos
             </Button>
             <button
+              ref={burgerRef}
               type="button"
               className="ak-burger"
               aria-label={open ? "Cerrar menú" : "Abrir menú"}

@@ -24,7 +24,7 @@ for (const route of ROUTES) {
     });
     await page.emulateMedia({ colorScheme: "light" });
     await page.goto(route);
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("domcontentloaded");
     await page.waitForTimeout(400);
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
@@ -35,3 +35,14 @@ for (const route of ROUTES) {
     expect(blocking).toEqual([]);
   });
 }
+
+test("el contenido principal y el skip link son navegables por teclado", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("ao-theme", "light"));
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const skipLink = page.getByRole("link", { name: "Ir al contenido principal" });
+  await expect(skipLink).toBeAttached();
+  await page.locator("body").press("Tab");
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+});
