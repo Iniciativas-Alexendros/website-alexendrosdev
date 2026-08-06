@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 
@@ -33,6 +33,8 @@ function LegalNote() {
 }
 
 export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "cta" | "coming" }) {
+  const emailId = useId();
+  const messageId = `${emailId}-message`;
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [msg, setMsg] = useState("");
@@ -69,10 +71,13 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
       <div>
         <form className="ak-cta-form" onSubmit={onSubmit}>
           <input
+            id={`${emailId}-cta`}
             type="email"
             required
             placeholder="tu@email.com"
             aria-label="Email"
+            autoComplete="email"
+            aria-describedby={status === "error" || status === "ok" ? messageId : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -82,7 +87,13 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
           </Button>
         </form>
         {status === "ok" || status === "error" ? (
-          <p className="ak-form-msg" role="status" data-state={status}>
+          <p
+            id={messageId}
+            className="ak-form-msg"
+            role="status"
+            aria-live={status === "error" ? "assertive" : "polite"}
+            data-state={status}
+          >
             {msg}
           </p>
         ) : null}
@@ -93,20 +104,34 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
 
   return (
     <div>
-      <form className="ak-footer-news" onSubmit={onSubmit}>
+      <form className="ak-footer-news" onSubmit={onSubmit} aria-label="Suscripción a la newsletter">
         <input
+          id={`${emailId}-footer`}
           type="email"
           required
           placeholder="tu@email.com"
           aria-label="Email"
+          autoComplete="email"
+          aria-describedby={status === "error" || status === "ok" ? messageId : undefined}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button aria-label="Suscribirse" type="submit" disabled={status === "loading"}>
+        <button
+          aria-label="Suscribirse"
+          type="submit"
+          disabled={status === "loading"}
+          className="ak-newsletter-submit"
+        >
           <Icon name="arrow-right" size={16} />
         </button>
         {status === "ok" || status === "error" ? (
-          <p className="ak-form-msg" role="status" data-state={status}>
+          <p
+            id={messageId}
+            className="ak-form-msg"
+            role="status"
+            aria-live={status === "error" ? "assertive" : "polite"}
+            data-state={status}
+          >
             {msg}
           </p>
         ) : null}

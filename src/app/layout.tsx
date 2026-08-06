@@ -95,8 +95,13 @@ export default async function RootLayout({
         <JsonLd data={makeWebSiteJsonLd()} nonce={nonce} />
         <JsonLd data={makePersonJsonLd()} nonce={nonce} />
         <div className="ak-app">
+          <a className="ak-skip-link" href="#main-content">
+            Ir al contenido principal
+          </a>
           {!holding && <Header />}
-          <main>{children}</main>
+          <main id="main-content" tabIndex={-1}>
+            {children}
+          </main>
           {!holding && <Footer />}
         </div>
         <Analytics />

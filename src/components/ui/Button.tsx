@@ -41,7 +41,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   // Tokens from @theme — durations and easings are mapped to Tailwind utilities
   // via design-tokens.css @theme inline block
   const baseStyles =
-    "inline-flex items-center justify-center font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus/30 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center font-semibold transition-[background-color,color,border-color,box-shadow,transform,filter] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
   const variantStyles: Record<Variant, string> = {
     primary:
@@ -61,15 +61,22 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   const classNames = cn(baseStyles, variantStyles[variant], sizeStyles[size], className);
 
   if (href) {
-    // Render as anchor when href is provided
+    // An anchor cannot be disabled natively; block pointer and keyboard activation.
+    const anchorProps = restProps as AnchorHTMLAttributes<HTMLAnchorElement>;
     return (
       <a
         ref={ref as Ref<HTMLAnchorElement>}
-        href={href}
-        target={restProps.target}
-        rel={restProps.rel}
+        target={anchorProps.target}
+        rel={anchorProps.rel}
+        aria-disabled={disabled || undefined}
         className={classNames}
-        {...(restProps as AnchorHTMLAttributes<HTMLAnchorElement>)}
+        {...anchorProps}
+        href={disabled ? undefined : href}
+        tabIndex={disabled ? -1 : anchorProps.tabIndex}
+        onClick={(event) => {
+          anchorProps.onClick?.(event);
+          if (disabled) event.preventDefault();
+        }}
       >
         {children}
       </a>

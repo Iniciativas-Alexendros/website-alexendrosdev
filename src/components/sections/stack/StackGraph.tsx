@@ -189,6 +189,7 @@ export function StackGraph() {
                 style={{ left: n.x, top: n.y }}
                 tabIndex={n.type !== "center" ? 0 : -1}
                 role="button"
+                aria-label={n.type === "center" ? "Stack" : `Seleccionar ${n.id}`}
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={(e) => {
                   e.stopPropagation();

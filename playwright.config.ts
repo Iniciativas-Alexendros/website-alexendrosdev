@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const PORT = process.env.PORT || "3000";
+// Use a dedicated E2E port. Freebuff/dev shells may inject PORT for another
+// preview server; reusing it can make Playwright test the wrong application.
+const PORT = process.env.PLAYWRIGHT_PORT || "3100";
 
 export default defineConfig({
   testDir: "tests/e2e",

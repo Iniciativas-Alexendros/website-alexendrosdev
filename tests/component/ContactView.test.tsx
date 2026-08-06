@@ -42,6 +42,30 @@ describe("ContactView (formulario multi-paso)", () => {
     expect(await screen.findByText(/Mensaje enviado/)).toBeInTheDocument();
   });
 
+  it("enlaza labels, errores y selección de fecha con controles semánticos", async () => {
+    nav.params = new URLSearchParams();
+    const { user } = renderWithUser(<ContactView />);
+
+    expect(screen.getByLabelText("Nombre")).toBeInTheDocument();
+    expect(screen.getByLabelText("Email")).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", {
+        name: /Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre/,
+      }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+    expect(screen.getByLabelText("Nombre")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByLabelText("Nombre")).toHaveAttribute("aria-describedby");
+
+    await user.type(screen.getByLabelText("Nombre"), "Ana Pruebas");
+    await user.type(screen.getByLabelText("Email"), "ana@example.com");
+    await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+    const availableDay = screen.getByRole("button", { name: /^4 de/ });
+    await user.click(availableDay);
+    expect(availableDay).toHaveAttribute("aria-pressed", "true");
+  });
+
   it("propaga los parámetros UTM en el cuerpo de la petición", async () => {
     nav.params = new URLSearchParams({ utm_source: "newsletter" });
     let captured: Record<string, unknown> | undefined;

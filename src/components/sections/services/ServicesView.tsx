@@ -147,7 +147,7 @@ function AddonsSection() {
         >
           {ADDONS.map((a, i) => (
             <Reveal key={i} delay={i * 0.06}>
-              <article className="flex h-full flex-col rounded-xl border border-border-subtle bg-elevated p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
+              <article className="flex h-full flex-col rounded-xl border border-border-subtle bg-elevated p-6 shadow-sm transition-[box-shadow,border-color,transform] duration-200 hover:-translate-y-0.5 hover:shadow-md">
                 <h3 className="mb-2 text-base font-semibold text-foreground">{a.name}</h3>
                 <p className="mb-4 text-sm leading-relaxed text-text-secondary">{a.desc}</p>
                 <div className="mb-3 mt-auto text-xl font-bold text-link">{a.price}</div>

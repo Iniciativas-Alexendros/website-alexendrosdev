@@ -126,13 +126,14 @@
     background: hsl(var(--bg-inset));
     color: hsl(var(--text-primary));
     font-size: var(--fs-body);
-    outline: none;
     transition:
       border-color var(--duration-fast),
       box-shadow var(--duration-fast);
   }
-  .ak-input:focus,
-  .ak-textarea:focus {
+  .ak-input:focus-visible,
+  .ak-textarea:focus-visible {
+    outline: 2px solid hsl(var(--border-focus));
+    outline-offset: 2px;
     border-color: hsl(var(--border-focus));
     box-shadow: 0 0 0 3px hsl(var(--border-focus) / 0.2);
   }
@@ -238,16 +239,28 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 44px;
+    height: 44px;
     border-radius: var(--radius-md);
     border: 1px solid hsl(var(--border));
     background: hsl(var(--bg-inset));
     color: hsl(var(--text-secondary));
     cursor: pointer;
-    transition: all var(--duration-fast);
+    transition:
+      background-color var(--duration-fast),
+      color var(--duration-fast),
+      border-color var(--duration-fast),
+      box-shadow var(--duration-fast);
   }
-  .ak-cal-nav button:hover {
+  .ak-cal-nav button:focus-visible {
+    outline: 2px solid hsl(var(--border-focus));
+    outline-offset: 2px;
+  }
+  .ak-cal-nav button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  .ak-cal-nav button:hover:not(:disabled) {
     border-color: hsl(var(--border-focus));
     color: hsl(var(--text-primary));
   }
@@ -286,6 +299,24 @@
   .ak-cal-day.av {
     cursor: pointer;
     background: hsl(var(--bg-inset));
+    border: 0;
+  }
+  .ak-cal-day:focus-visible {
+    outline: 2px solid hsl(var(--border-focus));
+    outline-offset: 2px;
+  }
+  .ak-cal-day:disabled {
+    border: 0;
+    padding: 0;
+  }
+  .ak-cal-cell {
+    display: contents;
+  }
+  .ak-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
   }
   .ak-cal-day.av:hover {
     background: hsl(var(--bg-highlight));
