@@ -1,4 +1,4 @@
-import type { Contact, Deal } from "@prisma/client";
+import type { Contact, Deal } from "@/generated/prisma/client";
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 
 type NotionProperties = CreatePageParameters["properties"];
