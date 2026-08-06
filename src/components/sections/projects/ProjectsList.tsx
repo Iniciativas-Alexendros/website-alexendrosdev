@@ -29,9 +29,10 @@ export function ProjectsList() {
     () => true,
     () => false,
   );
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 880px)").matches,
-  );
+  // Keep the server and first client render identical. The media query is
+  // resolved in the effect below, after hydration, so mobile drawers never
+  // depend on browser-only state during SSR.
+  const [isMobile, setIsMobile] = useState(false);
   const filterTriggerRef = useRef<HTMLButtonElement>(null);
   const filterCloseRef = useRef<HTMLButtonElement>(null);
   const filterDialogRef = useRef<HTMLElement>(null);

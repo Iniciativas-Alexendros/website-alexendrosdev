@@ -104,11 +104,15 @@ test.describe("/proyectos", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
 
     const sidebar = page.locator(".ak-projects-sidebar");
     const toggle = page.locator(".ak-sidebar-toggle");
     await expect(toggle).toBeVisible();
     await expect(sidebar).not.toHaveClass(/open/);
+    await expect(sidebar).toHaveAttribute("aria-hidden", "true");
+    await expect(sidebar).toHaveAttribute("inert", "");
 
     await toggle.click();
     await expect(sidebar).toHaveClass(/open/);
@@ -120,6 +124,9 @@ test.describe("/proyectos", () => {
 
   test("el drawer de filtros cierra con Escape y conserva el foco", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
+
     const toggle = page.locator(".ak-sidebar-toggle");
     await toggle.click();
     await expect(page.locator('.ak-projects-sidebar[role="dialog"]')).toHaveAttribute(
