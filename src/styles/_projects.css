@@ -212,10 +212,16 @@
     color: hsl(var(--text-tertiary));
   }
   .ak-tile-idx {
-    color: hsl(var(--text-tertiary));
+    color: hsl(var(--text-primary));
   }
   .ak-tile-year {
-    color: hsl(var(--text-link));
+    color: hsl(var(--text-primary));
+  }
+  .ak-tile-link .ak-tile-meta,
+  .ak-tile-link .ak-tile-idx,
+  .ak-tile-link .ak-tile-year,
+  .ak-tile-link .ak-tile-desc {
+    color: hsl(var(--text-primary));
   }
   .ak-tile-tags {
     display: flex;
@@ -238,7 +244,7 @@
     color: hsl(var(--text-primary));
   }
   .ak-tile-metric span {
-    color: hsl(var(--text-tertiary));
+    color: hsl(var(--text-secondary));
   }
   .ak-empty-icon {
     color: hsl(var(--text-muted));

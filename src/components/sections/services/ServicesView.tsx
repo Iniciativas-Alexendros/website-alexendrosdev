@@ -20,12 +20,12 @@ function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: nu
             Recomendado
           </span>
         )}
-        <div className="text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+        <div className="text-xs font-semibold uppercase tracking-wider text-foreground">
           {tier.name}
         </div>
         <div className="break-words text-2xl font-bold leading-tight text-foreground md:text-3xl">
           {tier.price}
-          <span className="ml-1 text-sm font-normal text-muted">{tier.unit}</span>
+          <span className="ml-1 text-sm font-normal text-foreground">{tier.unit}</span>
         </div>
         <ul className="mb-6 mt-5 flex list-none flex-col gap-2.5 p-0">
           {tier.feats.map(([text, included], i) => (
@@ -33,7 +33,7 @@ function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: nu
               key={i}
               className={cn(
                 "flex items-center gap-2 text-sm",
-                included ? "text-text-secondary" : "text-muted",
+                included ? "text-text-primary" : "text-foreground",
               )}
             >
               <Icon name={included ? "check" : "x"} size={14} />
@@ -80,7 +80,7 @@ function ComparisonTable() {
                     <Icon
                       name={v ? "check" : "x"}
                       size={16}
-                      className={v ? "text-success" : "text-muted"}
+                      className={v ? "text-success" : "text-foreground"}
                     />
                   </td>
                 ))}

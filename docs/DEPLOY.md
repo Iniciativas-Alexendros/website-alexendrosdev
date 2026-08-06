@@ -27,6 +27,8 @@ Marcadores añadidos el 2026-07-07 a los 7 proyectos:
 | `ALLOWED_BRANCHES`              | `main,develop,feat/*,fix/*,chore/*` | Convencional, documenta qué ramas disparan qué stage.          |
 | `VERCEL_GIT_DEPLOYMENT_ENABLED` | `1`                                 | Confirma que el deploy automático por Git está activo.         |
 
+> **Semántica de `ignoreCommand`:** Vercel omite el build cuando el comando termina con `0` y continúa cuando termina con un código distinto de `0`. `scripts/should-build.mjs` devuelve `1` para `main`, los entornos Vercel conocidos (`production`, `preview`, `development`) y ramas autorizadas; devuelve `0` para ramas no autorizadas o valores desconocidos de `VERCEL_ENV`.
+
 > **Importante**: las env vars reales (claves de Stripe, Resend, Supabase, etc.) deben ser **diferentes** entre las tres environments. En Development se usan **claves test/sandbox** para evitar cobros o escrituras en producción.
 
 ## Cuándo desplegar en cada entorno
@@ -135,6 +137,9 @@ vercel ls
 
 # Inspeccionar un deployment concreto
 vercel inspect <url-deployment>
+
+# `ignoreCommand`: exit 1 continúa el build; exit 0 lo omite
+# (scripts/should-build.mjs devuelve 1 para ramas autorizadas)
 
 # Ver logs de runtime
 vercel logs <url-deployment>
