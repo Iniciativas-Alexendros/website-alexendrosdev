@@ -80,13 +80,9 @@ export function HomeServices() {
                 <p className="ak-srv-sub">{service.description}</p>
               </div>
               <span className="ak-srv-price">{service.price}</span>
-              <button
-                type="button"
-                className="ak-srv-arrow"
-                aria-label={`Ver detalles de ${service.name}`}
-              >
+              <span className="ak-srv-arrow" aria-hidden="true">
                 <Icon name="chevron-right" size={18} />
-              </button>
+              </span>
             </Link>
           ))}
         </div>

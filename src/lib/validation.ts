@@ -165,6 +165,17 @@ export const crmTaskSchema = z.object({
 
 export type CrmTaskInput = z.infer<typeof crmTaskSchema>;
 
+export const crmActivitySchema = z.object({
+  type: z.enum(["EMAIL", "CALL", "MEETING", "NOTE", "TASK", "OTHER"]),
+  title: z.string().trim().min(1, "Indica el título.").max(200),
+  description: z.string().trim().max(5000).optional(),
+  occurredAt: z.string().datetime("Fecha inválida."),
+  contactId: z.string().uuid("ID de contacto inválido.").optional(),
+  dealId: z.string().uuid("ID de deal inválido.").optional(),
+});
+
+export type CrmActivityInput = z.infer<typeof crmActivitySchema>;
+
 // ─── P1.6 — Newsletter admin (envío manual) ──────────────────────────────────
 
 export const newsletterSendSchema = z.object({

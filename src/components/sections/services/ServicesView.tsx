@@ -77,6 +77,7 @@ function ComparisonTable() {
                 <td>{label}</td>
                 {values.map((v, j) => (
                   <td key={j}>
+                    <span className="sr-only">{v ? "Incluido" : "No incluido"}</span>
                     <Icon
                       name={v ? "check" : "x"}
                       size={16}

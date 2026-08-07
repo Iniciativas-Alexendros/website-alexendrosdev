@@ -59,7 +59,6 @@ vi.mock("@/lib/agents/config", () => {
   };
 });
 
-vi.mock("@/google/genai", () => ({}));
 vi.mock("@google/genai", () => ({
   GoogleGenAI: class {
     constructor(_opts: { apiKey: string }) {

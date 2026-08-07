@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
+import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 const FRAMES = [
   '{"name": "alexendros", "role": "developer", "stack": ["TypeScript", "React", "Node", "Python", "Rust"]}',
@@ -8,21 +9,11 @@ const FRAMES = [
   '{"name": "alexendros", "role": "builder", "philosophy": "clean code, fair price, your IP"}',
 ];
 
-function subscribeReduced(cb: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
-function getReduced() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 export function Terminal() {
   const [frameIndex, setFrameIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
-  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
+  const isReduced = useReducedMotion();
 
   useEffect(() => {
     const currentFrame = FRAMES[frameIndex];

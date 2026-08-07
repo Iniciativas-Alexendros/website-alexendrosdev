@@ -1,9 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PROJECTS, getProject, getCaseStudy } from "@/lib/content";
 import type { CaseBlock } from "@/lib/content/case-studies";
-import { getProjectImageOrGradient } from "@/lib/project-images";
+import { ProjectImage } from "@/components/ProjectImage";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui";
 import { JsonLd } from "@/components/JsonLd";
@@ -135,20 +134,9 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
           </div>
         )}
       </header>{" "}
-      {(() => {
-        const img = getProjectImageOrGradient(p.id);
-        return img.type === "image" ? (
-          <div className="ak-hero-img">
-            <Image src={img.src} alt={p.title} fill sizes="100vw" priority />
-          </div>
-        ) : (
-          <div
-            className="ak-hero-img"
-            style={{ background: img.style, minHeight: 300 }}
-            aria-hidden="true"
-          />
-        );
-      })()}
+      <div className="ak-hero-img">
+        <ProjectImage id={p.id} alt={p.title} sizes="100vw" priority />
+      </div>
       <section className="ak-case-layout">
         <article className="ak-prose">
           <div className="ak-case-metrics">

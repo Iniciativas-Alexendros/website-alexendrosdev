@@ -26,12 +26,17 @@ export async function GET(req: Request) {
     ];
   }
 
-  const contacts = await prisma.contact.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const contacts = await prisma.contact.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json({ data: contacts });
+    return NextResponse.json({ data: contacts });
+  } catch (err) {
+    console.error("[crm/contacts] error al obtener contactos:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

@@ -105,7 +105,7 @@ export function Header() {
           </div>
         </div>
         {open && (
-          <div id="mobile-nav" className="ak-mobile-nav" role="navigation" aria-label="Móvil">
+          <nav id="mobile-nav" className="ak-mobile-nav" aria-label="Móvil">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -117,7 +117,7 @@ export function Header() {
                 {item.label}
               </Link>
             ))}
-          </div>
+          </nav>
         )}
       </header>
     </>

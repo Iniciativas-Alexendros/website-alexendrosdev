@@ -13,7 +13,6 @@ interface RevealProps {
   /** Start Y offset in pixels */
   y?: number;
   className?: string;
-  as?: "div" | "section" | "article" | "header" | "footer" | "aside" | "main" | "nav";
 }
 
 /**

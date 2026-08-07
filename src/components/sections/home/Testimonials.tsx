@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { TESTIMONIALS as CONTENT_TESTIMONIALS } from "@/lib/content";
 import { Icon } from "@/components/ui";
+import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 interface Testimonial {
   quote: string;
@@ -30,16 +31,6 @@ const TESTIMONIALS: Testimonial[] = CONTENT_TESTIMONIALS.filter(
   url: t.url,
   avatarSeed: `avatar-${slugify(t.name)}`,
 }));
-
-function subscribeReduced(cb: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
-function getReduced() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
 
 function subscribeWidth(cb: () => void) {
   const mq = window.matchMedia("(min-width: 880px)");
@@ -90,7 +81,7 @@ export function Testimonials() {
     () => true,
     () => false,
   );
-  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
+  const isReduced = useReducedMotion();
   const perView = useSyncExternalStore(subscribeWidth, getPerView, () => 3);
 
   const [index, setIndex] = useState(0);
@@ -138,6 +129,7 @@ export function Testimonials() {
 
             <div className="ak-tcar-nav" aria-label="Navegaci&oacute;n carrusel">
               <button
+                type="button"
                 className="ak-tcar-btn"
                 onClick={goPrev}
                 aria-label="Testimonio anterior"
@@ -146,6 +138,7 @@ export function Testimonials() {
                 <Icon name="chevron-left" size={18} />
               </button>
               <button
+                type="button"
                 className="ak-tcar-btn"
                 onClick={goNext}
                 aria-label="Siguiente testimonio"
@@ -159,10 +152,11 @@ export function Testimonials() {
               {TESTIMONIALS.slice(0, maxIndex + 1).map((_, i) => (
                 <button
                   key={i}
+                  type="button"
                   className={`ak-tcar-dot ${i === safeIndex ? "on" : ""}`}
                   onClick={() => goTo(i)}
                   aria-label={`Ir al testimonio ${i + 1}`}
-                  aria-current={i === safeIndex ? "true" : "false"}
+                  aria-current={i === safeIndex ? "true" : undefined}
                 />
               ))}
             </div>

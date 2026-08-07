@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CONTACT_ID, DEAL_ID, jsonReq, getReq, buildPrisma } from "../helpers/crm";
-import type { CrmMocks } from "../helpers/crm";
+import type { CrmMocks, PrismaClient } from "../helpers/crm";
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -13,7 +13,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     state: {
-      prisma: null as null | Record<string, Record<string, ReturnType<typeof vi.fn>>>,
+      prisma: null as PrismaClient | null,
     },
     mocks: fns,
   };

@@ -156,7 +156,6 @@ describe("eval/cumplimiento: captureCrmCalls + evaluateCrmCompliance", () => {
     await runReparador(baseRequest, {
       executeCrm: wrappedClient.createTask as never,
     });
-    expect(calls.length).toBeGreaterThanOrEqual(0); // sin executeCrm captura, se usan los metodos
     // Ejecutamos manualmente el crmClient mockeado para capturar
     await wrappedClient.createTask({ title: "t", priority: "HIGH" });
     const results = evaluateCrmCompliance(calls, {

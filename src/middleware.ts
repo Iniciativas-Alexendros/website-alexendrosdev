@@ -4,7 +4,7 @@ import { isComingSoon } from "@/lib/flags";
 // Rutas permitidas en modo "próximamente" (opt-in con COMING_SOON=1).
 const COMING_SOON_ALLOW = ["/proximamente"];
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   // Modo "próximamente": reescribe todo a /proximamente, salvo las rutas
   // permitidas. Se ejecuta antes del CSP porque un rewrite no necesita
   // cabeceras de seguridad en la página real.

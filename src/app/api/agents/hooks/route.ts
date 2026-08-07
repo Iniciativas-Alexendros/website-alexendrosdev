@@ -8,6 +8,11 @@ import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
 // Recibe eventos de Stripe (enviados manualmente o desde el webhook de Stripe)
 // y los clasifica con el agente Auditor. Auth: X-API-Key del CRM.
 
+// Vercel serverless functions are killed mid-flight at 15s (Hobby) / 60s (Pro).
+// Cap the total time the LLM-invoking call can take so we return a graceful 504
+// instead of a truncated response.
+const AGENT_TIMEOUT_MS = 25_000;
+
 const stripeEventSchema = z.object({
   id: z.string().optional(),
   type: z.string().min(1).max(100),
@@ -47,26 +52,41 @@ export async function POST(req: Request) {
     );
   }
 
-  const result = await processHookEvent(parsed.data as StripeEvent);
+  try {
+    const result = await Promise.race([
+      processHookEvent(parsed.data as StripeEvent),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("TIMEOUT")), AGENT_TIMEOUT_MS),
+      ),
+    ]);
 
-  // Anomalía: si supera el threshold, el agente debería alertar.
-  // El envío de email vía Resend se hace en S4 (alertas). Aquí solo log.
-  if (result.isAnomaly) {
-    console.warn(
-      `[auditor] Anomalía detectada: ${result.failureCount} fallos de checkout en <5min`,
-    );
+    // Anomalía: si supera el threshold, el agente debería alertar.
+    // El envío de email vía Resend se hace en S4 (alertas). Aquí solo log.
+    if (result.isAnomaly) {
+      console.warn(
+        `[auditor] Anomalía detectada: ${result.failureCount} fallos de checkout en <5min`,
+      );
+    }
+
+    return NextResponse.json({
+      ok: true,
+      classification: result.classification,
+      anomaly: result.isAnomaly,
+      failureCount: result.failureCount,
+      llm: {
+        gemini: hasGemini(),
+        opencodeZen: hasOpenCodeZen(),
+        any: hasAnyLLM(),
+      },
+      mode: result.mode,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "TIMEOUT") {
+      return NextResponse.json(
+        { error: "Tiempo de espera agotado. Intenta reenviar el evento." },
+        { status: 504 },
+      );
+    }
+    throw error;
   }
-
-  return NextResponse.json({
-    ok: true,
-    classification: result.classification,
-    anomaly: result.isAnomaly,
-    failureCount: result.failureCount,
-    llm: {
-      gemini: hasGemini(),
-      opencodeZen: hasOpenCodeZen(),
-      any: hasAnyLLM(),
-    },
-    mode: result.mode,
-  });
 }

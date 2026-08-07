@@ -34,34 +34,39 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     );
   }
 
-  const invoice = await prisma.invoice.findUnique({ where: { id } });
-  if (!invoice) {
-    return NextResponse.json({ error: "Factura no encontrada." }, { status: 404 });
-  }
+  try {
+    const invoice = await prisma.invoice.findUnique({ where: { id } });
+    if (!invoice) {
+      return NextResponse.json({ error: "Factura no encontrada." }, { status: 404 });
+    }
 
-  // Validar transición de status
-  const allowed = VALID_INVOICE_TRANSITIONS[invoice.status] ?? [];
-  if (!allowed.includes(parsed.data.status)) {
-    return NextResponse.json(
-      {
-        error: "Transición de estado no permitida.",
-        fields: { status: `No se puede pasar de "${invoice.status}" a "${parsed.data.status}".` },
+    // Validar transición de status
+    const allowed = VALID_INVOICE_TRANSITIONS[invoice.status] ?? [];
+    if (!allowed.includes(parsed.data.status)) {
+      return NextResponse.json(
+        {
+          error: "Transición de estado no permitida.",
+          fields: { status: `No se puede pasar de "${invoice.status}" a "${parsed.data.status}".` },
+        },
+        { status: 422 },
+      );
+    }
+
+    const updated = await prisma.invoice.update({
+      where: { id },
+      data: {
+        status: parsed.data.status,
+        paidAt: parsed.data.paidAt
+          ? new Date(parsed.data.paidAt)
+          : parsed.data.status === "paid"
+            ? new Date()
+            : undefined,
       },
-      { status: 422 },
-    );
+    });
+
+    return NextResponse.json({ data: updated });
+  } catch (err) {
+    console.error("[crm/invoices] error al actualizar factura:", err);
+    return NextResponse.json({ error: "No se pudo actualizar la factura." }, { status: 500 });
   }
-
-  const updated = await prisma.invoice.update({
-    where: { id },
-    data: {
-      status: parsed.data.status,
-      paidAt: parsed.data.paidAt
-        ? new Date(parsed.data.paidAt)
-        : parsed.data.status === "paid"
-          ? new Date()
-          : undefined,
-    },
-  });
-
-  return NextResponse.json({ data: updated });
 }
