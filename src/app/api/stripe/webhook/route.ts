@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { stripe, STRIPE_WEBHOOK_SECRET } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import { metric } from "@/lib/monitor";
+import { createHash } from "crypto";
 
 // El webhook necesita el runtime Node (verificación de firma con crypto) y el
 // cuerpo crudo sin parsear.
@@ -42,8 +43,28 @@ export async function POST(req: Request) {
 
   metric("stripe.webhook.received", event.type);
 
+  const eventId = event.id;
   try {
-    const eventId = event.id;
+    // Idempotency: check webhook_events table
+    const existing = await prisma.webhookEvent.findUnique({
+      where: { provider_externalEventId: { provider: "stripe", externalEventId: eventId } },
+    });
+    if (existing?.status === "processed") {
+      // Already processed, skip
+      return NextResponse.json({ received: true });
+    }
+    // Record receipt
+    await prisma.webhookEvent.upsert({
+      where: { provider_externalEventId: { provider: "stripe", externalEventId: eventId } },
+      update: { status: "processing", attemptCount: { increment: 1 } },
+      create: {
+        provider: "stripe",
+        externalEventId: eventId,
+        eventType: event.type,
+        payloadHash: createHash("sha256").update(JSON.stringify(event)).digest("hex"),
+        status: "processing",
+      },
+    });
     switch (event.type) {
       case "checkout.session.completed":
         await handleCheckoutCompleted(event.data.object, eventId);
@@ -67,6 +88,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "No se pudo procesar el evento." }, { status: 500 });
   }
 
+  // Mark webhook event as processed
+  await prisma.webhookEvent.update({
+    where: { provider_externalEventId: { provider: "stripe", externalEventId: eventId } },
+    data: { status: "processed", processedAt: new Date() },
+  });
   metric("stripe.webhook.processed", event.type);
   return NextResponse.json({ received: true });
 }

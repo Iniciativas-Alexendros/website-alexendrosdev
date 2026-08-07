@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { resend, EMAIL_FROM } from "@/lib/email";
+import { resend } from "@/lib/email";
 import { requireCrmAuth } from "@/lib/crm-auth";
 import { newsletterSendSchema, flattenErrors } from "@/lib/validation";
-import { NewsletterEmail } from "@/emails/NewsletterEmail";
+import { publishOutboxEventInTransaction } from "@/lib/services/outbox";
 
 export const runtime = "nodejs";
 
@@ -99,35 +99,32 @@ export async function POST(req: Request) {
     );
   }
 
-  // Envío best-effort en serie. Resend aplica rate-limit por defecto y rechaza
-  // con 429 si se supera; iteramos uno a uno para no perder progreso (si uno
-  // falla, los siguientes pueden seguir) y reportamos el desglose.
-  let sent = 0;
-  const errors: { email: string; message: string }[] = [];
-  for (const r of recipients) {
-    try {
-      await resend.emails.send({
-        from: EMAIL_FROM,
-        to: r.email,
-        subject,
-        react: NewsletterEmail({ subject, body }),
-      });
-      sent++;
-    } catch (err) {
-      errors.push({
-        email: r.email,
-        message: err instanceof Error ? err.message : String(err),
-      });
-    }
+  // Encolar emails en outbox para envío asíncrono con retry/backoff.
+  // Cada destinatario recibe un evento independiente para aislar fallos.
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const r of recipients) {
+        await publishOutboxEventInTransaction(tx, "send_email", "Subscriber", r.email, {
+          template: "newsletter",
+          subject,
+          body,
+        });
+      }
+    });
+  } catch (err) {
+    console.error("[newsletter/send] error al encolar emails:", err);
+    return NextResponse.json(
+      { error: "No se pudo encolar el envío. Inténtalo más tarde." },
+      { status: 502 },
+    );
   }
 
   return NextResponse.json(
     {
       ok: true,
-      sent,
+      queued: recipients.length,
       recipients: recipients.length,
-      failed: errors.length,
-      errors: errors.length > 0 ? errors : undefined,
+      note: "Emails encolados para envío asíncrono vía outbox worker.",
     },
     { status: 201 },
   );

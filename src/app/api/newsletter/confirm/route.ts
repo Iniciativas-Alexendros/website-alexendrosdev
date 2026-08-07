@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { prisma } from "@/lib/db";
 import { resend, EMAIL_FROM } from "@/lib/email";
 import { WelcomeEmail } from "@/emails/WelcomeEmail";
+import { createHash } from "node:crypto";
 
 export const runtime = "nodejs";
 
@@ -16,9 +17,11 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
   if (!token || !prisma) return NextResponse.redirect(fail);
 
+  const tokenHash = createHash("sha256").update(token).digest("hex");
+
   let sub;
   try {
-    sub = await prisma.subscriber.findUnique({ where: { token } });
+    sub = await prisma.subscriber.findUnique({ where: { tokenHash } });
   } catch (err) {
     console.error("[newsletter/confirm] error al consultar el token:", err);
     return NextResponse.redirect(fail);
@@ -32,7 +35,7 @@ export async function GET(req: NextRequest) {
   try {
     await prisma.subscriber.update({
       where: { id: sub.id },
-      data: { confirmed: true, confirmedAt: new Date(), token: null, tokenExpiresAt: null },
+      data: { confirmed: true, confirmedAt: new Date(), tokenHash: null, tokenExpiresAt: null },
     });
   } catch (err) {
     console.error("[newsletter/confirm] error al confirmar la suscripción:", err);

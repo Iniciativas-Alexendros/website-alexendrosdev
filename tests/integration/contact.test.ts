@@ -1,18 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { contactoValido } from "../fixtures/content";
 
-// Estado mutable de los mocks (getters en vi.mock → bindings vivos). Permite
-// alternar prisma/resend entre null (degradación) y objeto (persistencia/envío).
 const mocks = vi.hoisted(() => {
   const leadCreate = vi.fn();
   const emailSend = vi.fn();
+  const transaction = vi.fn();
   return {
     state: {
-      prisma: null as null | { lead: { create: typeof leadCreate } },
+      prisma: null as null | {
+        lead: { create: typeof leadCreate };
+        $transaction: typeof transaction;
+        outboxEvent: { create: ReturnType<typeof vi.fn> };
+      },
       resend: null as null | { emails: { send: typeof emailSend } },
     },
     leadCreate,
     emailSend,
+    transaction,
   };
 });
 
@@ -41,11 +45,27 @@ function post(body: unknown, ip: string) {
   );
 }
 
+function withPrisma() {
+  mocks.state.prisma = {
+    lead: { create: mocks.leadCreate },
+    $transaction: mocks.transaction,
+    outboxEvent: { create: vi.fn() },
+  };
+}
+
 beforeEach(() => {
   mocks.state.prisma = null;
   mocks.state.resend = null;
   mocks.leadCreate.mockReset();
   mocks.emailSend.mockReset();
+  mocks.transaction.mockReset();
+  mocks.transaction.mockImplementation(async (fn: unknown) => {
+    const tx = {
+      lead: { create: mocks.leadCreate },
+      outboxEvent: { create: vi.fn().mockResolvedValue({}) },
+    };
+    return (fn as (tx: Record<string, unknown>) => Promise<unknown>)(tx);
+  });
   vi.spyOn(console, "warn").mockImplementation(() => {});
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
@@ -58,17 +78,19 @@ describe("POST /api/contact", () => {
     expect(mocks.leadCreate).not.toHaveBeenCalled();
   });
 
-  it("persiste el lead y envía email cuando hay clientes", async () => {
-    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
+  it("persiste el lead y encola email vía outbox cuando hay prisma", async () => {
+    withPrisma();
     mocks.state.resend = { emails: { send: mocks.emailSend } };
     const res = await post(contactoValido, "10.1.0.2");
     expect(res.status).toBe(200);
     expect(mocks.leadCreate).toHaveBeenCalledOnce();
-    expect(mocks.emailSend).toHaveBeenCalledOnce();
+    expect(mocks.transaction).toHaveBeenCalledOnce();
+    // El email NO se envía directamente (se encola en outbox)
+    expect(mocks.emailSend).not.toHaveBeenCalled();
   });
 
   it("captura los parámetros UTM en el lead", async () => {
-    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
+    withPrisma();
     await post({ ...contactoValido, utmSource: "newsletter" }, "10.1.0.3");
     expect(mocks.leadCreate).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -94,20 +116,15 @@ describe("POST /api/contact", () => {
     expect(res.status).toBe(422);
   });
 
-  it("responde 502 cuando todos los canales configurados fallan (lead perdido)", async () => {
-    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
-    mocks.state.resend = { emails: { send: mocks.emailSend } };
-    mocks.leadCreate.mockRejectedValue(new Error("db down"));
-    mocks.emailSend.mockRejectedValue(new Error("resend down"));
+  it("responde 502 cuando falla la transacción (lead no persistido)", async () => {
+    withPrisma();
+    mocks.transaction.mockRejectedValue(new Error("db down"));
     const res = await post(contactoValido, "10.1.0.50");
     expect(res.status).toBe(502);
   });
 
-  it("responde 200 si al menos un canal tiene éxito", async () => {
-    mocks.state.prisma = { lead: { create: mocks.leadCreate } };
-    mocks.state.resend = { emails: { send: mocks.emailSend } };
-    mocks.leadCreate.mockRejectedValue(new Error("db down"));
-    mocks.emailSend.mockResolvedValue({ id: "ok" });
+  it("responde 200 si la transacción succeede", async () => {
+    withPrisma();
     const res = await post(contactoValido, "10.1.0.51");
     expect(res.status).toBe(200);
   });

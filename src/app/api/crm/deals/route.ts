@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireCrmAuth } from "@/lib/crm-auth";
 import { crmDealSchema, flattenErrors } from "@/lib/validation";
-import { syncDealToNotion } from "@/lib/crm/notion-sync";
+import { publishOutboxEventInTransaction } from "@/lib/services/outbox";
 
 export async function GET(req: Request) {
   const authErr = requireCrmAuth(req);
@@ -58,39 +58,41 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Asignar stage "Nuevo" (order 0) automáticamente
-    const initialStage = await prisma.pipelineStage.findFirst({
-      where: { order: 0 },
-    });
+    const deal = await prisma.$transaction(async (tx) => {
+      const initialStage = await tx.pipelineStage.findFirst({
+        where: { order: 0 },
+      });
 
-    const deal = await prisma.deal.create({
-      data: {
-        title: parsed.data.title,
-        contactId: parsed.data.contactId,
-        stageId: initialStage?.id ?? null,
-        value: parsed.data.value ?? 0,
-        currency: parsed.data.currency ?? "eur",
-        probability: parsed.data.probability ?? 0,
-        notes: parsed.data.notes,
-        items: parsed.data.items
-          ? {
-              create: parsed.data.items.map((it) => ({
-                productId: it.productId,
-                quantity: it.quantity,
-                unitPrice: it.unitPrice ?? 0,
-                totalPrice: (it.unitPrice ?? 0) * it.quantity,
-                notes: it.notes,
-              })),
-            }
-          : undefined,
-      },
-      include: { stage: true, contact: true },
-    });
+      const newDeal = await tx.deal.create({
+        data: {
+          title: parsed.data.title,
+          contactId: parsed.data.contactId,
+          stageId: initialStage?.id ?? null,
+          value: parsed.data.value ?? 0,
+          currency: parsed.data.currency ?? "eur",
+          probability: parsed.data.probability ?? 0,
+          notes: parsed.data.notes,
+          items: parsed.data.items
+            ? {
+                create: parsed.data.items.map((it) => ({
+                  productId: it.productId,
+                  quantity: it.quantity,
+                  unitPrice: it.unitPrice ?? 0,
+                  totalPrice: (it.unitPrice ?? 0) * it.quantity,
+                  notes: it.notes,
+                })),
+              }
+            : undefined,
+        },
+        include: { stage: true, contact: true },
+      });
 
-    // Best-effort: sincronizar a Notion en background
-    syncDealToNotion(deal as Parameters<typeof syncDealToNotion>[0]).catch((e) =>
-      console.warn("[crm/deals] sync Notion falló:", e),
-    );
+      await publishOutboxEventInTransaction(tx, "sync_notion", "Deal", newDeal.id, {
+        action: "created",
+      });
+
+      return newDeal;
+    });
 
     return NextResponse.json({ data: deal }, { status: 201 });
   } catch (err) {

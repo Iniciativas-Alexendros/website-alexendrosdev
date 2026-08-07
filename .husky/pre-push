@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
-# Pre-push: valida que el código pase typecheck, lint y tests antes de llegar a CI.
+# Pre-push: valida que el código pase typecheck, lint, tests, e2e y tokens.
 # Detiene el push si cualquier comando falla.
+#
+# Para saltar e2e en local (ej. sin build previo): SKIP_E2E=1 git push
 
 set -e
 
@@ -8,15 +10,22 @@ echo "▸ branch name..."
 bash .husky/branch-name-check.sh
 
 echo "▸ typecheck..."
-npx pnpm typecheck
+pnpm typecheck
 
 echo "▸ lint..."
-npx pnpm lint
+pnpm lint
 
 echo "▸ test:coverage..."
-npx pnpm test:coverage
+pnpm test:coverage
 
 echo "▸ validate tokens..."
 bash scripts/validate-tokens.sh
+
+if [ "$SKIP_E2E" != "1" ]; then
+  echo "▸ e2e (Playwright)..."
+  pnpm e2e
+else
+  echo "⊘ e2e (omitido vía SKIP_E2E=1)"
+fi
 
 echo "✓ pre-push OK"

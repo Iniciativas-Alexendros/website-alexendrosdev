@@ -61,12 +61,13 @@ export async function POST(req: Request) {
   if (existing?.confirmed) return genericOk();
 
   // Alta/refresco en estado pendiente con un token de confirmación nuevo.
-  const { token, tokenExpiresAt } = newConfirmationToken();
+  // Se almacena el hash del token, no el token en claro.
+  const { token, tokenHash, tokenExpiresAt } = newConfirmationToken();
   try {
     await prisma.subscriber.upsert({
       where: { email },
-      update: { token, tokenExpiresAt, confirmed: false },
-      create: { email, token, tokenExpiresAt },
+      update: { tokenHash, tokenExpiresAt, confirmed: false },
+      create: { email, tokenHash, tokenExpiresAt },
     });
   } catch (err) {
     console.error("[newsletter] error al persistir suscriptor pendiente:", err);

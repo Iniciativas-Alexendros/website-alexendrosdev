@@ -78,10 +78,10 @@ describe("POST /api/newsletter (double opt-in)", () => {
     mocks.findUnique.mockResolvedValue(null);
     const res = await post({ email: "nuevo@suscriptor.dev" }, "10.2.0.2");
     expect(res.status).toBe(200);
-    // upsert con token, expiración y confirmed:false
+    // upsert con tokenHash, expiración y confirmed:false
     const arg = mocks.upsert.mock.calls[0]![0];
     expect(arg.where).toEqual({ email: "nuevo@suscriptor.dev" });
-    expect(arg.create.token).toEqual(expect.any(String));
+    expect(arg.create.tokenHash).toEqual(expect.any(String));
     expect(arg.create.tokenExpiresAt).toBeInstanceOf(Date);
     expect(arg.update.confirmed).toBe(false);
     // email de CONFIRMACIÓN, no de bienvenida

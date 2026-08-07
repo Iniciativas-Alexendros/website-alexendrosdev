@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireCrmAuth } from "@/lib/crm-auth";
 import { crmContactSchema, flattenErrors } from "@/lib/validation";
+import { publishOutboxEventInTransaction } from "@/lib/services/outbox";
 
 export async function GET(req: Request) {
   const authErr = requireCrmAuth(req);
@@ -63,17 +64,25 @@ export async function POST(req: Request) {
   }
 
   try {
-    const contact = await prisma.contact.create({
-      data: {
-        firstName: parsed.data.firstName,
-        lastName: parsed.data.lastName,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        company: parsed.data.company,
-        position: parsed.data.position,
-        notes: parsed.data.notes,
-        type: parsed.data.type ?? "INDIVIDUAL",
-      },
+    const contact = await prisma.$transaction(async (tx) => {
+      const newContact = await tx.contact.create({
+        data: {
+          firstName: parsed.data.firstName,
+          lastName: parsed.data.lastName,
+          email: parsed.data.email,
+          phone: parsed.data.phone,
+          company: parsed.data.company,
+          position: parsed.data.position,
+          notes: parsed.data.notes,
+          type: parsed.data.type ?? "INDIVIDUAL",
+        },
+      });
+
+      await publishOutboxEventInTransaction(tx, "sync_notion", "Contact", newContact.id, {
+        action: "created",
+      });
+
+      return newContact;
     });
 
     return NextResponse.json({ data: contact }, { status: 201 });

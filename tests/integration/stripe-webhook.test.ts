@@ -75,7 +75,7 @@ function post(body: string, headers: Record<string, string> = {}) {
 }
 
 function buildPrisma() {
-  return {
+  const prismaMock = {
     order: { upsert: mocks.orderUpsert },
     invoice: { upsert: mocks.invoiceUpsert },
     subscription: {
@@ -87,7 +87,13 @@ function buildPrisma() {
     activity: { create: mocks.activityCreate, findFirst: mocks.activityFindFirst },
     task: { create: mocks.taskCreate, findFirst: mocks.taskFindFirst },
     pipelineStage: { findFirst: mocks.pipelineStageFindFirst },
+    webhookEvent: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      update: vi.fn(),
+    },
   };
+  return prismaMock;
 }
 
 const completedEvent = {
@@ -162,29 +168,6 @@ const subscriptionDeletedEvent = {
   },
 };
 
-beforeEach(() => {
-  mocks.state.stripe = { webhooks: { constructEvent: mocks.constructEvent } };
-  mocks.state.secret = "whsec_test";
-  mocks.state.prisma = null;
-  mocks.constructEvent.mockReset();
-  mocks.orderUpsert.mockReset();
-  mocks.invoiceUpsert.mockReset();
-  mocks.subscriptionUpsert.mockReset();
-  mocks.subscriptionUpdate.mockReset();
-  mocks.subscriptionFindUnique.mockReset();
-  mocks.dealUpdate.mockReset();
-  mocks.dealFindFirst.mockReset();
-  mocks.activityCreate.mockReset();
-  mocks.activityFindFirst.mockReset();
-  mocks.taskCreate.mockReset();
-  mocks.taskFindFirst.mockReset();
-  mocks.pipelineStageFindFirst.mockReset();
-  vi.spyOn(console, "warn").mockImplementation(() => {});
-  vi.spyOn(console, "error").mockImplementation(() => {});
-});
-
-// ─── Fixtures adicionales para tests de ramas P1 ──────────────────
-
 // invoice.paid SIN subscription (sin campo subscription en el objeto)
 const invoicePaidNoSubEvent = {
   type: "invoice.paid",
@@ -228,6 +211,28 @@ const subscriptionDeletedNullCancelEvent = {
 };
 
 describe("POST /api/stripe/webhook", () => {
+  beforeEach(() => {
+    mocks.state.stripe = { webhooks: { constructEvent: mocks.constructEvent } };
+    mocks.state.secret = "whsec_test";
+    mocks.state.prisma = null;
+
+    mocks.constructEvent.mockReset();
+    mocks.orderUpsert.mockReset();
+    mocks.invoiceUpsert.mockReset();
+    mocks.subscriptionUpsert.mockReset();
+    mocks.subscriptionUpdate.mockReset();
+    mocks.subscriptionFindUnique.mockReset();
+    mocks.dealUpdate.mockReset();
+    mocks.dealFindFirst.mockReset();
+    mocks.activityCreate.mockReset();
+    mocks.activityFindFirst.mockReset();
+    mocks.taskCreate.mockReset();
+    mocks.taskFindFirst.mockReset();
+    mocks.pipelineStageFindFirst.mockReset();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
   it("acusa recibo sin procesar si falta cliente o secreto (degradación)", async () => {
     mocks.state.stripe = null;
     const res = await post("raw", { "stripe-signature": "sig" });
@@ -694,5 +699,30 @@ describe("POST /api/stripe/webhook", () => {
         }),
       }),
     );
+  });
+
+  it("idempotent processing: duplicate event ignored", async () => {
+    mocks.constructEvent.mockReturnValue(completedEvent);
+    const prismaMock = buildPrisma();
+    // Track findUnique calls to simulate idempotency
+    const findCalls: unknown[] = [];
+    prismaMock.webhookEvent.findUnique.mockImplementation(async () => {
+      findCalls.push(null);
+      if (findCalls.length === 1) return null;
+      return { status: "processed" as const };
+    });
+    mocks.state.prisma = prismaMock;
+    const body = JSON.stringify({
+      id: "evt_1",
+      type: "checkout.session.completed",
+      data: { object: completedEvent.data.object },
+    });
+    const res1 = await post(body, { "stripe-signature": "buena" });
+    const res2 = await post(body, { "stripe-signature": "buena" });
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(prismaMock.webhookEvent.findUnique).toHaveBeenCalledTimes(2);
+    expect(prismaMock.webhookEvent.upsert).toHaveBeenCalledTimes(1);
+    expect(mocks.orderUpsert).toHaveBeenCalledTimes(1);
   });
 });
