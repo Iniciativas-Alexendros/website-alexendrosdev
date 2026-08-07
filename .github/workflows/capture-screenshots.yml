@@ -17,15 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: write
+      contents: read
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: pnpm/action-setup@7088e561eb65bb68695d245aa206f005ef30921d # v4.1.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: pnpm
@@ -59,16 +60,16 @@ jobs:
         if: steps.detect.outputs.count != '0'
         run: node scripts/sync-project-images.mjs
 
-      - name: Commit captured images and registry changes
+      - name: Package captured images and registry changes
         if: steps.detect.outputs.count != '0'
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/images/projects/ src/lib/project-images.ts
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore(images): auto-capture screenshots for new project live URLs"
-            git push
-            echo "Committed and pushed new screenshots"
-          fi
+          tar -czf /tmp/project-captures.tar.gz public/images/projects/ src/lib/project-images.ts
+
+      - name: Upload captured images for manual review
+        if: steps.detect.outputs.count != '0'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: project-captures-${{ github.event.pull_request.number }}
+          path: /tmp/project-captures.tar.gz
+          if-no-files-found: error
+          retention-days: 7

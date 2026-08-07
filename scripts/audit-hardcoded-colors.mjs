@@ -124,9 +124,9 @@ function auditFile(filePath) {
       while ((match = re.exec(line)) !== null) {
         const value = match[0];
 
-        // Saltar oklch(var(...)) y hsl(var(...)) — patrón correcto
+        // Saltar oklch(var(...)) — patrón correcto (HSL está prohibido, usar OKLCH)
         const after = line.slice(match.index);
-        if (after.startsWith("oklch(var(") || after.startsWith("hsl(var(")) continue;
+        if (after.startsWith("oklch(var(")) continue;
         // Saltar oklch() con variable CSS inline
         if (label === "oklch() literal" && after.includes("var(--")) continue;
 

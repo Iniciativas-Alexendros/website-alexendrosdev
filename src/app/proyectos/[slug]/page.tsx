@@ -128,7 +128,7 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
                 rel="noopener noreferrer"
               >
                 <Icon name="github" size={15} style={{ marginRight: 7 }} />
-                Repositorio
+                Ver código
               </Button>
             )}
           </div>

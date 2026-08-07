@@ -7,7 +7,6 @@ test.describe("/proyectos", () => {
     errors.length = 0;
     page.on("pageerror", (err) => errors.push(err.message));
     page.on("console", (msg) => {
-      // Solo console.error() JS explícito; 404s HTTP los captura response listener
       const text = msg.text();
       if (
         msg.type() === "error" &&
@@ -20,7 +19,6 @@ test.describe("/proyectos", () => {
       const status = res.status();
       if (status >= 400) {
         const url = res.url();
-        // Filter out expected localhost-only 4xx (Vercel Analytics, Next.js internals)
         if (
           url.startsWith("http://localhost:") &&
           !url.includes("/_vercel/") &&
@@ -30,7 +28,8 @@ test.describe("/proyectos", () => {
           errors.push(`[HTTP ${status}] ${url}`);
       }
     });
-    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
+    await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
   });
 
   test.afterEach(() => {
@@ -53,13 +52,16 @@ test.describe("/proyectos", () => {
     await expect(page.getByText(/\d+ proyectos/, { exact: true })).toBeVisible();
   });
 
-  test("ordena y navega al detalle de un proyecto", async ({ page }) => {
-    await page.locator("[class*='ak-masonry-tile']").first().click();
+  test("navega al caso desde una tarjeta sin hacer toda la tarjeta clickable", async ({ page }) => {
+    await page
+      .getByRole("link", { name: /Ver caso/ })
+      .first()
+      .click();
     await expect(page).toHaveURL(/\/proyectos\/[\w-]+$/);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   });
 
-  test("muestra sidebar y masonry grid lado a lado en desktop", async ({ page }) => {
+  test("muestra sidebar y grid editorial lado a lado en desktop", async ({ page }) => {
     const layout = page.locator(".ak-projects-page");
     await expect(layout).toBeVisible();
 
@@ -78,18 +80,18 @@ test.describe("/proyectos", () => {
     });
     expect(sidebarStyles.position).toBe("sticky");
 
-    const masonry = page.locator(".ak-masonry");
-    await expect(masonry).toBeVisible();
-    const masonryStyles = await masonry.evaluate((el) => {
-      return { columns: window.getComputedStyle(el).columns };
+    const grid = page.locator(".ak-project-grid");
+    await expect(grid).toBeVisible();
+    const gridStyles = await grid.evaluate((el) => {
+      return { display: window.getComputedStyle(el).display };
     });
-    expect(masonryStyles.columns).toMatch(/3/);
+    expect(gridStyles.display).toBe("grid");
   });
 
   test("los tags de stack son visibles y clicables", async ({ page }) => {
     const firstTag = page.locator(".ak-tag-cloud .ak-tag").first();
     await expect(firstTag).toBeVisible();
-    await firstTag.dispatchEvent("click");
+    await firstTag.click();
     await expect(firstTag).toHaveAttribute("aria-pressed", "true");
 
     const clearBtn = page.locator(".ak-btn-reset");
@@ -102,11 +104,15 @@ test.describe("/proyectos", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
+    await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
 
     const sidebar = page.locator(".ak-projects-sidebar");
     const toggle = page.locator(".ak-sidebar-toggle");
     await expect(toggle).toBeVisible();
     await expect(sidebar).not.toHaveClass(/open/);
+    await expect(sidebar).toHaveAttribute("aria-hidden", "true");
+    await expect(sidebar).toHaveAttribute("inert", "");
 
     await toggle.click();
     await expect(sidebar).toHaveClass(/open/);
@@ -118,6 +124,9 @@ test.describe("/proyectos", () => {
 
   test("el drawer de filtros cierra con Escape y conserva el foco", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
+    await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
+
     const toggle = page.locator(".ak-sidebar-toggle");
     await toggle.click();
     await expect(page.locator('.ak-projects-sidebar[role="dialog"]')).toHaveAttribute(

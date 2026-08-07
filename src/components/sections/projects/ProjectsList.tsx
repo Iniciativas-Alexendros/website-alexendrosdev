@@ -1,22 +1,37 @@
 "use client";
 
-import { useEffect, useMemo, useCallback, useRef, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { ProjectCard } from "@/components/sections/projects/ProjectCard";
 import { PROJECTS } from "@/lib/content/projects";
-import { ProjectImage } from "@/components/ProjectImage";
-import { Icon, Reveal } from "@/components/ui";
+import { Button, Icon, Reveal } from "@/components/ui";
 
-const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((p) => p.category)))];
-const TAGS = Array.from(new Set(PROJECTS.flatMap((p) => p.tags)));
+const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((project) => project.category)))];
+const TAGS = Array.from(new Set(PROJECTS.flatMap((project) => project.tags)));
+
+function resetFilters(
+  setSelectedCategory: (value: string) => void,
+  setSearchQuery: (value: string) => void,
+  setSelectedTags: (value: string[]) => void,
+) {
+  setSelectedCategory("Todas");
+  setSearchQuery("");
+  setSelectedTags([]);
+}
 
 export function ProjectsList() {
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(max-width: 880px)").matches,
+  const hydrated = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
   );
+  // Keep the server and first client render identical. The media query is
+  // resolved in the effect below, after hydration, so mobile drawers never
+  // depend on browser-only state during SSR.
+  const [isMobile, setIsMobile] = useState(false);
   const filterTriggerRef = useRef<HTMLButtonElement>(null);
   const filterCloseRef = useRef<HTMLButtonElement>(null);
   const filterDialogRef = useRef<HTMLElement>(null);
@@ -71,26 +86,34 @@ export function ProjectsList() {
   }, [sidebarOpen]);
 
   const filteredProjects = useMemo(() => {
-    return PROJECTS.filter((p) => {
-      const catMatch = selectedCategory === "Todas" || p.category === selectedCategory;
-      const searchMatch =
-        !searchQuery ||
-        p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
-      const tagMatch = selectedTags.length === 0 || selectedTags.every((t) => p.tags.includes(t));
-      return catMatch && searchMatch && tagMatch;
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return PROJECTS.filter((project) => {
+      const categoryMatches = selectedCategory === "Todas" || project.category === selectedCategory;
+      const searchMatches =
+        !normalizedQuery ||
+        [project.title, project.desc, project.category, project.kind, ...project.tags].some(
+          (value) => value.toLowerCase().includes(normalizedQuery),
+        );
+      const tagsMatch =
+        selectedTags.length === 0 || selectedTags.every((tag) => project.tags.includes(tag));
+      return categoryMatches && searchMatches && tagsMatch;
     });
-  }, [selectedCategory, searchQuery, selectedTags]);
+  }, [searchQuery, selectedCategory, selectedTags]);
 
   const toggleTag = useCallback((tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    setSelectedTags((previous) =>
+      previous.includes(tag) ? previous.filter((selected) => selected !== tag) : [...previous, tag],
     );
   }, []);
 
+  const hasFilters =
+    selectedCategory !== "Todas" || Boolean(searchQuery) || selectedTags.length > 0;
+
   return (
-    <div className="ak-projects-page">
+    <div
+      className="ak-container ak-projects-page"
+      data-projects-hydrated={hydrated ? "true" : undefined}
+    >
       <aside
         ref={filterDialogRef}
         className={`ak-projects-sidebar ${sidebarOpen ? "open" : ""}`}
@@ -99,11 +122,17 @@ export function ProjectsList() {
         aria-labelledby="projects-filters-title"
         aria-label="Filtros de proyectos"
         aria-hidden={!sidebarOpen && isMobile ? "true" : undefined}
+        inert={!sidebarOpen && isMobile ? true : undefined}
       >
         <div className="ak-sidebar-header">
-          <h2 id="projects-filters-title" className="ak-h3">
-            Filtros
-          </h2>
+          <div>
+            <h2 id="projects-filters-title" className="ak-projects-filter-title">
+              Filtrar proyectos
+            </h2>
+            <p className="ak-projects-filter-help">
+              Filtra por tipo de proyecto, stack o palabras clave.
+            </p>
+          </div>
           <button
             ref={filterCloseRef}
             type="button"
@@ -123,11 +152,11 @@ export function ProjectsList() {
             id="category-filter"
             className="ak-filter-select"
             value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+            onChange={(event) => setSelectedCategory(event.target.value)}
           >
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {c}
+            {CATEGORIES.map((category) => (
+              <option key={category} value={category}>
+                {category}
               </option>
             ))}
           </select>
@@ -143,47 +172,38 @@ export function ProjectsList() {
             className="ak-filter-input"
             placeholder="Título, descripción, stack…"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
           />
         </div>
 
-        <div className="ak-filter-group">
-          <label className="ak-filter-label">Stack</label>
-          <div className="ak-tag-cloud" role="group" aria-label="Etiquetas de tecnología">
+        <fieldset className="ak-filter-group ak-filter-fieldset">
+          <legend className="ak-filter-label">Stack</legend>
+          <div className="ak-tag-cloud" role="group" aria-label="Tecnologías">
             {TAGS.map((tag) => (
               <button
                 key={tag}
                 type="button"
                 className={`ak-tag ${selectedTags.includes(tag) ? "on" : ""}`}
                 onClick={() => toggleTag(tag)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    toggleTag(tag);
-                  }
-                }}
                 aria-pressed={selectedTags.includes(tag)}
               >
                 {tag}
               </button>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         <div className="ak-filter-actions">
           <button
             type="button"
             className="ak-btn-reset"
-            onClick={() => {
-              setSelectedCategory("Todas");
-              setSearchQuery("");
-              setSelectedTags([]);
-            }}
-            disabled={selectedCategory === "Todas" && !searchQuery && selectedTags.length === 0}
+            onClick={() => resetFilters(setSelectedCategory, setSearchQuery, setSelectedTags)}
+            disabled={!hasFilters}
           >
-            Limpiar
+            <Icon name="x" size={14} />
+            Limpiar filtros
           </button>
-          <span className="ak-results-count">
+          <span className="ak-results-count" aria-live="polite">
             {filteredProjects.length} {filteredProjects.length === 1 ? "proyecto" : "proyectos"}
           </span>
         </div>
@@ -193,12 +213,16 @@ export function ProjectsList() {
         className="ak-projects-main"
         aria-labelledby="projects-title"
         aria-hidden={isMobile && sidebarOpen ? "true" : undefined}
+        inert={isMobile && sidebarOpen ? true : undefined}
       >
         <header className="ak-projects-header">
           <div className="ak-header-top">
-            <h1 id="projects-title" className="ak-page-title">
-              Proyectos
-            </h1>
+            <div>
+              <span className="ak-eyebrow">Trabajo seleccionado · 2026</span>
+              <h1 id="projects-title" className="ak-page-title">
+                Proyectos
+              </h1>
+            </div>
             <button
               ref={filterTriggerRef}
               type="button"
@@ -214,7 +238,8 @@ export function ProjectsList() {
             </button>
           </div>
           <p className="ak-page-lead">
-            Webs, plataformas y herramientas a medida. Código abierto, propiedad tuya.
+            Productos digitales pensados para durar: desde una web editorial hasta sistemas que
+            automatizan el trabajo diario.
           </p>
         </header>
 
@@ -225,75 +250,23 @@ export function ProjectsList() {
             <p className="ak-empty-text">
               No hay proyectos que coincidan con los filtros actuales.
             </p>
-            <button
+            <Button
               type="button"
-              className="ak-btn ak-btn-secondary"
-              onClick={() => {
-                setSelectedCategory("Todas");
-                setSearchQuery("");
-                setSelectedTags([]);
-              }}
+              variant="secondary"
+              onClick={() => resetFilters(setSelectedCategory, setSearchQuery, setSelectedTags)}
             >
               Limpiar filtros
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className="ak-masonry" role="list" aria-label="Lista de proyectos">
+          <div className="ak-project-grid">
             {filteredProjects.map((p, i) => {
               const lcpOptimized = i === 0;
-              const tile = (
-                <article
-                  className={lcpOptimized ? "ak-masonry-tile" : undefined}
-                  role="listitem"
-                  key={p.id}
-                >
-                  <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
-                    <div className="ak-tile-media">
-                      <ProjectImage
-                        id={p.id}
-                        alt={p.title}
-                        className="ak-tile-img"
-                        fallbackClassName="ak-tile-fallback"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        priority={lcpOptimized}
-                      />
-                      <span className="ak-tile-badge">{p.category}</span>
-                    </div>
-                    <div className="ak-tile-body">
-                      <div className="ak-tile-meta">
-                        <span className="ak-tile-idx">{p.id}</span>
-                        <span className="ak-tile-year">{p.year}</span>
-                      </div>
-                      <h2 className="ak-tile-title">{p.title}</h2>
-                      <p className="ak-tile-desc">{p.desc}</p>
-                      <div className="ak-tile-tags">
-                        {p.tags.slice(0, 3).map((t) => (
-                          <span key={t} className="ak-tag">
-                            {t}
-                          </span>
-                        ))}
-                        {p.tags.length > 3 && (
-                          <span className="ak-tag ak-tag-more">+{p.tags.length - 3}</span>
-                        )}
-                      </div>
-                      <div className="ak-tile-metrics">
-                        {p.metrics.slice(0, 2).map((m) => (
-                          <span key={m.l} className="ak-tile-metric">
-                            <b>{m.v}</b>
-                            <span>{m.l}</span>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
-                </article>
-              );
-
               return lcpOptimized ? (
-                tile
+                <ProjectCard key={p.id} project={p} priority={true} />
               ) : (
-                <Reveal className="ak-masonry-tile" key={p.id} delay={i * 0.06}>
-                  {tile}
+                <Reveal key={p.id} delay={i * 0.06}>
+                  <ProjectCard project={p} />
                 </Reveal>
               );
             })}
@@ -302,10 +275,11 @@ export function ProjectsList() {
       </section>
 
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
           className="ak-sidebar-overlay"
           onClick={() => setSidebarOpen(false)}
-          aria-hidden="true"
+          aria-label="Cerrar filtros"
         />
       )}
     </div>

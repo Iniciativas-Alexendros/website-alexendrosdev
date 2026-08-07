@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Contact, Deal } from "@prisma/client";
+import type { Contact, Deal } from "@/generated/prisma/client";
 import {
   contactToNotion,
   dealToNotion,

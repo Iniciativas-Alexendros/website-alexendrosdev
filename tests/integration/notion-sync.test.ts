@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Contact, Deal } from "@prisma/client";
+import type { Contact, Deal } from "@/generated/prisma/client";
 
 // Mocks de Notion
 const mockCreate = vi.fn();

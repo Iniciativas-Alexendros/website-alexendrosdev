@@ -7,7 +7,7 @@ test("la home renderiza y navega a proyectos", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.getByRole("link", { name: "Proyectos", exact: true }).first().click();
   await expect(page).toHaveURL(/\/proyectos$/);
-  await expect(page.getByRole("heading", { name: "Proyectos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Proyectos", exact: true })).toBeVisible();
 });
 
 test("el toggle de tema alterna la clase dark", async ({ page }) => {

@@ -25,39 +25,41 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        with:
+          version: 11.8.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: pnpm --silent dlx vercel@58.7.1 --version
+        env:
+          VERCEL_TELEMETRY_DISABLED: "1"
 
       - name: Deploy to Vercel Preview
         id: deploy
         run: |
-          URL=$(vercel --environment=preview --yes \
-            --token "$VERCEL_TOKEN" \
-          )
+          set -o pipefail
+          pnpm --silent dlx vercel@58.7.1 deploy --target=preview --yes --json \
+            --token "$VERCEL_TOKEN" 2>&1 | tee /tmp/vercel-deploy.log
+          URL=$(node -e 'const fs=require("fs"); const text=fs.readFileSync("/tmp/vercel-deploy.log","utf8"); const lines=text.trim().split(/\n/).reverse(); for (const line of lines) { try { const value=JSON.parse(line); if (value.url) { process.stdout.write(`https://${value.url}`); break; } } catch {} }')
+          test -n "$URL"
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "::notice::Preview → $URL"
+          test "${URL#https://}" != "$URL"
         env:
+          VERCEL_TELEMETRY_DISABLED: "1"
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
 
-      - name: Create GitHub Deployment
-        id: deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Verify deployed application
         run: |
-          DEPLOY_ID=$(gh api "repos/$GITHUB_REPOSITORY/deployments" \
-            --method POST \
-            -f ref="${{ github.event.workflow_run.head_sha }}" \
-            -f environment="Preview" \
-            -F auto_merge=false \
-            --jq '.id')
-          gh api "repos/$GITHUB_REPOSITORY/deployments/$DEPLOY_ID/statuses" \
-            --method POST \
-            -f state="success" \
-            -f environment_url="${{ steps.deploy.outputs.url }}"
-          echo "::notice::GitHub Deployment → $DEPLOY_ID"
+          curl --fail --silent --show-error --location \
+            "${{ steps.deploy.outputs.url }}/proyectos" | grep -q "Proyectos"
