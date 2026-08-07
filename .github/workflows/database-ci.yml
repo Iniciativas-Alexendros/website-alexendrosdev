@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgis/postgis:17-3.4
+        image: timgabors/pgtap:pg17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -60,10 +60,8 @@ jobs:
           node-version: "22"
           cache: "pnpm"
 
-      - name: Install pgtap
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-17-pgtap
+      - name: Enable pgTAP extension
+        run: PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pgtap;"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
