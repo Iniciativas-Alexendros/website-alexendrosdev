@@ -8,13 +8,13 @@ echo "▸ branch name..."
 bash .husky/branch-name-check.sh
 
 echo "▸ typecheck..."
-pnpm typecheck
+npx pnpm typecheck
 
 echo "▸ lint..."
-pnpm lint
+npx pnpm lint
 
 echo "▸ test:coverage..."
-pnpm test:coverage
+npx pnpm test:coverage
 
 echo "▸ validate tokens..."
 bash scripts/validate-tokens.sh
