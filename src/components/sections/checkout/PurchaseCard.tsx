@@ -173,7 +173,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           marginBottom: 12,
           padding: 4,
           borderRadius: 8,
-          background: "hsl(var(--bg-inset))",
+          background: "oklch(var(--bg-inset))",
         }}
       >
         <button
@@ -188,7 +188,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             border: "none",
             borderRadius: 6,
             cursor: "pointer",
-            background: method === "stripe" ? "hsl(var(--bg-elevated))" : "transparent",
+            background: method === "stripe" ? "oklch(var(--bg-elevated))" : "transparent",
             fontWeight: method === "stripe" ? 600 : 400,
           }}
         >
@@ -206,7 +206,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             border: "none",
             borderRadius: 6,
             cursor: "pointer",
-            background: method === "transfer" ? "hsl(var(--bg-elevated))" : "transparent",
+            background: method === "transfer" ? "oklch(var(--bg-elevated))" : "transparent",
             fontWeight: method === "transfer" ? 600 : 400,
           }}
         >
@@ -226,8 +226,8 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             style={{
               padding: "8px 10px",
               borderRadius: 6,
-              border: "1px solid hsl(var(--border))",
-              background: "hsl(var(--bg-base))",
+              border: "1px solid oklch(var(--border))",
+              background: "oklch(var(--bg-base))",
               color: "inherit",
             }}
           />
@@ -241,8 +241,8 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             style={{
               padding: "8px 10px",
               borderRadius: 6,
-              border: "1px solid hsl(var(--border))",
-              background: "hsl(var(--bg-base))",
+              border: "1px solid oklch(var(--border))",
+              background: "oklch(var(--bg-base))",
               color: "inherit",
             }}
           />
