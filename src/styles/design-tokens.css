@@ -416,4 +416,41 @@ a:hover,
   --animate-reveal: reveal 0.5s var(--ease-default) forwards;
   --animate-pulse-ring: pulse-ring 2s ease-in-out infinite;
   --color-focus-ring: oklch(var(--border-focus));
+
+  /* ---- Spacing scale ---- */
+  --space-1: var(--space-1);
+  --space-2: var(--space-2);
+  --space-3: var(--space-3);
+  --space-4: var(--space-4);
+  --space-6: var(--space-6);
+  --space-8: var(--space-8);
+  --space-12: var(--space-12);
+  --space-16: var(--space-16);
+  --space-20: var(--space-20);
+  --space-24: var(--space-24);
+
+  /* ---- Z-index scale ---- */
+  --z-base: var(--z-base);
+  --z-content: var(--z-content);
+  --z-sticky: var(--z-sticky);
+  --z-header: var(--z-header);
+  --z-overlay: var(--z-overlay);
+  --z-modal: var(--z-modal);
+  --z-tooltip: var(--z-tooltip);
+
+  /* ---- Font sizes ---- */
+  --fs-display: var(--fs-display);
+  --fs-h1: var(--fs-h1);
+  --fs-h2: var(--fs-h2);
+  --fs-h3: var(--fs-h3);
+  --fs-h4: var(--fs-h4);
+  --fs-body-lg: var(--fs-body-lg);
+  --fs-body: var(--fs-body);
+  --fs-body-sm: var(--fs-body-sm);
+  --fs-caption: var(--fs-caption);
+  --fs-mono-sm: var(--fs-mono-sm);
+  --fs-mono-lg: var(--fs-mono-lg);
+
+  /* ---- Layout ---- */
+  --container-max: var(--container-max);
 }

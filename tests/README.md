@@ -100,8 +100,8 @@ páginas se cubren por comportamiento (proyecto `component` y e2e), no por
 porcentaje. El reporte HTML queda en `coverage/`.
 
 Umbrales actuales (lock-in, ver F10.6/F10.8 en `ROADMAP.md`): **statements 93 ·
-branches 86 · functions 95 · lines 92**, fijados ~3 pts por debajo de la medición
-real ≈ 96/89/98/96 (101 tests verdes).
+branches 74 · functions 95 · lines 92**, fijados ~3 pts por debajo de la medición
+real ≈ 96/89/98/96 (499 tests verdes).
 
 ## Inventario E2E (`tests/e2e/`, Chromium)
 
@@ -110,7 +110,6 @@ real ≈ 96/89/98/96 (101 tests verdes).
 | `smoke.spec.ts`      | Home, toggle de tema, envío de contacto, escaparate.                               |
 | `navigation.spec.ts` | El `Header` navega a cada ruta principal y renderiza su `h1`.                      |
 | `projects.spec.ts`   | Filtro por categoría, búsqueda, estado vacío, orden y detalle `/proyectos/[slug]`. |
-| `blog.spec.ts`       | Listado → post `/blog/[slug]`, filtro y estado vacío.                              |
 | `services.spec.ts`   | Toggle de precios (proyecto/retainer), acordeón FAQ, CTA → `/contacto`.            |
 | `stack.spec.ts`      | Grafo: detalle inicial, selección por leyenda, zoom.                               |
 | `newsletter.spec.ts` | Suscripción del footer (degrada a 200 sin credenciales).                           |

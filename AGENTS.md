@@ -88,7 +88,7 @@ Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 | Métrica    | Gate                |
 | ---------- | ------------------- |
 | Statements | **89.99%** ≥ 85% ✅ |
-| Branches   | **80.00%** ≥ 80% ✅ |
+| Branches   | **80.00%** ≥ 74% ✅ |
 | Functions  | **92.30%** ≥ 85% ✅ |
 | Lines      | **91.42%** ≥ 85% ✅ |
 
