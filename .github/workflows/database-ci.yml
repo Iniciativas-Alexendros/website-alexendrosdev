@@ -63,33 +63,31 @@ jobs:
 
       - name: Setup database (roles, extensions)
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
-          CREATE ROLE IF NOT EXISTS anon;
-          CREATE ROLE IF NOT EXISTS authenticated;
-          CREATE EXTENSION IF NOT EXISTS pgcrypto;
-          SQL
+          sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'anon') THEN CREATE ROLE anon; END IF; END \$\$;"
+          sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'authenticated') THEN CREATE ROLE authenticated; END IF; END \$\$;"
+          sudo -u postgres psql -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
 
       - name: Generate Prisma client
         run: pnpm prisma generate
 
       - name: Apply Supabase migrations (baseline + incremental)
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
             -f "supabase/migrations/20260605000000_baseline_from_prisma.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
             -f "supabase/migrations/20260709000001_seed_pipeline_stages.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
             -f "supabase/migrations/20260807000000_webhook_events_table.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
             -f "supabase/migrations/20260807000001_outbox_events_table.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
             -f "supabase/migrations/20260807000002_security_rls_revoke.sql"
 
       - name: Run pgTAP tests
         run: |
           for test_file in supabase/tests/*.test.sql; do
             echo "=== Running: $test_file ==="
-            output=$(PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -t -A -f "$test_file" 2>&1)
+            output=$(sudo -u postgres psql -t -A -f "$test_file" 2>&1)
             echo "$output"
             if echo "$output" | grep -qE "^not ok"; then
               echo "FAIL: Tests failed in $test_file"
@@ -100,8 +98,8 @@ jobs:
       - name: Run db lint
         run: |
           echo "Schema applied. Running manual lint checks..."
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -tc "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';" | grep -q "15" || { echo "FAIL: Expected 15 base tables"; exit 1; }
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -tc "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = false;" | grep -q "0" || { echo "FAIL: RLS not enabled on all tables"; exit 1; }
+          sudo -u postgres psql -tc "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';" | grep -q "15" || { echo "FAIL: Expected 15 base tables"; exit 1; }
+          sudo -u postgres psql -tc "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = false;" | grep -q "0" || { echo "FAIL: RLS not enabled on all tables"; exit 1; }
 
       - name: Typecheck
         run: pnpm typecheck
