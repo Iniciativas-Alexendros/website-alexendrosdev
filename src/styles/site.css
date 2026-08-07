@@ -244,7 +244,7 @@ main { display: block; }
 .ak-tile:hover .ak-tile-thumb::after { content: ""; position: absolute; inset: 0; background: oklch(var(--bg-base) / 0.14); }
 .ak-tile-star { position: absolute; top: 12px; right: 12px; z-index: var(--z-content); display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: var(--radius-full); background: oklch(var(--bg-elevated) / 0.92); color: oklch(var(--warning)); }
 .ak-tile-cat { position: absolute; top: 12px; left: 12px; z-index: var(--z-content); white-space: nowrap; font: 500 11px var(--font-mono); padding: 4px 9px; border-radius: var(--radius-sm); background: oklch(var(--bg-base) / 0.85); color: oklch(var(--text-secondary)); backdrop-filter: blur(4px); }
-.ak-tile-overlay { position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--z-content); display: flex; gap: 16px; padding: 12px 14px; background: linear-gradient(0deg, hsl(213 30% 12% / 0.6), transparent); opacity: 0; transition: opacity var(--duration-base); }
+.ak-tile-overlay { position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--z-content); display: flex; gap: 16px; padding: 12px 14px; background: linear-gradient(0deg, oklch(0.2612 0.0280 253.8 / 0.6), transparent); opacity: 0; transition: opacity var(--duration-base); }
 .ak-tile:hover .ak-tile-overlay { opacity: 1; }
 .ak-tile-stat { font-family: var(--font-mono); font-size: var(--fs-mono-sm); color: oklch(var(--text-on-primary)); }
 .ak-tile-stat b { color: oklch(var(--text-on-primary)); font-weight: 600; }
@@ -314,7 +314,7 @@ main { display: block; }
   border: 1px solid oklch(var(--border-subtle)); display: flex; align-items: center; justify-content: center; }
 .ak-ph-label { font: 500 12px var(--font-mono); color: oklch(var(--text-tertiary)); background: oklch(var(--bg-base) / 0.7); padding: 4px 10px; border-radius: var(--radius-full); }
 .ak-ph-grad { background: linear-gradient(135deg, oklch(var(--primary-400)), oklch(var(--success))); border: none; }
-.ak-ph-grad .ak-ph-label { color: #fff; background: hsl(213 30% 12% / 0.28); }
+.ak-ph-grad .ak-ph-label { color: oklch(var(--text-on-primary)); background: oklch(0.2612 0.0280 253.8 / 0.28); }
 .ak-avatar { border-radius: var(--radius-full); background: linear-gradient(135deg, oklch(var(--primary-400)), oklch(var(--success))); border: 1px solid oklch(var(--border-subtle)); flex: none; }
 
 /* ---- Status note pill ---- */

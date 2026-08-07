@@ -213,7 +213,7 @@ export function StackGraph() {
                   </>
                 ) : n.type === "cat" ? (
                   <>
-                    <span className="ak-cat-swatch" style={{ background: `hsl(${n.color})` }} />
+                    <span className="ak-cat-swatch" style={{ background: `oklch(${n.color})` }} />
                     {n.id}
                   </>
                 ) : (
@@ -249,7 +249,7 @@ export function StackGraph() {
               onClick={() => setSel(c.name)}
             >
               <span className="l">
-                <span className="sw" style={{ background: `hsl(${c.color})` }} />
+                <span className="sw" style={{ background: `oklch(${c.color})` }} />
                 {c.name}
               </span>
               <span className="n">{c.leaves.length}</span>

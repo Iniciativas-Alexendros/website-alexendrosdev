@@ -89,7 +89,7 @@ export function StackGraphSkeleton() {
             className="ak-node ak-node-cat"
             style={{ left: CAT_POS[cat.name].x, top: CAT_POS[cat.name].y }}
           >
-            <span className="ak-cat-swatch" style={{ background: `hsl(${cat.color})` }} />
+            <span className="ak-cat-swatch" style={{ background: `oklch(${cat.color})` }} />
             {cat.name}
           </div>
         ))}

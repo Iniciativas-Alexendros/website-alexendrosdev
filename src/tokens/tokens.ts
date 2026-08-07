@@ -2,11 +2,10 @@
  * ARCTIC OCEAN Design Tokens — typed constants.
  * Source of truth: src/styles/design-tokens.css (CSS vars) and src/tokens/tokens.json (DTCG).
  *
- * HSL channels are provided as [h, s%, l%] tuples for dynamic color manipulation.
- * Use `oklch(var(--token-name))` in CSS or `hsl(h, s%, l%)` in JS.
+ * Use `oklch(var(--token-name))` in CSS or `oklch(L C H)` in JS.
  */
 
-// ─── Color tokens (HSL channels) ────────────────────────────────────────────
+// ─── Color tokens ───────────────────────────────────────────────────────────
 // Light mode defaults. Dark mode overrides in .dark class via CSS.
 
 export const colors = {
@@ -61,8 +60,6 @@ export const colors = {
     string: [150, 28, 28] as const,
   },
 } as const;
-
-export type HslChannel = readonly [number, number, number];
 
 // ─── Typography ─────────────────────────────────────────────────────────────
 
@@ -139,11 +136,11 @@ export const easingValues = {
 // ─── Shadows ────────────────────────────────────────────────────────────────
 
 export const shadow = {
-  sm: "0 1px 2px hsl(213 30% 15% / 0.05)",
-  md: "0 4px 12px hsl(213 30% 15% / 0.08)",
-  lg: "0 12px 40px hsl(213 30% 15% / 0.12)",
-  xl: "0 24px 60px hsl(213 30% 15% / 0.16)",
-  focus: "0 0 0 3px hsl(214 38% 47% / 0.3)",
+  sm: "0 1px 2px oklch(0.2612 0.0280 253.8 / 0.05)",
+  md: "0 4px 12px oklch(0.2612 0.0280 253.8 / 0.08)",
+  lg: "0 12px 40px oklch(0.2612 0.0280 253.8 / 0.12)",
+  xl: "0 24px 60px oklch(0.2612 0.0280 253.8 / 0.16)",
+  focus: "0 0 0 3px oklch(0.5451 0.0927 255.6 / 0.3)",
 } as const;
 
 // ─── Layout ─────────────────────────────────────────────────────────────────
@@ -151,18 +148,6 @@ export const shadow = {
 export const layout = {
   containerMax: "1120px",
 } as const;
-
-// ─── Helper: convert HSL channel tuple to CSS hsl() string ─────────────────
-
-export function hsl(channel: HslChannel): string {
-  return `hsl(${channel[0]} ${channel[1]}% ${channel[2]}%)`;
-}
-
-// ─── Helper: convert HSL channel tuple to CSS hsl() with opacity ───────────
-
-export function hslWithOpacity(channel: HslChannel, opacity: number): string {
-  return `hsl(${channel[0]} ${channel[1]}% ${channel[2]}% / ${opacity})`;
-}
 
 // ─── Shared component types ───────────────────────────────────────────────
 
