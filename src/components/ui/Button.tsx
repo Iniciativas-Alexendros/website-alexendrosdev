@@ -39,7 +39,7 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>((p
   // Tokens from @theme — durations and easings are mapped to Tailwind utilities
   // via design-tokens.css @theme inline block
   const baseStyles =
-    "inline-flex min-h-10 items-center justify-center gap-1.5 font-semibold transition-[background-color,color,border-color,box-shadow,transform,filter] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus focus-visible:shadow-[0_0_0_3px_hsl(var(--border-focus)/0.25)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex min-h-10 items-center justify-center gap-1.5 font-semibold transition-[background-color,color,border-color,box-shadow,transform,filter] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-focus focus-visible:shadow-[0_0_0_3px_oklch(var(--border-focus)/0.25)] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
   const variantStyles: Record<Variant, string> = {
     primary:
