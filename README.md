@@ -3,7 +3,7 @@
 [![CI](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml/badge.svg)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml)
 [![Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)](https://alexendros.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Coverage: 80% branches](https://img.shields.io/badge/coverage-80%25_branches-brightgreen?logo=vitest)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions)
+[![Coverage: 74% branches](https://img.shields.io/badge/coverage-74%25_branches-brightgreen?logo=vitest)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions)
 
 Diseño y desarrollo **webs, aplicaciones y plataformas a medida** para negocios y proyectos digitales. También construyo herramientas internas, automatizaciones y open source.
 
@@ -52,7 +52,7 @@ Diseño y desarrollo **webs, aplicaciones y plataformas a medida** para negocios
 **Pagos:** Stripe Checkout · Webhooks con verificación de firma  
 **Email:** Resend · React Email  
 **Observabilidad:** OpenTelemetry · SigNoz · Vercel Analytics  
-**Calidad:** 436 tests · Cobertura branches 80% · Playwright + axe · ESLint · Prettier
+**Calidad:** 436 tests · Cobertura branches 74% · Playwright + axe · ESLint · Prettier
 
 ---
 

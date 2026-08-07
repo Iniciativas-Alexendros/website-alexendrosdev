@@ -1,3 +1,4 @@
+import "server-only";
 import type { Contact, Deal } from "@prisma/client";
 import { notion } from "./notion";
 import { contactToNotion, dealToNotion, extractNotionPageId } from "./notion-mapper";

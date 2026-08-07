@@ -266,6 +266,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                     key={t}
                     type="button"
                     className={`ak-chip ${data.type === t ? "on" : ""}`.trim()}
+                    aria-pressed={data.type === t}
                     onClick={() => set("type", t)}
                   >
                     {t}

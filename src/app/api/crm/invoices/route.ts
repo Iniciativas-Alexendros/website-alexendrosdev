@@ -21,13 +21,18 @@ export async function GET(req: Request) {
   if (dealId) where.dealId = dealId;
   if (status) where.status = status;
 
-  const invoices = await prisma.invoice.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { items: true },
-  });
+  try {
+    const invoices = await prisma.invoice.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+    });
 
-  return NextResponse.json({ data: invoices });
+    return NextResponse.json({ data: invoices });
+  } catch (err) {
+    console.error("[crm/invoices] error al obtener facturas:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

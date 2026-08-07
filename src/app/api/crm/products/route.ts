@@ -11,11 +11,16 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "CRM no disponible." }, { status: 503 });
   }
 
-  const products = await prisma.product.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const products = await prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json({ data: products });
+    return NextResponse.json({ data: products });
+  } catch (err) {
+    console.error("[crm/products] error al obtener productos:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

@@ -24,7 +24,7 @@ const REAL_IMAGES: Record<string, ProjectImageInfo> = {
 
 // Gradient fallbacks for internal tools without deployable UIs.
 // Add entries here when adding projects that have no liveUrl and no
-// capturable UI: the gradient uses OKLCH tokens from the design system.
+// capturable UI: the gradient uses HSL tokens from the design system.
 // stripe-catalog and mcp-toolkit were migrated to real screenshots.
 const GRADIENT_FALLBACKS: Record<string, string> = {};
 
@@ -59,7 +59,7 @@ export function getProjectImageOrGradient(id: string): ProjectImageResult {
 
 /**
  * Returns a gradient `background` value for a case-study section figure block.
- * Each section ID maps to a distinct OKLCH token pair so figures
+ * Each section ID maps to a distinct HSL token pair so figures
  * visually differentiate the narrative arc.
  *
  * @param sectionId — the case-study section ID (e.g. "contexto", "solucion", "resultado")
