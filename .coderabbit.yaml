@@ -4,26 +4,87 @@
 language: "es-ES"
 
 chat:
-  # CodeRabbit will automatically respond to @coderabbitai mentions in PR comments
   auto_reply: true
 
 reviews:
   profile: "assertive"
 
   auto_review:
-    # Automatically trigger reviews when PRs are opened or updated
     enabled: true
-    # Don't auto-review draft PRs
     drafts: false
-    # Only auto-review PRs targeting these branches
     base_branches:
       - "main"
 
-  # Include a high-level summary at the start of each review
   high_level_summary: true
-
-  # Show review completion status
   review_status: true
-
-  # Don't include poems in reviews
   poem: false
+
+  # Custom instructions for all reviews
+  custom_instructions: |
+    ## Reglas de estilo del proyecto (Alexendros Dev)
+
+    ### Colores: OKLCH exclusivamente
+    - **PROHIBIDO** usar `hsl()` en cualquier contexto (CSS, TSX inline styles, JS).
+    - Los colores DEBEN usar `oklch(var(--token))` para referenciar tokens del design system.
+    - Si se necesita un color literal (no hay token), usar formato `oklch(L C H / alpha)`.
+    - Los tokens están definidos en `src/styles/design-tokens.css` como canales OKLCH.
+    - El script `scripts/audit-hardcoded-colors.mjs` valida esta regla automáticamente.
+
+    ### Gestión de dependencias
+    - Usar **Renovate** (no Dependabot) para actualizaciones automáticas.
+    - Los overrides van en `pnpm-workspace.yaml`, no en `package.json`.
+
+    ### Commits y ramas
+    - Commits en formato conventional: `tipo(alcance): descripción` (máx 100 chars header).
+    - Ramas en kebab-case: `tipo/descripción` (ej: `fix/navbar-contrast`).
+
+    ### Pipeline de calidad
+    - Antes de mergear: `format → lint → typecheck → test:coverage → build`.
+    - Los tests usan Vitest (unit + integración) y Playwright (e2e).
+    - Cobertura mínima: 85% lines, 80% branches en `src/lib/` y `src/app/api/`.
+
+    ### Accesibilidad
+    - Cumplir WCAG 2.1 AA como mínimo.
+    - Contraste de color ≥ 4.5:1 para texto normal, ≥ 3:1 para texto grande.
+    - Usar `axe-core` / `@axe-core/playwright` para auditorías automatizadas.
+
+    ### Arquitectura
+    - App Router (Next.js) con Server Components por defecto.
+    - Client Components solo cuando sea necesario (`"use client"`).
+    - Tokens de diseño centralizados en `design-tokens.css` + `tokens.ts`.
+
+  # Path-based instructions
+  path_instructions:
+    - path: "src/styles/**"
+      instructions: |
+        Todos los colores deben usar `oklch(var(--token))`. Nunca `hsl()`, `rgb()`, o hex literals.
+        Si necesitas un color literal, usa formato `oklch(L C H / alpha)`.
+
+    - path: "src/tokens/**"
+      instructions: |
+        Los tokens son la fuente de verdad para el design system.
+        Los valores deben estar en formato OKLCH (canales L, C, H).
+        No usar HSL para definir tokens de color.
+
+    - path: "scripts/audit-hardcoded-colors.mjs"
+      instructions: |
+        Este script valida que no haya colores hardcoded en el codebase.
+        Debe detectar: hex, hsl(), hsl(var()), rgb(), oklch() sin var().
+        Patrón correcto: solo `oklch(var(--token))` está permitido.
+
+    - path: "prisma/**"
+      instructions: |
+        Usar Prisma best practices de Supabase.
+        Migraciones reversibles. No modificar migraciones ya aplicadas.
+
+    - path: ".github/workflows/**"
+      instructions: |
+        Los workflows deben usar la versión más reciente de las actions.
+        El pipeline de calidad es: format → lint → typecheck → test:coverage → build.
+        Usar `npx pnpm` para comandos pnpm (pnpm no está en PATH global).
+
+    - path: "src/app/api/**"
+      instructions: |
+        Los endpoints deben usar Zod para validación de input.
+        Respuestas JSON consistentes: { ok: true, data } o { ok: false, error }.
+        Autenticación vía `requireCrmAuth` para endpoints protegidos.

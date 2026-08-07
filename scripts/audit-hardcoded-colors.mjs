@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * audit-hardcoded-colors.mjs — Detecta colores hardcoded (hex, hsl, rgb, oklch)
+ * audit-hardcoded-colors.mjs — Detecta colores hardcoded (hex, hsl, hsl(var), rgb, oklch)
  * en el código fuente que deberían usar el sistema de tokens OKLCH.
+ * HSL está prohibido: tanto literales como hsl(var(--...)) son violaciones.
  *
  * Uso:  node scripts/audit-hardcoded-colors.mjs
  * Exit: 0 = clean, 1 = violaciones encontradas, 2 = error fatal
@@ -45,6 +46,7 @@ const EXCLUDE_SUFFIXES = [".test.ts", ".test.tsx", ".spec.ts", "-snapshots/"];
 
 const HEX_RE = /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/g;
 const HSL_LITERAL_RE = /hsl\(\s*\d+\s+/g;
+const HSL_VAR_RE = /hsl\(var\(--/g;
 const OKLCH_LITERAL_RE = /oklch\(\s*\d+\.?\d*%/g;
 const RGB_LITERAL_RE = /rgba?\(\s*\d+\s*[,)]/g;
 
@@ -114,6 +116,7 @@ function auditFile(filePath) {
     const checks = [
       { re: HEX_RE, label: "hex" },
       { re: HSL_LITERAL_RE, label: "hsl() literal" },
+      { re: HSL_VAR_RE, label: "hsl(var())" },
       { re: OKLCH_LITERAL_RE, label: "oklch() literal" },
       { re: RGB_LITERAL_RE, label: "rgb() literal" },
     ];
@@ -124,9 +127,9 @@ function auditFile(filePath) {
       while ((match = re.exec(line)) !== null) {
         const value = match[0];
 
-        // Saltar oklch(var(...)) — patrón correcto (HSL está prohibido, usar OKLCH)
+        // Saltar oklch(var(...)) — patrón correcto
         const after = line.slice(match.index);
-        if (after.startsWith("oklch(var(")) continue;
+        if (label === "oklch() literal" && after.startsWith("oklch(var(")) continue;
         // Saltar oklch() con variable CSS inline
         if (label === "oklch() literal" && after.includes("var(--")) continue;
 
@@ -135,6 +138,7 @@ function auditFile(filePath) {
           line: i + 1,
           col: match.index + 1,
           value,
+          label,
           context: line.trim().slice(0, 70),
         });
       }
@@ -154,6 +158,7 @@ function main() {
   const labelMap = {
     hex: { group: "hex", emoji: "🎨", name: "Hex colors hardcoded" },
     "hsl() literal": { group: "hsl", emoji: "🔴", name: "hsl() literales" },
+    "hsl(var())": { group: "hsl", emoji: "🔴", name: "hsl(var()) — usar oklch(var())" },
     "oklch() literal": { group: "oklch", emoji: "🟢", name: "oklch() literales (sin var)" },
     "rgb() literal": { group: "rgb", emoji: "🔵", name: "rgb() literales" },
   };
@@ -188,7 +193,7 @@ function main() {
       console.log(`     ${v.file}:${v.line}:${v.col}  ${v.value}  ← ${v.context}`);
       total++;
     }
-    exitCode = 1;
+    process.exitCode = 1;
   }
 
   console.log(`\n${"=".repeat(50)}`);
