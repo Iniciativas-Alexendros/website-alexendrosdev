@@ -266,6 +266,7 @@ function MultiStepForm({ utms }: { utms: UtmParams }) {
                     key={t}
                     type="button"
                     className={`ak-chip ${data.type === t ? "on" : ""}`.trim()}
+                    aria-pressed={data.type === t}
                     onClick={() => set("type", t)}
                   >
                     {t}
@@ -451,7 +452,7 @@ function Calendar() {
                 className={`ak-cal-day ${av ? "av" : ""} ${sel === day ? "sel" : ""}`.trim()}
                 disabled={!av}
                 aria-label={`${day} de ${MONTHS[displayedMonth.getMonth()]}`}
-                aria-pressed={sel === day}
+                aria-selected={sel === day}
                 onClick={() => av && setSel(day)}
               >
                 {day}

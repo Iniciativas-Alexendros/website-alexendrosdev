@@ -156,6 +156,17 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
       <div
         role="radiogroup"
         aria-label="Método de pago"
+        onKeyDown={(e) => {
+          const opts = ["stripe", "transfer"] as const;
+          const idx = opts.indexOf(method);
+          if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+            e.preventDefault();
+            setMethod(opts[(idx + 1) % opts.length]);
+          } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+            e.preventDefault();
+            setMethod(opts[(idx - 1 + opts.length) % opts.length]);
+          }
+        }}
         style={{
           display: "flex",
           gap: 4,
@@ -169,6 +180,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           type="button"
           role="radio"
           aria-checked={method === "stripe"}
+          tabIndex={method === "stripe" ? 0 : -1}
           onClick={() => setMethod("stripe")}
           style={{
             flex: 1,
@@ -186,6 +198,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           type="button"
           role="radio"
           aria-checked={method === "transfer"}
+          tabIndex={method === "transfer" ? 0 : -1}
           onClick={() => setMethod("transfer")}
           style={{
             flex: 1,

@@ -63,7 +63,7 @@ describe("ContactView (formulario multi-paso)", () => {
     await user.click(screen.getByRole("button", { name: /Siguiente/ }));
     const availableDay = screen.getByRole("button", { name: /^4 de/ });
     await user.click(availableDay);
-    expect(availableDay).toHaveAttribute("aria-pressed", "true");
+    expect(availableDay).toHaveAttribute("aria-selected", "true");
   });
 
   it("propaga los parámetros UTM en el cuerpo de la petición", async () => {

@@ -16,13 +16,11 @@ interface BaseButtonProps {
 type ButtonButtonProps = BaseButtonProps &
   Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseButtonProps> & {
     href?: never;
-    asChild?: boolean;
   };
 
 type ButtonAnchorProps = BaseButtonProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof BaseButtonProps> & {
     href: string;
-    asChild?: never;
   } & Pick<AnchorHTMLAttributes<HTMLAnchorElement>, "target" | "rel">;
 
 type ButtonProps = ButtonButtonProps | ButtonAnchorProps;
