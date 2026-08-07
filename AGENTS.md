@@ -57,10 +57,11 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 
 ### Specs activos
 
-| Spec                          | Archivos | RFs | ACs | Tests planif. | Descripción                           |
-| ----------------------------- | -------- | --- | --- | ------------- | ------------------------------------- |
-| `design-system-truth/`        | 4        | 12  | 48  | 24            | Single source of truth del design sys |
-| `design-system-fixes-batch2/` | 4        | 3   | 12  | 11            | Sub-spec delta (token fallbacks)      |
+| Spec                          | Archivos | RFs     | ACs      | Tests planif. | Descripción                                        |
+| ----------------------------- | -------- | ------- | -------- | ------------- | -------------------------------------------------- |
+| `design-system-truth/`        | 4        | 12      | 48       | 24            | Single source of truth del design sys              |
+| `design-system-fixes-batch2/` | 4        | 3       | 12       | 11            | Sub-spec delta (token fallbacks)                   |
+| `catalog-pipeline-stripe/`    | 4        | RF1-RF7 | AC1-AC23 | 104           | F11-F16 (completado/live): catálogo, checkout, CRM |
 
 **Auto-validador**: `scripts/audit-spec-coherence.mjs` — cross-reference RF↔AC↔TU/TE↔en-`tests/`, emite dashboard de coherencia.
 
