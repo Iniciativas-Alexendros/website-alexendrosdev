@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     "Condiciones de contratación de los servicios de desarrollo y los productos digitales de alexendros.dev",
 };
 
+/**
+ * Renderiza la página de condiciones de contratación de los servicios y productos digitales.
+ */
 export default function CondicionesPage() {
   return (
     <div className="ak-container">

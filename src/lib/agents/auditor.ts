@@ -32,6 +32,11 @@ interface FailureEntry {
  *  Migrar a Upstash Redis si se requiere detección distribuida. */
 let recentFailures: FailureEntry[] = [];
 
+/**
+ * Records a failure and retains only failures from the active anomaly window.
+ *
+ * @param eventId - Optional identifier of the failed event.
+ */
 function recordFailure(eventId?: string): void {
   const now = Date.now();
   recentFailures.push({ timestamp: now, eventId });
