@@ -8,10 +8,6 @@ export const metadata: Metadata = {
     "Condiciones de contratación de los servicios de desarrollo y los productos digitales de alexendros.dev",
 };
 
-// TODO(operador): sustituir «__PENDIENTE_NIF__» por el NIF antes de considerar
-// esta página jurídicamente completa (arts. 10 y 27 LSSI; art. 60 y 97-108
-// TRLGDCU — Real Decreto Legislativo 1/2007).
-
 export default function CondicionesPage() {
   return (
     <div className="ak-container">
@@ -33,7 +29,7 @@ export default function CondicionesPage() {
               <dt style={{ fontWeight: 600 }}>Titular:</dt>
               <dd>Alejandro Domingo Agustí (Alexendros)</dd>
               <dt style={{ fontWeight: 600, marginTop: 12 }}>NIF:</dt>
-              <dd>__PENDIENTE_NIF__</dd>
+              <dd>21002968N</dd>
               <dt style={{ fontWeight: 600, marginTop: 12 }}>Domicilio profesional:</dt>
               <dd>Valencia, España</dd>
               <dt style={{ fontWeight: 600, marginTop: 12 }}>Contacto:</dt>
