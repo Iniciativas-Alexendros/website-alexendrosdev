@@ -49,7 +49,8 @@ function Block({ block }: { block: CaseBlock }) {
           <div
             className="ak-prose-shot"
             style={{
-              background: "linear-gradient(135deg, hsl(var(--bg-sunken)), hsl(var(--bg-elevated)))",
+              background:
+                "linear-gradient(135deg, oklch(var(--bg-sunken)), oklch(var(--bg-elevated)))",
               aspectRatio: "16/9",
               borderRadius: 8,
             }}
