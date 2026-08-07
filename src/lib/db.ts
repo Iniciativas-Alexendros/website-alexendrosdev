@@ -18,8 +18,15 @@ function createClient(): PrismaClient | null {
   // This avoids disabling TLS verification while keeping secrets out of repo.
   const rawCa = process.env.SUPABASE_SSL_CERT;
   const ca = rawCa ? rawCa.replaceAll("\\n", "\n") : undefined;
+  if (ca && !ca.includes("-----BEGIN CERTIFICATE-----")) {
+    console.warn("[db] SUPABASE_SSL_CERT no parece ser un PEM válido");
+  }
+  // Strip sslmode from URL — the Pool config handles SSL directly.
+  // Using URL API avoids regex edge cases with hyphenated values like "verify-full".
+  const clean = new URL(url);
+  clean.searchParams.delete("sslmode");
   const adapter = new PrismaPg({
-    connectionString: url.replace(/(\?|&)sslmode=\w+/, "$1").replace(/^(\?)&/, "$1"),
+    connectionString: clean.toString(),
     ssl: { ca },
     max: 3,
     idleTimeoutMillis: 15_000,
@@ -30,8 +37,6 @@ function createClient(): PrismaClient | null {
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient | null };
 
-export const prisma: PrismaClient | null = globalForPrisma.prisma ?? createClient();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// ??= evita la race condition TOCTOU: si dos módulos importan db.ts
+// simultáneamente (típico en HMR/turbopack), solo se crea un cliente.
+export const prisma: PrismaClient | null = (globalForPrisma.prisma ??= createClient());
