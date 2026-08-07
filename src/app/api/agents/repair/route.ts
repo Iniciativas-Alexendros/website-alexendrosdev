@@ -7,6 +7,11 @@ import { hasGemini, hasOpenCodeZen, hasAnyLLM } from "@/lib/agents/config";
 // POST /api/agents/repair
 // Ejecuta la reparación propuesta por el Diagnosticador. Auth: X-API-Key CRM.
 
+// Vercel serverless functions are killed mid-flight at 15s (Hobby) / 60s (Pro).
+// Cap the total time the LLM-invoking call can take so we return a graceful 504
+// instead of a truncated response.
+const AGENT_TIMEOUT_MS = 25_000;
+
 export async function POST(req: Request) {
   const authErr = requireCrmAuth(req);
   if (authErr) return authErr;
@@ -29,19 +34,33 @@ export async function POST(req: Request) {
   const dryRun = req.headers.get("x-dry-run") === "true";
   // Por defecto simulación en prod: solo un flag explícito x-apply muta el CRM.
   const effectiveDryRun = dryRun || !req.headers.get("x-apply");
-  const { result, action, mode } = await runReparador(parsed.data as AgentRepairRequest, {
-    dryRun: effectiveDryRun,
-  });
 
-  return NextResponse.json({
-    result,
-    action,
-    mode,
-    dryRun: effectiveDryRun,
-    llm: {
-      gemini: hasGemini(),
-      opencodeZen: hasOpenCodeZen(),
-      any: hasAnyLLM(),
-    },
-  });
+  try {
+    const { result, action, mode } = await Promise.race([
+      runReparador(parsed.data as AgentRepairRequest, { dryRun: effectiveDryRun }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("TIMEOUT")), AGENT_TIMEOUT_MS),
+      ),
+    ]);
+
+    return NextResponse.json({
+      result,
+      action,
+      mode,
+      dryRun: effectiveDryRun,
+      llm: {
+        gemini: hasGemini(),
+        opencodeZen: hasOpenCodeZen(),
+        any: hasAnyLLM(),
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "TIMEOUT") {
+      return NextResponse.json(
+        { error: "Tiempo de espera agotado. Introduce una incidencia más concreta." },
+        { status: 504 },
+      );
+    }
+    throw error;
+  }
 }

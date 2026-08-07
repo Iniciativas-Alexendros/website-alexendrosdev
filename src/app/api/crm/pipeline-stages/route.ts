@@ -10,9 +10,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "CRM no disponible." }, { status: 503 });
   }
 
-  const stages = await prisma.pipelineStage.findMany({
-    orderBy: { order: "asc" },
-  });
+  try {
+    const stages = await prisma.pipelineStage.findMany({
+      orderBy: { order: "asc" },
+    });
 
-  return NextResponse.json({ data: stages });
+    return NextResponse.json({ data: stages });
+  } catch (err) {
+    console.error("[crm/pipeline-stages] error al obtener stages:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }

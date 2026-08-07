@@ -38,7 +38,10 @@ export interface CrmMocks {
 }
 
 type PrismaModel = Record<string, Mock>;
-type PrismaClient = Record<string, PrismaModel>;
+export type PrismaClient = {
+  [key: string]: PrismaModel | ((ops: unknown[]) => Promise<unknown[]>);
+  $transaction: (ops: unknown[]) => Promise<unknown[]>;
+};
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -64,6 +67,13 @@ export function buildPrisma(mocks: CrmMocks): PrismaClient {
     },
     activity: { findMany: mocks.activityFindMany, create: mocks.activityCreate },
     task: { findMany: mocks.taskFindMany, create: mocks.taskCreate },
+    $transaction: async (ops: unknown[]) => {
+      const results: unknown[] = [];
+      for (const op of ops) {
+        results.push(await op);
+      }
+      return results;
+    },
   };
 }
 

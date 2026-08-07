@@ -19,12 +19,17 @@ export async function GET(req: Request) {
   if (dealId) where.dealId = dealId;
   if (contactId) where.contactId = contactId;
 
-  const tasks = await prisma.task.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const tasks = await prisma.task.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json({ data: tasks });
+    return NextResponse.json({ data: tasks });
+  } catch (err) {
+    console.error("[crm/tasks] error al obtener tasks:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {

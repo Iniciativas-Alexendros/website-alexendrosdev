@@ -127,9 +127,9 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             </>
           )}
           <dt style={{ opacity: 0.7 }}>IBAN</dt>
-          <dd style={{ margin: 0, fontFamily: "monospace" }}>{transferInfo.iban}</dd>
+          <dd style={{ margin: 0, fontFamily: "var(--font-code)" }}>{transferInfo.iban}</dd>
           <dt style={{ opacity: 0.7 }}>Concepto</dt>
-          <dd style={{ margin: 0, fontFamily: "monospace" }}>{transferInfo.reference}</dd>
+          <dd style={{ margin: 0, fontFamily: "var(--font-code)" }}>{transferInfo.reference}</dd>
         </dl>
         <Button
           variant="secondary"
@@ -162,7 +162,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           marginBottom: 12,
           padding: 4,
           borderRadius: 8,
-          background: "var(--ak-surface-2, rgba(0,0,0,0.04))",
+          background: "oklch(var(--bg-inset))",
         }}
       >
         <button
@@ -176,7 +176,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             border: "none",
             borderRadius: 6,
             cursor: "pointer",
-            background: method === "stripe" ? "var(--ak-bg, #fff)" : "transparent",
+            background: method === "stripe" ? "oklch(var(--bg-elevated))" : "transparent",
             fontWeight: method === "stripe" ? 600 : 400,
           }}
         >
@@ -193,7 +193,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             border: "none",
             borderRadius: 6,
             cursor: "pointer",
-            background: method === "transfer" ? "var(--ak-bg, #fff)" : "transparent",
+            background: method === "transfer" ? "oklch(var(--bg-elevated))" : "transparent",
             fontWeight: method === "transfer" ? 600 : 400,
           }}
         >
@@ -213,8 +213,8 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             style={{
               padding: "8px 10px",
               borderRadius: 6,
-              border: "1px solid var(--ak-border, rgba(0,0,0,0.15))",
-              background: "var(--ak-bg, #fff)",
+              border: "1px solid oklch(var(--border))",
+              background: "oklch(var(--bg-base))",
               color: "inherit",
             }}
           />
@@ -228,8 +228,8 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             style={{
               padding: "8px 10px",
               borderRadius: 6,
-              border: "1px solid var(--ak-border, rgba(0,0,0,0.15))",
-              background: "var(--ak-bg, #fff)",
+              border: "1px solid oklch(var(--border))",
+              background: "oklch(var(--bg-base))",
               color: "inherit",
             }}
           />

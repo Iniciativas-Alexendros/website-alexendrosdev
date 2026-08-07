@@ -12,7 +12,7 @@ import {
   getReq,
   buildPrisma,
 } from "../helpers/crm";
-import type { CrmMocks } from "../helpers/crm";
+import type { CrmMocks, PrismaClient } from "../helpers/crm";
 
 // ─── Mocks ──────────────────────────────────────────────────────────────────
 
@@ -29,7 +29,7 @@ const mocks = vi.hoisted(() => {
 
   return {
     state: {
-      prisma: null as null | Record<string, Record<string, ReturnType<typeof vi.fn>>>,
+      prisma: null as PrismaClient | null,
     },
     mocks: fns,
   };

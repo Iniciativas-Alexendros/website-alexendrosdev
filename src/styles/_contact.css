@@ -18,8 +18,8 @@
 
   /* Form card */
   .ak-form-card {
-    background: hsl(var(--bg-elevated));
-    border: 1px solid hsl(var(--border-subtle));
+    background: oklch(var(--bg-elevated));
+    border: 1px solid oklch(var(--border-subtle));
     border-radius: var(--radius-xl);
     padding: 28px 32px;
     box-shadow: var(--elev-sm);
@@ -38,13 +38,13 @@
     align-items: center;
     gap: 8px;
     font: 500 13px var(--font-sans);
-    color: hsl(var(--text-tertiary));
+    color: oklch(var(--text-tertiary));
   }
   .ak-step.on {
-    color: hsl(var(--text-link));
+    color: oklch(var(--text-link));
   }
   .ak-step.done {
-    color: hsl(var(--success));
+    color: oklch(var(--success));
   }
   .ak-step-dot {
     display: inline-flex;
@@ -53,27 +53,27 @@
     width: 28px;
     height: 28px;
     border-radius: var(--radius-full);
-    background: hsl(var(--bg-inset));
-    color: hsl(var(--text-secondary));
+    background: oklch(var(--bg-inset));
+    color: oklch(var(--text-secondary));
     font: 600 12px var(--font-sans);
-    border: 1px solid hsl(var(--border));
+    border: 1px solid oklch(var(--border));
   }
   .ak-step.on .ak-step-dot {
-    background: hsl(var(--cta));
-    color: hsl(var(--text-on-primary));
-    border-color: hsl(var(--cta));
+    background: oklch(var(--cta));
+    color: oklch(var(--text-on-primary));
+    border-color: oklch(var(--cta));
   }
   .ak-step.done .ak-step-dot {
-    background: hsl(var(--success));
-    color: hsl(var(--text-on-primary));
-    border-color: hsl(var(--success));
+    background: oklch(var(--success));
+    color: oklch(var(--text-on-primary));
+    border-color: oklch(var(--success));
   }
   .ak-step-line {
     flex: 1;
     height: 2px;
     min-width: 24px;
     max-width: 64px;
-    background: hsl(var(--border-subtle));
+    background: oklch(var(--border-subtle));
     border-radius: var(--radius-full);
   }
 
@@ -81,7 +81,7 @@
   .ak-progress {
     width: 100%;
     height: 6px;
-    background: hsl(var(--bg-inset));
+    background: oklch(var(--bg-inset));
     border-radius: var(--radius-full);
     overflow: hidden;
     margin-bottom: 28px;
@@ -89,12 +89,12 @@
   .ak-progress-bar {
     display: block;
     height: 100%;
-    background: hsl(var(--primary-400));
+    background: oklch(var(--primary-400));
     border-radius: var(--radius-full);
     transition: width var(--duration-base) var(--ease-default);
   }
   .dark .ak-progress-bar {
-    background: hsl(var(--primary-200));
+    background: oklch(var(--primary-200));
   }
 
   /* Form fields */
@@ -115,16 +115,16 @@
   }
   .ak-label {
     font: 600 13px var(--font-sans);
-    color: hsl(var(--text-primary));
+    color: oklch(var(--text-primary));
   }
   .ak-input,
   .ak-textarea {
     width: 100%;
     padding: 11px 14px;
     border-radius: var(--radius-md);
-    border: 1px solid hsl(var(--border));
-    background: hsl(var(--bg-inset));
-    color: hsl(var(--text-primary));
+    border: 1px solid oklch(var(--border));
+    background: oklch(var(--bg-inset));
+    color: oklch(var(--text-primary));
     font-size: var(--fs-body);
     transition:
       border-color var(--duration-fast),
@@ -132,14 +132,14 @@
   }
   .ak-input:focus-visible,
   .ak-textarea:focus-visible {
-    outline: 2px solid hsl(var(--border-focus));
+    outline: 2px solid oklch(var(--border-focus));
     outline-offset: 2px;
-    border-color: hsl(var(--border-focus));
-    box-shadow: 0 0 0 3px hsl(var(--border-focus) / 0.2);
+    border-color: oklch(var(--border-focus));
+    box-shadow: 0 0 0 3px oklch(var(--border-focus) / 0.2);
   }
   .ak-input.err,
   .ak-textarea.err {
-    border-color: hsl(var(--emergency));
+    border-color: oklch(var(--emergency));
   }
   .ak-textarea {
     min-height: 140px;
@@ -150,7 +150,7 @@
     align-items: center;
     gap: 6px;
     font-size: var(--fs-body-sm);
-    color: hsl(var(--emergency));
+    color: oklch(var(--emergency));
   }
   .ak-form-actions {
     display: flex;
@@ -166,7 +166,7 @@
     flex-direction: column;
     gap: 12px;
     padding: 16px;
-    background: hsl(var(--bg-sunken));
+    background: oklch(var(--bg-sunken));
     border-radius: var(--radius-lg);
     margin-bottom: 20px;
   }
@@ -177,10 +177,10 @@
     font-size: var(--fs-body-sm);
   }
   .ak-review-row .lbl {
-    color: hsl(var(--text-tertiary));
+    color: oklch(var(--text-tertiary));
   }
   .ak-review-row .val {
-    color: hsl(var(--text-primary));
+    color: oklch(var(--text-primary));
     text-align: right;
   }
   .ak-consent {
@@ -188,7 +188,7 @@
     align-items: flex-start;
     gap: 10px;
     font-size: var(--fs-body-sm);
-    color: hsl(var(--text-secondary));
+    color: oklch(var(--text-secondary));
     cursor: pointer;
   }
   .ak-consent input {
@@ -209,14 +209,14 @@
     width: 56px;
     height: 56px;
     border-radius: var(--radius-full);
-    background: hsl(var(--success) / 0.12);
-    color: hsl(var(--success));
+    background: oklch(var(--success) / 0.12);
+    color: oklch(var(--success));
   }
 
   /* Calendar */
   .ak-cal {
-    background: hsl(var(--bg-elevated));
-    border: 1px solid hsl(var(--border-subtle));
+    background: oklch(var(--bg-elevated));
+    border: 1px solid oklch(var(--border-subtle));
     border-radius: var(--radius-xl);
     padding: 22px;
     box-shadow: var(--elev-sm);
@@ -229,7 +229,7 @@
   }
   .ak-cal-head .ak-label {
     font: 600 14px var(--font-sans);
-    color: hsl(var(--text-primary));
+    color: oklch(var(--text-primary));
   }
   .ak-cal-nav {
     display: flex;
@@ -242,9 +242,9 @@
     width: 44px;
     height: 44px;
     border-radius: var(--radius-md);
-    border: 1px solid hsl(var(--border));
-    background: hsl(var(--bg-inset));
-    color: hsl(var(--text-secondary));
+    border: 1px solid oklch(var(--border));
+    background: oklch(var(--bg-inset));
+    color: oklch(var(--text-secondary));
     cursor: pointer;
     transition:
       background-color var(--duration-fast),
@@ -253,7 +253,7 @@
       box-shadow var(--duration-fast);
   }
   .ak-cal-nav button:focus-visible {
-    outline: 2px solid hsl(var(--border-focus));
+    outline: 2px solid oklch(var(--border-focus));
     outline-offset: 2px;
   }
   .ak-cal-nav button:disabled {
@@ -261,13 +261,13 @@
     opacity: 0.5;
   }
   .ak-cal-nav button:hover:not(:disabled) {
-    border-color: hsl(var(--border-focus));
-    color: hsl(var(--text-primary));
+    border-color: oklch(var(--border-focus));
+    color: oklch(var(--text-primary));
   }
   .ak-cal-sub,
   .ak-cal-sub-top {
     font-size: var(--fs-body-sm);
-    color: hsl(var(--text-tertiary));
+    color: oklch(var(--text-tertiary));
   }
   .ak-cal-dow {
     display: grid;
@@ -278,7 +278,7 @@
   .ak-cal-dow span {
     text-align: center;
     font: 600 11px var(--font-sans);
-    color: hsl(var(--text-tertiary));
+    color: oklch(var(--text-tertiary));
     padding: 6px 0;
   }
   .ak-cal-grid {
@@ -293,16 +293,16 @@
     justify-content: center;
     border-radius: var(--radius-md);
     font: 500 13px var(--font-sans);
-    color: hsl(var(--text-secondary));
+    color: oklch(var(--text-secondary));
     cursor: default;
   }
   .ak-cal-day.av {
     cursor: pointer;
-    background: hsl(var(--bg-inset));
+    background: oklch(var(--bg-inset));
     border: 0;
   }
   .ak-cal-day:focus-visible {
-    outline: 2px solid hsl(var(--border-focus));
+    outline: 2px solid oklch(var(--border-focus));
     outline-offset: 2px;
   }
   .ak-cal-day:disabled {
@@ -319,18 +319,18 @@
     border: 0;
   }
   .ak-cal-day.av:hover {
-    background: hsl(var(--bg-highlight));
-    color: hsl(var(--text-primary));
+    background: oklch(var(--bg-highlight));
+    color: oklch(var(--text-primary));
   }
   .ak-cal-day.sel {
-    background: hsl(var(--cta));
-    color: hsl(var(--text-on-primary));
+    background: oklch(var(--cta));
+    color: oklch(var(--text-on-primary));
   }
 
   /* Side panel + channels */
   .ak-panel {
-    background: hsl(var(--bg-elevated));
-    border: 1px solid hsl(var(--border-subtle));
+    background: oklch(var(--bg-elevated));
+    border: 1px solid oklch(var(--border-subtle));
     border-radius: var(--radius-xl);
     padding: 22px;
     box-shadow: var(--elev-sm);
@@ -339,7 +339,7 @@
     font: 600 12px var(--font-sans);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: hsl(var(--text-tertiary));
+    color: oklch(var(--text-tertiary));
     margin-bottom: 14px;
   }
   .ak-channels {
@@ -353,12 +353,12 @@
     gap: 10px;
     padding: 10px 12px;
     border-radius: var(--radius-md);
-    color: hsl(var(--text-primary));
+    color: oklch(var(--text-primary));
     text-decoration: none;
     transition: background var(--duration-fast);
   }
   .ak-channel:hover {
-    background: hsl(var(--bg-sunken));
+    background: oklch(var(--bg-sunken));
   }
   .ak-channel-ic {
     display: inline-flex;
@@ -367,14 +367,14 @@
     width: 32px;
     height: 32px;
     border-radius: var(--radius-md);
-    background: hsl(var(--bg-highlight));
-    color: hsl(var(--text-link));
+    background: oklch(var(--bg-highlight));
+    color: oklch(var(--text-link));
     flex: none;
   }
 
   /* Skeleton helpers */
   .ak-skeleton {
-    background: hsl(var(--border-subtle));
+    background: oklch(var(--border-subtle));
     border-radius: var(--radius-md);
     animation: pulse 1.6s ease-in-out infinite;
   }

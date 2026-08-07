@@ -3,7 +3,7 @@
  * Source of truth: src/styles/design-tokens.css (CSS vars) and src/tokens/tokens.json (DTCG).
  *
  * HSL channels are provided as [h, s%, l%] tuples for dynamic color manipulation.
- * Use `hsl(var(--token-name))` in CSS or `hsl(h, s%, l%)` in JS.
+ * Use `oklch(var(--token-name))` in CSS or `hsl(h, s%, l%)` in JS.
  */
 
 // ─── Color tokens (HSL channels) ────────────────────────────────────────────

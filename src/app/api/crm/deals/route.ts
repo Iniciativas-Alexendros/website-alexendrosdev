@@ -20,13 +20,18 @@ export async function GET(req: Request) {
   if (stageId) where.stageId = stageId;
   if (contactId) where.contactId = contactId;
 
-  const deals = await prisma.deal.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { stage: true, contact: true },
-  });
+  try {
+    const deals = await prisma.deal.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { stage: true, contact: true },
+    });
 
-  return NextResponse.json({ data: deals });
+    return NextResponse.json({ data: deals });
+  } catch (err) {
+    console.error("[crm/deals] error al obtener deals:", err);
+    return NextResponse.json({ error: "No se pudo obtener la información." }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {
@@ -52,12 +57,12 @@ export async function POST(req: Request) {
     );
   }
 
-  // Asignar stage "Nuevo" (order 0) automáticamente
-  const initialStage = await prisma.pipelineStage.findFirst({
-    where: { order: 0 },
-  });
-
   try {
+    // Asignar stage "Nuevo" (order 0) automáticamente
+    const initialStage = await prisma.pipelineStage.findFirst({
+      where: { order: 0 },
+    });
+
     const deal = await prisma.deal.create({
       data: {
         title: parsed.data.title,
