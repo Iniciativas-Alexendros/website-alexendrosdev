@@ -183,7 +183,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 28px 20px;
   }
-  .ak-project-grid > [role="listitem"] {
+  .ak-project-grid > * {
     min-width: 0;
   }
   .ak-tile-link {

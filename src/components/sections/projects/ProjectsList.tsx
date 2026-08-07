@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
+import { ProjectCard } from "@/components/sections/projects/ProjectCard";
 import { PROJECTS } from "@/lib/content/projects";
-import { ProjectImage } from "@/components/ProjectImage";
 import { Button, Icon, Reveal } from "@/components/ui";
 
 const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((project) => project.category)))];
@@ -260,62 +259,14 @@ export function ProjectsList() {
             </Button>
           </div>
         ) : (
-          <div className="ak-masonry" role="list" aria-label="Lista de proyectos">
+          <div className="ak-project-grid" role="list" aria-label="Lista de proyectos">
             {filteredProjects.map((p, i) => {
               const lcpOptimized = i === 0;
-              const tile = (
-                <article
-                  className={lcpOptimized ? "ak-masonry-tile" : undefined}
-                  role="listitem"
-                  key={p.id}
-                >
-                  <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
-                    <div className="ak-tile-media">
-                      <ProjectImage
-                        id={p.id}
-                        alt={p.title}
-                        className="ak-tile-img"
-                        fallbackClassName="ak-tile-fallback"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        priority={lcpOptimized}
-                      />
-                      <span className="ak-tile-badge">{p.category}</span>
-                    </div>
-                    <div className="ak-tile-body">
-                      <div className="ak-tile-meta">
-                        <span className="ak-tile-idx">{p.id}</span>
-                        <span className="ak-tile-year">{p.year}</span>
-                      </div>
-                      <h2 className="ak-tile-title">{p.title}</h2>
-                      <p className="ak-tile-desc">{p.desc}</p>
-                      <div className="ak-tile-tags">
-                        {p.tags.slice(0, 3).map((t) => (
-                          <span key={t} className="ak-tag">
-                            {t}
-                          </span>
-                        ))}
-                        {p.tags.length > 3 && (
-                          <span className="ak-tag ak-tag-more">+{p.tags.length - 3}</span>
-                        )}
-                      </div>
-                      <div className="ak-tile-metrics">
-                        {p.metrics.slice(0, 2).map((m) => (
-                          <span key={m.l} className="ak-tile-metric">
-                            <b>{m.v}</b>
-                            <span>{m.l}</span>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </Link>
-                </article>
-              );
-
               return lcpOptimized ? (
-                tile
+                <ProjectCard key={p.id} project={p} priority={true} />
               ) : (
-                <Reveal className="ak-masonry-tile" key={p.id} delay={i * 0.06}>
-                  {tile}
+                <Reveal key={p.id} delay={i * 0.06}>
+                  <ProjectCard project={p} />
                 </Reveal>
               );
             })}
