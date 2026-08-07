@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     ".claude/worktrees/**",
     // Worktrees de FreeBuff:
     ".freebuff/worktrees/**",
+    // Vercel build artifacts:
+    ".vercel/**",
   ]),
 ]);
 
