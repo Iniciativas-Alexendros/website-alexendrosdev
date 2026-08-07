@@ -11,20 +11,26 @@ on:
       - "supabase/**"
       - "prisma/**"
       - "src/lib/db.ts"
+      - "src/lib/supabase-ca.ts"
       - "src/lib/repositories/**"
       - "src/lib/services/**"
       - "src/app/api/**"
       - ".github/workflows/database-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
   pull_request:
     branches: [main]
     paths:
       - "supabase/**"
       - "prisma/**"
       - "src/lib/db.ts"
+      - "src/lib/supabase-ca.ts"
       - "src/lib/repositories/**"
       - "src/lib/services/**"
       - "src/app/api/**"
       - ".github/workflows/database-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
 
 jobs:
   db-test:
@@ -66,28 +72,47 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Setup database (roles, extensions)
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE IF NOT EXISTS anon;
+          CREATE ROLE IF NOT EXISTS authenticated;
+          CREATE EXTENSION IF NOT EXISTS pgcrypto;
+          SQL
+
       - name: Generate Prisma client
         run: pnpm prisma generate
 
       - name: Apply Supabase migrations (baseline + incremental)
         run: |
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260605000000_baseline_from_prisma.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260709000001_seed_pipeline_stages.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260807000000_webhook_events_table.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260807000001_outbox_events_table.sql"
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "supabase/migrations/20260807000002_security_rls_revoke.sql"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260605000000_baseline_from_prisma.sql"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260709000001_seed_pipeline_stages.sql"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000000_webhook_events_table.sql"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000001_outbox_events_table.sql"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000002_security_rls_revoke.sql"
 
       - name: Run pgTAP tests
         run: |
           for test_file in supabase/tests/*.test.sql; do
             echo "=== Running: $test_file ==="
-            PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f "$test_file" 2>&1
-            echo "Exit code: $?"
+            output=$(PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -t -A -f "$test_file" 2>&1)
+            echo "$output"
+            if echo "$output" | grep -qE "^not ok"; then
+              echo "FAIL: Tests failed in $test_file"
+              exit 1
+            fi
           done
 
       - name: Run db lint
         run: |
-          npx supabase db lint --level error 2>&1 || echo "Warning: db lint requires Docker or linked project"
+          echo "Schema applied. Running manual lint checks..."
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -tc "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';" | grep -q "15" || { echo "FAIL: Expected 15 base tables"; exit 1; }
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -tc "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = false;" | grep -q "0" || { echo "FAIL: RLS not enabled on all tables"; exit 1; }
 
       - name: Typecheck
         run: pnpm typecheck

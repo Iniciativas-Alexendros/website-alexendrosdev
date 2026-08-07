@@ -12,13 +12,13 @@ const url = process.env.DATABASE_URL;
 
 function createClient(): PrismaClient | null {
   if (!url) return null;
-  // Supabase pooler uses a self-signed cert. The pool config ssl option is
-  // overridden by sslmode=require in the connection string (treated as
-  // verify-full by pg v8+). Strip it so Pool ssl config takes effect.
-  const connectionString = url.replace(/(\?|&)sslmode=\w+/, "$1").replace(/^(\?)&/, "$1");
+  // Supabase pooler uses a self-signed cert. The CA certificate is provided
+  // via SUPABASE_SSL_CERT env var (PEM-encoded, stored in Vercel env).
+  // This avoids disabling TLS verification while keeping secrets out of repo.
+  const ca = process.env.SUPABASE_SSL_CERT;
   const adapter = new PrismaPg({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
+    connectionString: url.replace(/(\?|&)sslmode=\w+/, "$1").replace(/^(\?)&/, "$1"),
+    ssl: ca ? { ca } : undefined,
     max: 3,
     idleTimeoutMillis: 15_000,
     connectionTimeoutMillis: 8_000,
