@@ -3,7 +3,7 @@
 [![CI](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml/badge.svg)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions/workflows/ci.yml)
 [![Deploy](https://img.shields.io/badge/deployed-Vercel-000?logo=vercel)](https://alexendros.dev)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![Coverage: 74% branches](https://img.shields.io/badge/coverage-74%25_branches-brightgreen?logo=vitest)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions)
+[![Coverage: 89% stmts](https://img.shields.io/badge/coverage-89%25_stmts-brightgreen?logo=vitest)](https://github.com/Iniciativas-Alexendros/website-alexendrosdev/actions)
 
 Diseño y desarrollo **webs, aplicaciones y plataformas a medida** para negocios y proyectos digitales. También construyo herramientas internas, automatizaciones y open source.
 
@@ -49,10 +49,11 @@ Diseño y desarrollo **webs, aplicaciones y plataformas a medida** para negocios
 
 **Frontend:** Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS v4  
 **Backend:** Route Handlers · Zod · Prisma 7 · PostgreSQL (Supabase)  
+**BD:** Supabase Cloud · RLS + REVOKE · pgTAP tests · webhook_events + outbox_events  
 **Pagos:** Stripe Checkout · Webhooks con verificación de firma  
 **Email:** Resend · React Email  
 **Observabilidad:** OpenTelemetry · SigNoz · Vercel Analytics  
-**Calidad:** 436 tests · Cobertura branches 74% · Playwright + axe · ESLint · Prettier
+**Calidad:** 502 tests · 54 ficheros · Playwright + axe · ESLint · Prettier · CI/CD + database-ci
 
 ---
 
@@ -62,12 +63,14 @@ Diseño y desarrollo **webs, aplicaciones y plataformas a medida** para negocios
 pnpm install                    # instalar dependencias
 cp .env.example .env.local      # opcional: funciona sin credenciales
 pnpm dev                        # http://localhost:3000
-pnpm test                       # 436 tests, 50 ficheros
+pnpm test                       # 502 tests, 54 ficheros
 pnpm test:coverage              # con gates bloqueantes
 pnpm typecheck                  # tsc --noEmit
 pnpm lint                       # ESLint (0 errors)
 pnpm e2e                        # Playwright + axe
 pnpm build                      # build producción (32 rutas)
+pnpm db:start                   # Supabase local (requiere Docker)
+pnpm db:test                    # pgTAP tests
 ```
 
 **CI/CD:** GitHub Actions ejecuta `quality` (lint → typecheck → test → build) + `e2e`.  

@@ -22,8 +22,8 @@ This repository is initialized for the Stripe project "website-alexendrosdev".
 | Contenido          | Módulos TS tipados (`src/lib/content/`) + blog MDX (`content/blog/`)                            |
 | Backend            | Route Handlers + zod + Prisma/Supabase + Stripe Checkout + Resend + React Email                 |
 | Catálogo unificado | `src/lib/content/catalog.ts` — fuente de verdad de precios (céntimos), server-trusted           |
-| Calidad            | ESLint, Prettier, tsc, Vitest (47 ficheros, 436 tests), Playwright + axe, Lighthouse/CWV        |
-| Gestor             | pnpm 11.5.2                                                                                     |
+| Calidad            | ESLint, Prettier, tsc, Vitest (54 ficheros, 502 tests), Playwright + axe, Lighthouse/CWV        |
+| Gestor             | pnpm 11.8.0                                                                                     |
 
 ### Fases (ROADMAP.md)
 
@@ -81,7 +81,7 @@ pnpm format           # Prettier --write
 
 ### Testing
 
-Pirámide completa documentada en `tests/README.md`. **436 tests**, 47 ficheros.
+Pirámide completa documentada en `tests/README.md`. **502 tests**, 54 ficheros.
 
 Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 
@@ -98,16 +98,16 @@ Cobertura v8 sobre `src/lib/**` + `src/app/api/**`:
 
 ### Infraestructura
 
-| Servicio       | Estado                                                                                                        | Nota                                                                                                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vercel**     | ✅ deploy Git nativo (push a `main` → prod). Dominio `alexendros.dev`                                         | Env vars configuradas: `DATABASE_URL`, `DIRECT_URL`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TRANSFER_IBAN`, `TRANSFER_BENEFICIARY`, `CRM_API_KEY` |
-| **Supabase**   | ✅ self-hosted en Coolify (`supabase-website-alexendrosdev`, Docker oficial)                                  | Postgres en la MiniPC, conectividad vía Cloudflare Tunnel (`db.alexendros.cloud`). 5 migraciones aplicadas.                                                                 |
-| **Stripe**     | ✅ **live activo** (`sk_live_...`)                                                                            | Pagos reales operativos en prod; código y tests con `vi.mock` para tests unit                                                                                               |
-| **Resend**     | ⚠️ null-safe, clave pendiente (operador)                                                                      | Emails transaccionales no activos; código y tests con `vi.mock`                                                                                                             |
-| **MiniPC**     | NVIDIA RTX 5060, Ollama (`ornith:9b`, `qwen2.5-coder:7b`, `bge-m3`)                                           | Coolify + Supabase self-hosted + SigNoz. Cloudflare Tunnel para exponer DB.                                                                                                 |
-| **MCP**        | Stripe CLI 1.43.6 + plugin projects 0.22.0 en `~/.local/bin`                                                  | `stripe-projects` skill en `~/.agents/skills/`                                                                                                                              |
-| **Gemini API** | ✅ gratuita (provider LLM primario F15, en P3)                                                                | Tier free de Google AI Studio. Plan: 15 RPM, 1M TPM, 1500 RPD.                                                                                                              |
-| **Analytics**  | ✅ `@vercel/analytics` (cookieless) ya en `layout.tsx` — F18.6 planteaba Plausible, descartado por redundante | Privacidad-first, sin banner de consentimiento. Falta script de conversión/objetivos.                                                                                       |
+| Servicio       | Estado                                                                                                        | Nota                                                                                                                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Vercel**     | ✅ deploy Git nativo (push a `main` → prod). Dominio `alexendros.dev`                                         | Env vars configuradas: `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_SSL_CERT`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `TRANSFER_IBAN`, `TRANSFER_BENEFICIARY`, `CRM_API_KEY` |
+| **Supabase**   | ✅ **live Cloud** (`mbtkgxhqwnakwuvdvlzf`, eu-east-1) vía integración Vercel                                  | PostgreSQL 17.6, 15 tablas, RLS+REVOKE en todas, webhook_events + outbox_events, pooler `aws-0-us-east-1.pooler.supabase.com:5432`                                                               |
+| **Stripe**     | ✅ **live activo** (`sk_live_...`)                                                                            | Pagos reales operativos en prod; código y tests con `vi.mock` para tests unit                                                                                                                    |
+| **Resend**     | ⚠️ null-safe, clave pendiente (operador)                                                                      | Emails transaccionales no activos; código y tests con `vi.mock`                                                                                                                                  |
+| **MiniPC**     | ❌ **fuera de servicio** — S2 inaccesible                                                                     | Coolify self-hosted apagado. Supabase migrado a Cloud (S5). Datos de S2 no migrados (sin claves SSH).                                                                                            |
+| **MCP**        | Stripe CLI 1.43.6 + plugin projects 0.22.0 en `~/.local/bin`                                                  | `stripe-projects` skill en `~/.agents/skills/`                                                                                                                                                   |
+| **Gemini API** | ✅ gratuita (provider LLM primario F15, en P3)                                                                | Tier free de Google AI Studio. Plan: 15 RPM, 1M TPM, 1500 RPD.                                                                                                                                   |
+| **Analytics**  | ✅ `@vercel/analytics` (cookieless) ya en `layout.tsx` — F18.6 planteaba Plausible, descartado por redundante | Privacidad-first, sin banner de consentimiento. Falta script de conversión/objetivos.                                                                                                            |
 
 ### Variables de entorno críticas
 
