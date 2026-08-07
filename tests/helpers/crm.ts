@@ -1,6 +1,7 @@
 /** Helpers compartidos para tests CRM. Cada test file define su propio
  *  `vi.hoisted` + `vi.mock` (Vitest las ho al principio del archivo). */
 import type { Mock } from "vitest";
+import { vi } from "vitest";
 
 // ─── IDs fijos (UUIDs v4 válidos) ──────────────────────────────────────────
 
@@ -35,12 +36,13 @@ export interface CrmMocks {
   activityCreate: Mock;
   taskFindMany: Mock;
   taskCreate: Mock;
+  outboxEventCreate: Mock;
 }
 
 type PrismaModel = Record<string, Mock>;
 export type PrismaClient = {
-  [key: string]: PrismaModel | ((ops: unknown[]) => Promise<unknown[]>);
-  $transaction: (ops: unknown[]) => Promise<unknown[]>;
+  [key: string]: PrismaModel | ((fn: unknown) => Promise<unknown>);
+  $transaction: (fn: unknown) => Promise<unknown>;
 };
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -67,12 +69,39 @@ export function buildPrisma(mocks: CrmMocks): PrismaClient {
     },
     activity: { findMany: mocks.activityFindMany, create: mocks.activityCreate },
     task: { findMany: mocks.taskFindMany, create: mocks.taskCreate },
-    $transaction: async (ops: unknown[]) => {
-      const results: unknown[] = [];
-      for (const op of ops) {
-        results.push(await op);
+    outboxEvent: { create: mocks.outboxEventCreate },
+    $transaction: async (arg: unknown) => {
+      const tx: Record<string, Record<string, Mock>> = {
+        pipelineStage: { findFirst: mocks.pipelineStageFindFirst },
+        deal: {
+          create: mocks.dealCreate,
+          update: mocks.dealUpdate,
+          findFirst: mocks.dealFindFirst,
+        },
+        contact: { create: mocks.contactCreate },
+        activity: { create: mocks.activityCreate },
+        outboxEvent: { create: mocks.outboxEventCreate },
+        lead: { create: vi.fn().mockResolvedValue({}) },
+        subscriber: {
+          findMany: vi.fn().mockResolvedValue([]),
+          findUnique: vi.fn().mockResolvedValue(null),
+          update: vi.fn().mockResolvedValue({}),
+          upsert: vi.fn().mockResolvedValue({}),
+        },
+      };
+      // Forma callback: prisma.$transaction(async (tx) => {...})
+      if (typeof arg === "function") {
+        return (arg as (tx: Record<string, Record<string, Mock>>) => Promise<unknown>)(tx);
       }
-      return results;
+      // Forma array/ops: prisma.$transaction([op1, op2])
+      if (Array.isArray(arg)) {
+        const results: unknown[] = [];
+        for (const op of arg) {
+          results.push(await op);
+        }
+        return results;
+      }
+      return undefined;
     },
   };
 }

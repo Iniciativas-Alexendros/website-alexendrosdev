@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual, createHash } from "crypto";
 import { prisma } from "@/lib/db";
 import { notion } from "@/lib/crm/notion";
 import { notionToContact, notionToDeal } from "@/lib/crm/notion-mapper";
@@ -42,6 +42,7 @@ async function findDealByNotionId(notionPageId: string) {
 
 export async function POST(req: Request) {
   // Degradación graceful si falta config
+  // Idempotency will be handled after reading the request body
   if (!prisma || !notion || !getWebhookSecret()) {
     console.warn("[notion-webhook] config incompleta, ack sin procesar");
     return NextResponse.json({ ok: true });
@@ -59,6 +60,26 @@ export async function POST(req: Request) {
   if (!verifySignature(raw, signature)) {
     return NextResponse.json({ error: "Firma inválida." }, { status: 401 });
   }
+
+  // Idempotency: use payload hash as externalEventId
+  const payloadHash = createHash("sha256").update(raw).digest("hex");
+  const existing = await prisma?.webhookEvent.findUnique({
+    where: { provider_externalEventId: { provider: "notion", externalEventId: payloadHash } },
+  });
+  if (existing?.status === "processed") {
+    return NextResponse.json({ ok: true });
+  }
+  await prisma?.webhookEvent.upsert({
+    where: { provider_externalEventId: { provider: "notion", externalEventId: payloadHash } },
+    update: { status: "processing", attemptCount: { increment: 1 } },
+    create: {
+      provider: "notion",
+      externalEventId: payloadHash,
+      eventType: "unknown",
+      payloadHash,
+      status: "processing",
+    },
+  });
 
   let event: ReturnType<typeof notionWebhookSchema.parse>;
   try {

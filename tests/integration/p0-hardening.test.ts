@@ -18,6 +18,11 @@ const mocks = vi.hoisted(() => ({
     pipelineStage: {
       findFirst: vi.fn(),
     },
+    webhookEvent: {
+      findUnique: vi.fn(),
+      upsert: vi.fn(),
+      update: vi.fn(),
+    },
   },
   notion: {
     pages: {

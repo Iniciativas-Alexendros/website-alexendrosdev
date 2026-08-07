@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => {
     pipelineStageFindMany: vi.fn(),
     productFindMany: vi.fn(),
     productCreate: vi.fn(),
+    outboxEventCreate: vi.fn(),
   } satisfies Partial<CrmMocks>;
 
   return {
@@ -51,6 +52,7 @@ function mockPrisma() {
     pipelineStageFindMany: mocks.mocks.pipelineStageFindMany,
     productFindMany: mocks.mocks.productFindMany,
     productCreate: mocks.mocks.productCreate,
+    outboxEventCreate: mocks.mocks.outboxEventCreate,
   } as CrmMocks);
 }
 

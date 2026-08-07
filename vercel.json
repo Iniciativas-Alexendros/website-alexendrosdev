@@ -8,6 +8,10 @@
     {
       "path": "/api/agents/audit",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/outbox-worker",
+      "schedule": "0 6 * * *"
     }
   ]
 }

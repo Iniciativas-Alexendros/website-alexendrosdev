@@ -66,7 +66,7 @@ describe("GET /api/newsletter/confirm", () => {
     expect(res.headers.get("location")).toContain("/newsletter/confirmado");
     expect(res.headers.get("location")).not.toContain("error");
     const arg = mocks.update.mock.calls[0]![0];
-    expect(arg.data).toMatchObject({ confirmed: true, token: null });
+    expect(arg.data).toMatchObject({ confirmed: true, tokenHash: null });
     expect(mocks.emailSend).toHaveBeenCalledOnce(); // bienvenida
   });
 

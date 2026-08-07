@@ -388,6 +388,7 @@ sin ellas (degradación null-safe al estilo Stripe/Resend).
 - **F7.5** (2026-07-10): Stripe live (`sk_live_...`, webhook → `https://alexendros.dev/api/stripe/webhook`). Smoke test OK. Detalle en F7-activ. + F7-activ.5b dentro de F7.
 - **F14 + F14b** (2026-07-09): webhook ampliado + CRM REST (8 endpoints) + pipeline 9 stages + Notion sync. 229 tests, 32 files, 0 lint/typecheck.
 - **F11 + F12 + F13** (2026-07-05): catálogo unificado, checkout unified (subscription mode) y canal secundario implementados y desplegados.
+- **Plan E2E Backend Supabase** (2026-08-07): outbox worker + webhook idempotencia (webhook_events cableada en Stripe/Notion) + token newsletter hasheado (SHA-255) + 513 tests, 55 ficheros. Plan: `PLAN-E2E-SUPABASE-BACKEND.md`.
 
 ## Referencias
 
