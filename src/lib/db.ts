@@ -14,11 +14,13 @@ function createClient(): PrismaClient | null {
   if (!url) return null;
   // Supabase pooler uses a self-signed cert. The CA certificate is provided
   // via SUPABASE_SSL_CERT env var (PEM-encoded, stored in Vercel env).
+  // Vercel stores multi-line env vars with escaped \n; normalize to real newlines.
   // This avoids disabling TLS verification while keeping secrets out of repo.
-  const ca = process.env.SUPABASE_SSL_CERT;
+  const rawCa = process.env.SUPABASE_SSL_CERT;
+  const ca = rawCa ? rawCa.replaceAll("\\n", "\n") : undefined;
   const adapter = new PrismaPg({
     connectionString: url.replace(/(\?|&)sslmode=\w+/, "$1").replace(/^(\?)&/, "$1"),
-    ssl: ca ? { ca } : undefined,
+    ssl: { ca },
     max: 3,
     idleTimeoutMillis: 15_000,
     connectionTimeoutMillis: 8_000,
