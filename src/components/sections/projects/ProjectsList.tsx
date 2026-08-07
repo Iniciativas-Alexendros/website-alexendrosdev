@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
-import { getProjectImageOrGradient } from "@/lib/project-images";
+import { ProjectImage } from "@/components/ProjectImage";
 import { Icon, Reveal } from "@/components/ui";
 
 const CATEGORIES = ["Todas", ...Array.from(new Set(PROJECTS.map((p) => p.category)))];
@@ -250,25 +249,14 @@ export function ProjectsList() {
                 >
                   <Link href={`/proyectos/${p.id}`} className="ak-tile-link">
                     <div className="ak-tile-media">
-                      {(() => {
-                        const img = getProjectImageOrGradient(p.id);
-                        return img.type === "image" ? (
-                          <Image
-                            src={img.src}
-                            alt={p.title}
-                            fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            priority={lcpOptimized}
-                            className="ak-tile-img"
-                          />
-                        ) : (
-                          <div
-                            className="ak-tile-fallback"
-                            style={{ background: img.style }}
-                            aria-hidden="true"
-                          />
-                        );
-                      })()}
+                      <ProjectImage
+                        id={p.id}
+                        alt={p.title}
+                        className="ak-tile-img"
+                        fallbackClassName="ak-tile-fallback"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        priority={lcpOptimized}
+                      />
                       <span className="ak-tile-badge">{p.category}</span>
                     </div>
                     <div className="ak-tile-body">

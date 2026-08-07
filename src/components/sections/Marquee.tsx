@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState } from "react";
+import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 const ITEMS = [
   "TypeScript",
@@ -17,20 +18,10 @@ const ITEMS = [
   "OpenTelemetry",
 ];
 
-function subscribeReduced(cb: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
-function getReduced() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
 export function Marquee() {
   const trackRef = useRef<HTMLDivElement>(null);
   const [paused, setPaused] = useState(false);
-  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
+  const isReduced = useReducedMotion();
 
   if (isReduced) {
     return (

@@ -1,3 +1,5 @@
+import "server-only";
+
 type FlagEnv = { COMING_SOON?: string };
 
 /**

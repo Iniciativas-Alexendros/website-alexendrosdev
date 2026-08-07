@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Deploy Guide — política de deploy en Vercel integrada en código.
  *

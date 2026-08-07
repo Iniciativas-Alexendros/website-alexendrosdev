@@ -1,67 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { getProjectImageOrGradient } from "@/lib/project-images";
+import { PROJECTS } from "@/lib/content/projects";
+import { ProjectImage } from "@/components/ProjectImage";
 import { Icon, Button, Reveal } from "@/components/ui";
 
-interface Project {
-  slug: string;
-  title: string;
-  description: string;
-  category: string;
-  tags: string[];
-  metrics: { label: string; value: string; accent?: boolean }[];
-  imageSeed: string;
-  liveUrl?: string;
-  repoUrl?: string;
-}
-
-const PROJECTS: Project[] = [
-  {
-    slug: "alexendros-me",
-    title: "Alexendros.me — Portfolio & blog",
-    description:
-      "Sitio personal con blog MDX, proyectos, stack interactivo y timeline de experiencia. Next.js 16, Tailwind v4, design system Arctic Ocean.",
-    category: "Portfolio",
-    tags: ["Next.js", "Tailwind", "MDX", "TypeScript"],
-    metrics: [
-      { label: "Tests", value: "358" },
-      { label: "Cobertura", value: "87%", accent: true },
-    ],
-    imageSeed: "alexendros-portfolio",
-    liveUrl: "https://alexendros.dev",
-    repoUrl: "https://github.com/alexendros/website-alexendrosdev",
-  },
-  {
-    slug: "nasve",
-    title: "Nasve — E-commerce artesanal",
-    description:
-      "Tienda online para cerámica artesanal. Carrito, checkout Stripe, panel admin, emails transaccionales, sincronización Notion CRM.",
-    category: "E-commerce",
-    tags: ["Next.js", "Stripe", "Prisma", "Supabase", "Resend"],
-    metrics: [
-      { label: "Pedidos/mes", value: "120+" },
-      { label: "Conversión", value: "3.2%", accent: true },
-    ],
-    imageSeed: "nasve-shop",
-    liveUrl: "https://ecommerce-graficasnasve.vercel.app",
-  },
-  {
-    slug: "pipeline-crm",
-    title: "Pipeline CRM — Pipeline 9 etapas",
-    description:
-      "CRM ligero para freelances: contactos, deals, 9 etapas, actividades, facturas, webhook Notion bidireccional, API REST 8 endpoints.",
-    category: "SaaS",
-    tags: ["Next.js", "tRPC", "PostgreSQL", "Notion API", "Docker"],
-    metrics: [
-      { label: "Endpoints", value: "8" },
-      { label: "Stages", value: "9", accent: true },
-    ],
-    imageSeed: "pipeline-crm",
-    liveUrl: "https://crm.alexendros.dev",
-  },
-];
+const FEATURED_PROJECTS = PROJECTS.filter((p) => p.featured).map((p) => ({
+  slug: p.id,
+  title: p.title,
+  description: p.desc,
+  category: p.category,
+  tags: p.tags,
+  metrics: p.metrics.map((m) => ({
+    label: m.l,
+    value: m.v,
+    accent: m.acc,
+  })),
+  liveUrl: p.liveUrl,
+  repoUrl: p.repoUrl,
+}));
 
 export function HomeFeaturedProjects() {
   return (
@@ -78,34 +35,19 @@ export function HomeFeaturedProjects() {
         </header>
 
         <div className="ak-zz">
-          {PROJECTS.map((project, i) => (
+          {FEATURED_PROJECTS.map((project, i) => (
             <Reveal
               key={project.slug}
               delay={i * 0.06}
               className={`ak-zz-row ${i % 2 === 1 ? "rev" : ""}`}
             >
               <div className="ak-zz-media">
-                {(() => {
-                  const img = getProjectImageOrGradient(project.slug);
-                  return img.type === "image" ? (
-                    <Image
-                      src={img.src}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 880px) 100vw, 540px"
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        background: img.style,
-                        width: "100%",
-                        height: "100%",
-                        minHeight: 300,
-                      }}
-                      aria-hidden="true"
-                    />
-                  );
-                })()}
+                <ProjectImage
+                  id={project.slug}
+                  alt={project.title}
+                  sizes="(max-width: 880px) 100vw, 540px"
+                  style={{ width: "100%", height: "100%" }}
+                />
               </div>
               <div className="ak-zz-body">
                 <span className="ak-zz-cat">{project.category}</span>

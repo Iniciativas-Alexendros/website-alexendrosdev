@@ -639,10 +639,6 @@ main { display: block; }
 .ak-check input { accent-color: oklch(var(--primary-400)); }
 .ak-check label { font-size: var(--fs-body-sm); color: oklch(var(--text-secondary)); }
 
-.ak-success { text-align: center; padding: 32px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
-.ak-success .ak-h1 { margin: 0; }
-.ak-success .ak-display { margin: 0; }
-
 .ak-legal { max-width: 760px; margin: 0 auto; }
 .ak-legal h2 { font: 600 var(--fs-h3) var(--font-sans); color: oklch(var(--text-primary)); margin: 28px 0 10px; }
 .ak-legal p, .ak-legal li { font-size: var(--fs-body-sm); line-height: 1.65; color: oklch(var(--text-secondary)); }
@@ -650,8 +646,6 @@ main { display: block; }
 /* =====================================================================
    SKELETON LOADING (stack graph)
    ===================================================================== */
-.ak-skeleton { background: linear-gradient(90deg, oklch(var(--bg-sunken)) 25%, oklch(var(--bg-elevated)) 50%, oklch(var(--bg-sunken)) 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.4s ease infinite; border-radius: var(--radius-xl); }
-@keyframes skeleton-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 .ak-skeleton-graph { width: 100%; height: 540px; border-radius: var(--radius-xl); }
 .ak-skeleton-panel { width: 100%; height: 260px; border-radius: var(--radius-xl); }
 .ak-skeleton-cal { width: 100%; height: 320px; border-radius: var(--radius-xl); }

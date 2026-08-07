@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore } from "react";
 import { TESTIMONIALS as CONTENT_TESTIMONIALS } from "@/lib/content";
 import { Icon } from "@/components/ui";
+import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 
 interface Testimonial {
   quote: string;
@@ -30,16 +31,6 @@ const TESTIMONIALS: Testimonial[] = CONTENT_TESTIMONIALS.filter(
   url: t.url,
   avatarSeed: `avatar-${slugify(t.name)}`,
 }));
-
-function subscribeReduced(cb: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
-function getReduced() {
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
 
 function subscribeWidth(cb: () => void) {
   const mq = window.matchMedia("(min-width: 880px)");
@@ -90,7 +81,7 @@ export function Testimonials() {
     () => true,
     () => false,
   );
-  const isReduced = useSyncExternalStore(subscribeReduced, getReduced, () => false);
+  const isReduced = useReducedMotion();
   const perView = useSyncExternalStore(subscribeWidth, getPerView, () => 3);
 
   const [index, setIndex] = useState(0);
