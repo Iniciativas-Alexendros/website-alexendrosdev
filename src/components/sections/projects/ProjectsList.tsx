@@ -259,7 +259,7 @@ export function ProjectsList() {
             </Button>
           </div>
         ) : (
-          <div className="ak-project-grid" role="list" aria-label="Lista de proyectos">
+          <div className="ak-project-grid">
             {filteredProjects.map((p, i) => {
               const lcpOptimized = i === 0;
               return lcpOptimized ? (

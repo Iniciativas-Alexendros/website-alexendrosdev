@@ -28,7 +28,7 @@ test.describe("/proyectos", () => {
           errors.push(`[HTTP ${status}] ${url}`);
       }
     });
-    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
     await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
   });
 
@@ -104,7 +104,7 @@ test.describe("/proyectos", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
     await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
 
     const sidebar = page.locator(".ak-projects-sidebar");
@@ -124,7 +124,7 @@ test.describe("/proyectos", () => {
 
   test("el drawer de filtros cierra con Escape y conserva el foco", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/proyectos", { waitUntil: "domcontentloaded" });
+    await page.goto("/proyectos", { waitUntil: "networkidle" });
     await expect(page.locator("[data-projects-hydrated='true']")).toBeVisible();
 
     const toggle = page.locator(".ak-sidebar-toggle");

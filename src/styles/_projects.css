@@ -198,6 +198,30 @@
       box-shadow var(--duration-base) var(--ease-default),
       border-color var(--duration-base) var(--ease-default);
   }
+  .ak-project-card {
+    background: oklch(var(--bg-elevated));
+    border: 1px solid oklch(var(--border-subtle));
+    border-radius: var(--radius-xl);
+    box-shadow: var(--elev-sm);
+    overflow: hidden;
+    transition:
+      transform var(--duration-base) var(--ease-default),
+      box-shadow var(--duration-base) var(--ease-default),
+      border-color var(--duration-base) var(--ease-default);
+  }
+  .ak-project-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+  }
+  .ak-project-card-kind {
+    font: 600 11px var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: oklch(var(--text-tertiary));
+  }
   .ak-project-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--elev-lg);
