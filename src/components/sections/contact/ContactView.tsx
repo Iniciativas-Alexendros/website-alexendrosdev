@@ -452,7 +452,7 @@ function Calendar() {
                 className={`ak-cal-day ${av ? "av" : ""} ${sel === day ? "sel" : ""}`.trim()}
                 disabled={!av}
                 aria-label={`${day} de ${MONTHS[displayedMonth.getMonth()]}`}
-                aria-selected={sel === day}
+                aria-pressed={sel === day}
                 onClick={() => av && setSel(day)}
               >
                 {day}
