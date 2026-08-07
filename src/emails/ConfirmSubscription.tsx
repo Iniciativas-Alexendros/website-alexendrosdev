@@ -1,4 +1,13 @@
-import { Body, Button, Container, Head, Heading, Html, Preview, Text } from "react-email";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Preview,
+  Text,
+} from "@react-email/components";
 
 // Email de confirmación del double opt-in: NO es la bienvenida. Solo cuando el
 // dueño real del buzón pulsa el botón se confirma la suscripción.
