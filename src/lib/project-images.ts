@@ -34,15 +34,13 @@ const GRADIENT_FALLBACKS: Record<string, string> = {};
  * narrative shifts as the reader moves through the case study.
  */
 const SECTION_GRADIENTS: Record<string, string> = {
-  contexto:
-    "linear-gradient(135deg, oklch(var(--primary-300) / 0.6), oklch(var(--primary-600) / 0.8))",
-  solucion: "linear-gradient(135deg, oklch(var(--success) / 0.5), oklch(var(--primary-400) / 0.7))",
-  resultado:
-    "linear-gradient(135deg, oklch(var(--primary-400) / 0.6), oklch(var(--warning) / 0.5))",
+  contexto: "linear-gradient(135deg, hsl(var(--primary-300) / 0.6), hsl(var(--primary-600) / 0.8))",
+  solucion: "linear-gradient(135deg, hsl(var(--success) / 0.5), hsl(var(--primary-400) / 0.7))",
+  resultado: "linear-gradient(135deg, hsl(var(--primary-400) / 0.6), hsl(var(--warning) / 0.5))",
 };
 
 const DEFAULT_SECTION_GRADIENT =
-  "linear-gradient(135deg, oklch(var(--primary-200) / 0.5), oklch(var(--primary-500) / 0.7))";
+  "linear-gradient(135deg, hsl(var(--primary-200) / 0.5), hsl(var(--primary-500) / 0.7))";
 
 export type ProjectImageResult =
   | { type: "image"; src: string; width: number; height: number }
@@ -53,7 +51,7 @@ export function getProjectImageOrGradient(id: string): ProjectImageResult {
   if (GRADIENT_FALLBACKS[id]) return { type: "gradient", style: GRADIENT_FALLBACKS[id] };
   return {
     type: "gradient",
-    style: "linear-gradient(135deg, oklch(var(--bg-sunken)), oklch(var(--bg-elevated)))",
+    style: "linear-gradient(135deg, hsl(var(--bg-sunken)), hsl(var(--bg-elevated)))",
   };
 }
 

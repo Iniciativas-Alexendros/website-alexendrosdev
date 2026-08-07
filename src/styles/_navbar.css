@@ -8,7 +8,7 @@
   }
   .ak-nav a.on {
     font-weight: 600;
-    color: oklch(var(--text-link));
+    color: hsl(var(--text-link));
   }
   .ak-nav a.on::after {
     content: "";
@@ -22,12 +22,12 @@
   }
 
   .ak-header-scrolled {
-    background: oklch(var(--bg-base) / 0.92);
+    background: hsl(var(--bg-base) / 0.92);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
     backdrop-filter: blur(16px) saturate(1.4);
-    border-bottom-color: oklch(var(--border-subtle));
+    border-bottom-color: hsl(var(--border-subtle));
     box-shadow:
-      0 1px 0 oklch(var(--border-subtle)),
+      0 1px 0 hsl(var(--border-subtle)),
       0 4px 32px hsl(0 0% 0% / 0.07);
   }
 } /* end @layer components */
