@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     ".freebuff/worktrees/**",
     // Build artefacts de Vercel (generados, no código fuente):
     ".vercel/**",
+    // Generated types from Supabase CLI:
+    "src/generated/**",
   ]),
 ]);
 

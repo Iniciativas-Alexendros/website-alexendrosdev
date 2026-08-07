@@ -1,0 +1,105 @@
+# Database CI workflow — pgTAP + schema verification
+# Runs alongside the existing 7 workflows (ci, codeql, etc.).
+# Triggered when Supabase migrations, Prisma schema, or DB-access code changes.
+
+name: database-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - "prisma/**"
+      - "src/lib/db.ts"
+      - "src/lib/repositories/**"
+      - "src/lib/services/**"
+      - "src/app/api/**"
+      - ".github/workflows/database-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - "prisma/**"
+      - "src/lib/db.ts"
+      - "src/lib/repositories/**"
+      - "src/lib/services/**"
+      - "src/app/api/**"
+      - ".github/workflows/database-ci.yml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+
+jobs:
+  db-test:
+    name: Database schema & tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install PostgreSQL 17 and pgTAP
+        run: |
+          sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          wget -qO- https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-17 postgresql-17-pgtap
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+          sudo -u postgres psql -c "ALTER SYSTEM SET password_encryption = 'scram-sha-256';"
+          sudo systemctl restart postgresql
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup database (roles, extensions)
+        run: |
+          sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'anon') THEN CREATE ROLE anon; END IF; END \$\$;"
+          sudo -u postgres psql -c "DO \$\$ BEGIN IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'authenticated') THEN CREATE ROLE authenticated; END IF; END \$\$;"
+          sudo -u postgres psql -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+
+      - name: Generate Prisma client
+        run: pnpm prisma generate
+
+      - name: Apply Supabase migrations (baseline + incremental)
+        run: |
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260605000000_baseline_from_prisma.sql"
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260709000001_seed_pipeline_stages.sql"
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000000_webhook_events_table.sql"
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000001_outbox_events_table.sql"
+          sudo -u postgres psql -v ON_ERROR_STOP=1 \
+            -f "supabase/migrations/20260807000002_security_rls_revoke.sql"
+
+      - name: Run pgTAP tests
+        run: |
+          for test_file in supabase/tests/*.test.sql; do
+            echo "=== Running: $test_file ==="
+            output=$(sudo -u postgres psql -t -A -f "$test_file" 2>&1)
+            echo "$output"
+            if echo "$output" | grep -qE "^not ok"; then
+              echo "FAIL: Tests failed in $test_file"
+              exit 1
+            fi
+          done
+
+      - name: Run db lint
+        run: |
+          echo "Schema applied. Running manual lint checks..."
+          sudo -u postgres psql -tc "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';" | grep -q "15" || { echo "FAIL: Expected 15 base tables"; exit 1; }
+          sudo -u postgres psql -tc "SELECT count(*) FROM pg_tables WHERE schemaname = 'public' AND rowsecurity = false;" | grep -q "0" || { echo "FAIL: RLS not enabled on all tables"; exit 1; }
+
+      - name: Typecheck
+        run: pnpm typecheck
