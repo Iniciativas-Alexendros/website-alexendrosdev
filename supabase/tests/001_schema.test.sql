@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
 -- Core domain and CRM tables
-SELECT plan(25);
+SELECT plan(16);
 
 \o /dev/null
 -- Verify all expected tables exist

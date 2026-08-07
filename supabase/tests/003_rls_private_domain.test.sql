@@ -1,7 +1,7 @@
 -- Test: RLS enabled on all tables + anon/authenticated have NO privileges
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(19);
+SELECT plan(10);
 
 -- All private domain tables must have RLS enabled
 SELECT is((

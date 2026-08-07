@@ -1,7 +1,7 @@
 -- Test: Outbox event processing + webhook idempotency
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(14);
+SELECT plan(12);
 
 -- webhook_events: idempotency on provider + external_event_id
 INSERT INTO webhook_events (provider, external_event_id, event_type, payload_hash, status)

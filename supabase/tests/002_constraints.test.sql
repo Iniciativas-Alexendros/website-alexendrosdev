@@ -1,7 +1,7 @@
 -- Test: Constraints: unique, check, PK, FK, defaults
 CREATE EXTENSION IF NOT EXISTS pgtap;
 
-SELECT plan(18);
+SELECT plan(31);
 
 -- Unique constraints prevent duplicates
 SELECT isnt_null('public','Subscriber','email', 'Subscriber.email is NOT NULL');
