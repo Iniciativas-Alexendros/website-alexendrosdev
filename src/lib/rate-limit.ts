@@ -6,7 +6,6 @@ import "server-only";
  * ⚠️ Vercel serverless: cada instancia de función tiene su propio Map.
  * Un mismo IP puede sortear el límite con requests paralelas a distintas
  * instancias. Suficiente como best-effort para tráfico bajo.
- * TODO S2: migrar a Upstash Redis para rate limiting distribuido.
  *
  * Suficiente para una instancia única (VPS). En despliegues multi-instancia es
  * best-effort; migrar a Upstash/Redis si se requiere límite global estricto.
