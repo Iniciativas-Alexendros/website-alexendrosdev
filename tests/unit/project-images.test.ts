@@ -23,7 +23,7 @@ describe("getProjectImageOrGradient", () => {
     const result = getProjectImageOrGradient("proyecto-que-no-existe");
     expect(result.type).toBe("gradient");
     if (result.type === "gradient") {
-      expect(result.style).toContain("oklch(");
+      expect(result.style).toContain("hsl(");
       expect(result.style).toContain("--bg-sunken");
       expect(result.style).toContain("--bg-elevated");
     }
@@ -58,35 +58,35 @@ describe("getProjectImageOrGradient", () => {
 describe("getSectionGradient", () => {
   it("devuelve gradiente azul intenso para contexto", () => {
     const gradient = getSectionGradient("contexto");
-    expect(gradient).toContain("oklch(");
+    expect(gradient).toContain("hsl(");
     expect(gradient).toContain("--primary-300");
     expect(gradient).toContain("--primary-600");
   });
 
   it("devuelve gradiente verde-teal para solucion", () => {
     const gradient = getSectionGradient("solucion");
-    expect(gradient).toContain("oklch(");
+    expect(gradient).toContain("hsl(");
     expect(gradient).toContain("--success");
     expect(gradient).toContain("--primary-400");
   });
 
   it("devuelve gradiente ambar para resultado", () => {
     const gradient = getSectionGradient("resultado");
-    expect(gradient).toContain("oklch(");
+    expect(gradient).toContain("hsl(");
     expect(gradient).toContain("--primary-400");
     expect(gradient).toContain("--warning");
   });
 
   it("devuelve fallback primario para sección desconocida", () => {
     const gradient = getSectionGradient("tecnologia");
-    expect(gradient).toContain("oklch(");
+    expect(gradient).toContain("hsl(");
     expect(gradient).toContain("--primary-200");
     expect(gradient).toContain("--primary-500");
   });
 
   it("devuelve fallback para string vacío", () => {
     const gradient = getSectionGradient("");
-    expect(gradient).toContain("oklch(");
+    expect(gradient).toContain("hsl(");
     expect(gradient).toContain("linear-gradient");
   });
 
@@ -95,11 +95,11 @@ describe("getSectionGradient", () => {
     expect(new Set(gradients).size).toBe(3);
   });
 
-  it("todos los gradientes de sección son linear-gradient con oklch", () => {
+  it("todos los gradientes de sección son linear-gradient con hsl", () => {
     for (const id of ["contexto", "solucion", "resultado", "tecnologia", ""]) {
       const gradient = getSectionGradient(id);
       expect(gradient).toMatch(/^linear-gradient\(/);
-      expect(gradient).toContain("oklch(");
+      expect(gradient).toContain("hsl(");
     }
   });
 });
