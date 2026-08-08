@@ -229,7 +229,7 @@
   }
   .ak-project-card-media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: var(--media-project-ratio);
     overflow: hidden;
     background: oklch(var(--bg-inset));
   }

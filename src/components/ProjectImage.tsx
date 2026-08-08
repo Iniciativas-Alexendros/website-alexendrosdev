@@ -29,24 +29,20 @@ export function ProjectImage({
 }: ProjectImageProps) {
   const media = getProjectImageOrGradient(id);
 
-  if (media.type === "image") {
-    return (
-      <Image
-        src={media.src}
-        alt={alt}
-        className={className}
-        fill
-        sizes={sizes}
-        priority={priority}
-      />
-    );
-  }
+  const sharedClassName = fallbackClassName ?? className;
+  const containerStyle: React.CSSProperties = {
+    aspectRatio: "var(--media-project-ratio)",
+    ...style,
+    position: "relative",
+  };
 
   return (
-    <div
-      className={fallbackClassName ?? className}
-      style={{ background: media.style, minHeight: 300, ...style }}
-      aria-hidden="true"
-    />
+    <div className={sharedClassName} style={containerStyle} aria-hidden={media.type === "gradient"}>
+      {media.type === "image" ? (
+        <Image src={media.src} alt={alt} fill sizes={sizes} priority={priority} />
+      ) : (
+        <div className="ak-project-image-fallback" style={{ background: media.style }} />
+      )}
+    </div>
   );
 }

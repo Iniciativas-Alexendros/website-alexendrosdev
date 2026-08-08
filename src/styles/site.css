@@ -68,7 +68,7 @@ main { display: block; }
 .ak-cursor { display: inline-block; width: 9px; height: 17px; vertical-align: -3px; background: oklch(var(--terminal-cursor)); animation: blink 1s step-end infinite; }
 
 /* ---- Marquee ---- */
-.ak-marquee { position: relative; overflow: hidden; padding: 20px 0; border-top: 1px solid oklch(var(--border-subtle)); border-bottom: 1px solid oklch(var(--border-subtle)); }
+.ak-marquee { position: relative; min-height: 4rem; overflow: hidden; padding: 20px 0; border-top: 1px solid oklch(var(--border-subtle)); border-bottom: 1px solid oklch(var(--border-subtle)); }
 .ak-marquee-track { display: flex; white-space: nowrap; animation: marquee 28s linear infinite; font-family: var(--font-mono); font-size: var(--fs-mono-sm); color: oklch(var(--text-link)); }
 .ak-marquee:hover .ak-marquee-track { animation-play-state: paused; }
 .ak-marquee-item { display: inline-flex; align-items: center; }
@@ -172,6 +172,8 @@ main { display: block; }
 .ak-footer-news { display: flex; gap: 7px; }
 .ak-footer-news input { flex: 1; background: oklch(var(--bg-inset)); border: 1px solid oklch(var(--border)); border-radius: var(--radius-md); padding: 9px 11px; font-size: var(--fs-body-sm); color: oklch(var(--text-primary)); }
 .ak-footer-news input:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; border-color: oklch(var(--border-focus)); }
+.ak-cta-form input::placeholder, .ak-footer-news input::placeholder { color: oklch(var(--text-tertiary)); opacity: 1; }
+.ak-cta-form input:disabled, .ak-footer-news input:disabled { color: oklch(var(--text-muted)); background: oklch(var(--bg-sunken)); cursor: not-allowed; opacity: 1; }
 .ak-footer-news button { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; background: oklch(var(--primary-400)); color: oklch(var(--text-on-primary)); border: none; border-radius: var(--radius-md); cursor: pointer; }
 .ak-footer-news button:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; }
 .ak-footer-news button:disabled { cursor: wait; opacity: 0.6; }
@@ -221,8 +223,10 @@ main { display: block; }
 .ak-stackcat { font: 600 12px var(--font-sans); text-transform: uppercase; letter-spacing: 0.05em; color: oklch(var(--text-tertiary)); margin-bottom: 12px; }
 
 /* ============ /projects ============ */
-.ak-hero-img { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--radius-2xl); overflow: hidden; }
-.ak-hero-img img { object-fit: cover; }
+.ak-hero-img { position: relative; width: 100%; aspect-ratio: var(--media-hero-ratio); border-radius: var(--radius-2xl); overflow: hidden; }
+.ak-hero-img img, .ak-project-image-fallback { object-fit: cover; }
+.ak-project-image-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ak-zz-media .ak-project-image-fallback { border-radius: inherit; }
 .ak-proj-header { padding: 64px 0 8px; max-width: 720px; }
 .ak-proj-controls { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 32px; }
 .ak-search { display: flex; align-items: center; gap: 9px; background: oklch(var(--bg-inset)); border: 1px solid oklch(var(--border-subtle)); border-radius: var(--radius-md); padding: 10px 14px; min-width: 280px; color: oklch(var(--text-tertiary)); }
@@ -297,6 +301,9 @@ main { display: block; }
 
 /* ---- Terminal extras ---- */
 .ak-terminal-meta { margin-left: auto; font-size: var(--fs-mono-sm); color: oklch(var(--text-muted)); }
+.ak-form-legal { margin: var(--space-2) 0 0; color: oklch(var(--text-tertiary)); font-size: var(--fs-caption); line-height: 1.5; }
+.ak-form-legal a { text-decoration: underline; text-underline-offset: 0.15em; }
+
 .ak-tl-fade { animation: reveal 260ms var(--ease-default); }
 
 /* ---- Section sub ---- */
@@ -406,7 +413,7 @@ main { display: block; }
 .ak-zz { display: flex; flex-direction: column; gap: 56px; }
 .ak-zz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 44px; align-items: center; }
 .ak-zz-row.rev .ak-zz-media { order: 2; }
-.ak-zz-media { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-2xl); overflow: hidden; }
+.ak-zz-media { position: relative; aspect-ratio: var(--media-project-ratio); border-radius: var(--radius-2xl); overflow: hidden; }
 .ak-zz-media img { object-fit: cover; }
 .ak-zz-idx { display: flex; align-items: baseline; gap: 12px; }
 .ak-zz-idx b { font: 700 26px var(--font-mono); color: oklch(var(--text-muted)); letter-spacing: -0.02em; }
