@@ -233,7 +233,7 @@
     overflow: hidden;
     background: oklch(var(--bg-inset));
   }
-  .ak-project-card-media > .ak-project-card-image {
+  .ak-project-card-media .ak-project-card-image {
     position: absolute;
     inset: 0;
     width: 100%;

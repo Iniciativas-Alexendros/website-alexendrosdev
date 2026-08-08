@@ -29,7 +29,8 @@ export function ProjectImage({
 }: ProjectImageProps) {
   const media = getProjectImageOrGradient(id);
 
-  const sharedClassName = fallbackClassName ?? className;
+  const containerClassName =
+    media.type === "gradient" ? (fallbackClassName ?? className) : undefined;
   const containerStyle: React.CSSProperties = {
     aspectRatio: "var(--media-project-ratio)",
     ...style,
@@ -37,9 +38,20 @@ export function ProjectImage({
   };
 
   return (
-    <div className={sharedClassName} style={containerStyle} aria-hidden={media.type === "gradient"}>
+    <div
+      className={containerClassName}
+      style={containerStyle}
+      aria-hidden={media.type === "gradient"}
+    >
       {media.type === "image" ? (
-        <Image src={media.src} alt={alt} fill sizes={sizes} priority={priority} />
+        <Image
+          className={className}
+          src={media.src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          priority={priority}
+        />
       ) : (
         <div className="ak-project-image-fallback" style={{ background: media.style }} />
       )}

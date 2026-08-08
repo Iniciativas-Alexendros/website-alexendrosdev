@@ -4,6 +4,7 @@ const ROUTES = [
   "/",
   "/servicios",
   "/proyectos",
+  "/proyectos/alexendros-me",
   "/stack",
   "/sobre-mi",
   "/contacto",
@@ -42,12 +43,13 @@ for (const route of ROUTES) {
           }
         }, theme);
         const response = await page.goto(route, { waitUntil: "networkidle" });
-        if (!response || response.status() >= 500) {
+        const isExpectedNotFound = route === "/ruta-que-no-existe";
+        if (!response || (isExpectedNotFound ? response.status() !== 404 : !response.ok())) {
           throw new Error(`La ruta ${route} no respondió correctamente`);
         }
         await page.evaluate(() => document.fonts.ready);
         await page.waitForFunction(() =>
-          Array.from(document.images).every((image) => image.complete),
+          Array.from(document.images).every((image) => image.complete && image.naturalWidth > 0),
         );
         await page.addStyleTag({
           content:

@@ -7,7 +7,7 @@
 
 ## Objetivo
 
-Establecer una línea base para corregir defectos visuales sin confundir el estado observado con una regresión. La auditoría cubre las rutas públicas definidas en el plan, los temas claro y oscuro y cuatro anchos de viewport. Las rutas dinámicas `/proyectos/[slug]` quedan cubiertas por el snapshot existente de proyectos y se incorporarán a la matriz específica de detalle en la siguiente iteración.
+Establecer una línea base para corregir defectos visuales sin confundir el estado observado con una regresión. La auditoría cubre las rutas públicas definidas en el plan, incluida la ruta de detalle `/proyectos/alexendros-me`, los temas claro y oscuro y cuatro anchos de viewport.
 
 ## Cobertura
 
@@ -15,6 +15,7 @@ Establecer una línea base para corregir defectos visuales sin confundir el esta
 | ---------------- | -------------------------------------------------------------------------------------- |
 | Producto         | `/`, `/servicios`, `/proyectos`, `/stack`, `/sobre-mi`, `/contacto`                    |
 | Conversión       | `/checkout/success`, `/newsletter/confirmado`, `/proximamente`                         |
+| Detalle          | `/proyectos/alexendros-me`                                                             |
 | Legal / fallback | `/legal/privacidad`, `/legal/cookies`, `/legal/condiciones`, `/legal/aviso-legal`, 404 |
 
 | Viewport |    Tema claro     |   Tema oscuro    |
@@ -26,7 +27,7 @@ Establecer una línea base para corregir defectos visuales sin confundir el esta
 
 ### Generar capturas
 
-El proyecto ya contiene Playwright y Chromium local. La matriz se generó correctamente en este worktree (112 capturas, 14 rutas × 4 viewports × 2 temas). Para regenerarla en un entorno reproducible:
+El proyecto ya contiene Playwright y Chromium local. La matriz se generó correctamente en este worktree (120 capturas, 15 rutas × 4 viewports × 2 temas). Para regenerarla en un entorno reproducible:
 
 ```bash
 PLAYWRIGHT_PORT=3100 pnpm exec playwright test tests/e2e/design-audit.spec.ts
@@ -43,7 +44,7 @@ Las capturas se escriben en `artifacts/design-audit/` (artefactos locales, no se
 | ESLint        | ✅ 0 errores, 11 warnings preexistentes en scripts                  | `pnpm lint`                                |
 | Vitest        | ✅ 513 tests                                                        | `pnpm test`                                |
 | Axe E2E       | existente, solo light y 7 rutas                                     | `tests/e2e/a11y.spec.ts`                   |
-| Screenshots   | ✅ matriz local 14 rutas × 4 viewports × 2 temas (112 capturas)     | `tests/e2e/design-audit.spec.ts`           |
+| Screenshots   | ✅ matriz local 15 rutas × 4 viewports × 2 temas (120 capturas)     | `tests/e2e/design-audit.spec.ts`           |
 | Lighthouse    | script existente contra producción, no genera esta línea base local | `scripts/audit-lighthouse.mjs`             |
 | HTML Validate | script existente contra producción                                  | `scripts/audit-html.mjs`                   |
 
@@ -76,4 +77,4 @@ Las capturas se escriben en `artifacts/design-audit/` (artefactos locales, no se
 
 ## Criterio de salida de esta auditoría
 
-La auditoría base queda cerrada: la matriz local contiene 112 capturas bajo `artifacts/design-audit/` y la prueba las regenera de forma determinista. La prueba también comprueba respuesta HTTP, fuentes e imágenes y desactiva motion antes de capturar; no sustituye aún los gates de axe/Lighthouse.
+La auditoría base queda cerrada: la matriz local contiene 120 capturas bajo `artifacts/design-audit/` y la prueba las regenera de forma determinista. La prueba también comprueba respuesta HTTP, fuentes e imágenes y desactiva motion antes de capturar; no sustituye aún los gates de axe/Lighthouse.
