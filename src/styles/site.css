@@ -16,6 +16,12 @@
 :where(a).text-foreground:hover {
   color: oklch(var(--text-primary));
 }
+:where(.ak-form-legal) > a,
+:where(.ak-form-legal) > a:hover {
+  color: oklch(var(--text-primary));
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
 
 @layer components {
 
