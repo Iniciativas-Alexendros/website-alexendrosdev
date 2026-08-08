@@ -301,8 +301,8 @@ main { display: block; }
 
 /* ---- Terminal extras ---- */
 .ak-terminal-meta { margin-left: auto; font-size: var(--fs-mono-sm); color: oklch(var(--text-muted)); }
-.ak-form-legal { margin: var(--space-2) 0 0; color: oklch(var(--text-tertiary)); font-size: var(--fs-caption); line-height: 1.5; }
-.ak-form-legal a { text-decoration: underline; text-underline-offset: 0.15em; }
+.ak-form-legal { margin: var(--space-2) 0 0; color: oklch(var(--text-secondary)); font-size: var(--fs-caption); line-height: 1.5; }
+.ak-form-legal a { color: oklch(var(--text-primary)); text-decoration: underline; text-underline-offset: 0.15em; }
 
 .ak-tl-fade { animation: reveal 260ms var(--ease-default); }
 
