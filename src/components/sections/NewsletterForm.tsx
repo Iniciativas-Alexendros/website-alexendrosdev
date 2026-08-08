@@ -12,22 +12,10 @@ type Status = "idle" | "loading" | "ok" | "error";
 // consentimiento quede contextualizado (Art. 13 RGPD).
 function LegalNote() {
   return (
-    <p
-      className="ak-form-legal"
-      style={{
-        fontSize: "11px",
-        color: "var(--text-tertiary)",
-        marginTop: 8,
-        marginBottom: 0,
-        lineHeight: 1.5,
-      }}
-    >
+    <p className="ak-form-legal">
       Al suscribirte aceptas recibir emails transaccionales y contenido. Sólo uso tu email para eso;
       en cada envío hay un enlace de baja.{" "}
-      <Link href="/legal/privacidad" style={{ textDecoration: "underline" }}>
-        Política de privacidad
-      </Link>
-      .
+      <Link href="/legal/privacidad">Política de privacidad</Link>.
     </p>
   );
 }
@@ -74,14 +62,17 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
             id={`${emailId}-cta`}
             type="email"
             required
-            placeholder="tu@email.com"
+            inputMode="email"
+            name="email"
+            placeholder="tu@email.com…"
             aria-label="Email"
             autoComplete="email"
+            spellCheck={false}
             aria-describedby={status === "error" || status === "ok" ? messageId : undefined}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <Button variant="primary" type="submit">
+          <Button variant="primary" type="submit" disabled={status === "loading"}>
             {status === "loading" ? "Enviando…" : variant === "coming" ? "Avísame" : "Hablemos"}
             <Icon name="arrow-right" size={16} style={{ marginLeft: 6 }} />
           </Button>
@@ -109,9 +100,12 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
           id={`${emailId}-footer`}
           type="email"
           required
-          placeholder="tu@email.com"
+          inputMode="email"
+          name="email"
+          placeholder="tu@email.com…"
           aria-label="Email"
           autoComplete="email"
+          spellCheck={false}
           aria-describedby={status === "error" || status === "ok" ? messageId : undefined}
           value={email}
           onChange={(e) => setEmail(e.target.value)}

@@ -1,2 +1,5 @@
-npx lint-staged
-npx tsc --noEmit
+set -e
+
+pnpm exec lint-staged
+pnpm typecheck
+pnpm test

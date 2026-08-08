@@ -137,6 +137,8 @@
 
   /* ----- Layout ----- */
   --container-max: 1120px;
+  --media-project-ratio: 4 / 3;
+  --media-hero-ratio: 16 / 9;
 
   /* ----- Z-index scale ----- */
   --z-base: 1;

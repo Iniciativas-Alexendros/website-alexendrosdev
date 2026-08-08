@@ -135,7 +135,13 @@ export default async function ProjectCasePage({ params }: { params: Promise<{ sl
         )}
       </header>{" "}
       <div className="ak-hero-img">
-        <ProjectImage id={p.id} alt={p.title} sizes="100vw" priority />
+        <ProjectImage
+          id={p.id}
+          alt={p.title}
+          sizes="100vw"
+          priority
+          style={{ aspectRatio: "var(--media-hero-ratio)", width: "100%", height: "100%" }}
+        />
       </div>
       <section className="ak-case-layout">
         <article className="ak-prose">
