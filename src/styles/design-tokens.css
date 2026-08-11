@@ -19,6 +19,7 @@
    1. COLOR TOKENS  (OKLCH channels — wrap with oklch() at use) at use)
    ---------------------------------------------------------- */
 :root {
+  color-scheme: light dark;
   /* Primary scale — Steel Blue (Arctic Frost) */
   --primary-50: 0.9568 0.0135 253.3;
   --primary-100: 0.9117 0.0329 253.4;

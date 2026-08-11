@@ -37,10 +37,13 @@ main { display: block; }
 .ak-btn { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; font: 600 var(--fs-body-sm) var(--font-sans); border-radius: var(--radius-md); padding: 11px 20px; border: 1px solid transparent; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default), filter var(--duration-fast) var(--ease-default); }
 .ak-btn-primary { background: oklch(var(--cta)); color: oklch(var(--text-on-primary)); }
 .ak-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--elev-md); }
+.ak-btn-primary:active { filter: brightness(0.95); transform: translateY(0); box-shadow: none; }
 .ak-btn-secondary { background: transparent; color: oklch(var(--text-primary)); border-color: oklch(var(--border)); }
 .ak-btn-secondary:hover { background: oklch(var(--bg-highlight)); }
+.ak-btn-secondary:active { background: oklch(var(--bg-sunken)); }
 .ak-btn-ghost { background: transparent; color: oklch(var(--text-secondary)); }
 .ak-btn-ghost:hover { color: oklch(var(--text-primary)); }
+.ak-btn-ghost:active { color: oklch(var(--text-primary)); background: oklch(var(--bg-highlight)); }
 .ak-btn:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; box-shadow: var(--focus-ring); }
 
 /* ---- Theme toggle ---- */
@@ -57,6 +60,8 @@ main { display: block; }
 .ak-nav { display: flex; gap: 22px; }
 .ak-nav a { font: 500 var(--fs-body-sm) var(--font-sans); color: oklch(var(--text-secondary)); cursor: pointer; transition: color var(--duration-fast); }
 .ak-nav a:hover { color: oklch(var(--text-primary)); }
+.ak-nav a:active { color: oklch(var(--text-link)); }
+.ak-nav a:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; border-radius: var(--radius-sm); }
 .ak-nav a.on { color: oklch(var(--text-link)); }
 .ak-header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
 
@@ -186,6 +191,7 @@ main { display: block; }
 .ak-footer-news button { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; background: oklch(var(--primary-400)); color: oklch(var(--text-on-primary)); border: none; border-radius: var(--radius-md); cursor: pointer; }
 .ak-footer-news button:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; }
 .ak-footer-news button:disabled { cursor: wait; opacity: 0.6; }
+.ak-footer-news button:active { transform: scale(0.96); }
 .dark .ak-footer-news button { background: oklch(var(--primary-200)); }
 .ak-footer-bottom { max-width: var(--container-max); margin: 28px auto 0; padding: 18px 32px 0; border-top: 1px solid oklch(var(--border-subtle)); display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--fs-caption); color: oklch(var(--text-muted)); }
 
@@ -290,14 +296,18 @@ main { display: block; }
    ===================================================================== */
 
 /* ---- Mobile nav / burger ---- */
-.ak-burger { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-md); border: 1px solid oklch(var(--border)); background: oklch(var(--bg-elevated)); color: oklch(var(--text-secondary)); cursor: pointer; }
+.ak-burger { display: none; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-md); border: 1px solid oklch(var(--border)); background: oklch(var(--bg-elevated)); color: oklch(var(--text-secondary)); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default); }
+.ak-burger:hover { background: oklch(var(--bg-highlight)); border-color: oklch(var(--border-focus)); }
 .ak-burger:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; }
 .ak-mobile-nav { display: none; flex-direction: column; padding: 8px 24px 18px; gap: 2px; background: oklch(var(--bg-base) / 0.96); backdrop-filter: blur(12px); border-bottom: 1px solid oklch(var(--border-subtle)); }
-.ak-mobile-nav a { padding: 11px 6px; font: 500 var(--fs-mono-lg) var(--font-sans); color: oklch(var(--text-secondary)); border-bottom: 1px solid oklch(var(--border-subtle)); }
+.ak-mobile-nav a { padding: 11px 6px; font: 500 var(--fs-mono-lg) var(--font-sans); color: oklch(var(--text-secondary)); border-bottom: 1px solid oklch(var(--border-subtle)); transition: color var(--duration-fast); }
+.ak-mobile-nav a:hover { color: oklch(var(--text-primary)); }
+.ak-mobile-nav a:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: -2px; }
 .ak-mobile-nav a.on { color: oklch(var(--text-link)); }
 @media (max-width: 880px) {
   .ak-burger { display: inline-flex; }
-  .ak-mobile-nav { display: flex; }
+  .ak-mobile-nav { display: flex; position: relative; z-index: var(--z-header); }
+  .ak-mobile-overlay { position: fixed; inset: 0; top: 64px; background: oklch(0 0 0 / 0.3); z-index: calc(var(--z-header) - 1); cursor: pointer; }
 }
 
 /* ---- Reveal (load-in entrance; degrades to fully-visible if animations are throttled) ---- */
@@ -477,6 +487,8 @@ main { display: block; }
 .ak-tcar-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-full); border: 1px solid oklch(var(--border)); background: oklch(var(--bg-elevated)); color: oklch(var(--text-secondary)); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast); }
 .ak-tcar-btn:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; box-shadow: var(--focus-ring); }
 .ak-tcar-btn:hover { border-color: oklch(var(--border-focus)); color: oklch(var(--text-link)); }
+.ak-tcar-btn:active { transform: scale(0.95); }
+.ak-tcar-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 .ak-tcar-dots { display: flex; gap: 6px; justify-content: center; margin-top: 22px; }
 .ak-tcar-dot { width: 7px; height: 7px; border-radius: var(--radius-full); background: oklch(var(--border)); border: none; padding: 0; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-fast), box-shadow var(--duration-fast); }
 .ak-tcar-dot.on { width: 20px; background: oklch(var(--primary-400)); }
