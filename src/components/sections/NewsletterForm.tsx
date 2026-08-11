@@ -64,7 +64,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
             required
             inputMode="email"
             name="email"
-            placeholder="tu@email.com…"
+            placeholder="tu@email.com"
             aria-label="Email"
             autoComplete="email"
             spellCheck={false}
@@ -102,7 +102,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
           required
           inputMode="email"
           name="email"
-          placeholder="tu@email.com…"
+          placeholder="tu@email.com"
           aria-label="Email"
           autoComplete="email"
           spellCheck={false}
