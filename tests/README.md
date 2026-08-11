@@ -105,16 +105,30 @@ real ≈ 96/89/98/96 (499 tests verdes).
 
 ## Inventario E2E (`tests/e2e/`, Chromium)
 
-| Spec                 | Cubre                                                                              |
-| -------------------- | ---------------------------------------------------------------------------------- |
-| `smoke.spec.ts`      | Home, toggle de tema, envío de contacto, escaparate.                               |
-| `navigation.spec.ts` | El `Header` navega a cada ruta principal y renderiza su `h1`.                      |
-| `projects.spec.ts`   | Filtro por categoría, búsqueda, estado vacío, orden y detalle `/proyectos/[slug]`. |
-| `services.spec.ts`   | Toggle de precios (proyecto/retainer), acordeón FAQ, CTA → `/contacto`.            |
-| `stack.spec.ts`      | Grafo: detalle inicial, selección por leyenda, zoom.                               |
-| `newsletter.spec.ts` | Suscripción del footer (degrada a 200 sin credenciales).                           |
-| `checkout.spec.ts`   | «Pagar ahora» sin Stripe → fallback 503 (no redirige).                             |
-| `a11y.spec.ts`       | axe sin violaciones `critical` en 8 rutas (incluida `/stack`).                     |
+| Spec                   | Cubre                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------- |
+| `smoke.spec.ts`        | Home, toggle de tema, envío de contacto, escaparate.                               |
+| `navigation.spec.ts`   | El `Header` navega a cada ruta principal y renderiza su `h1`.                      |
+| `projects.spec.ts`     | Filtro por categoría, búsqueda, estado vacío, orden y detalle `/proyectos/[slug]`. |
+| `services.spec.ts`     | Toggle de precios (proyecto/retainer), acordeón FAQ, CTA → `/contacto`.            |
+| `stack.spec.ts`        | Grafo: detalle inicial, selección por leyenda, zoom.                               |
+| `newsletter.spec.ts`   | Suscripción del footer (degrada a 200 sin credenciales).                           |
+| `checkout.spec.ts`     | «Pagar ahora» sin Stripe → fallback 503 (no redirige).                             |
+| `a11y.spec.ts`         | axe sin violaciones `critical` en 8 rutas (incluida `/stack`).                     |
+| `design-audit.spec.ts` | Regresión visual: 15 rutas × 4 viewports × 2 temas (120 snapshots versionados).    |
 
 Los specs que navegan a `/proyectos/[slug]` y `/blog/[slug]` son la vía para cubrir
 los **Server Components asíncronos** de detalle (regla RSC).
+
+## Regresión visual (baselines versionados)
+
+`design-audit.spec.ts` compara cada ruta contra snapshots PNG almacenados en
+`tests/e2e/design-audit.spec.ts-snapshots/`. Un cambio visual no intencional
+falla CI; un cambio intencional requiere actualizar baselines.
+
+```bash
+pnpm exec playwright test tests/e2e/design-audit.spec.ts --update-snapshots
+```
+
+**Cuándo actualizar:** solo tras cambios visuales aprobados (nuevos tokens,
+layout, componentes). Revisar siempre el diff antes de commitear.
