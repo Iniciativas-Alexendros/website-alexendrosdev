@@ -65,7 +65,7 @@ main { display: block; }
 .ak-terminal-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid oklch(var(--border) / 0.5); }
 .ak-dot { width: 12px; height: 12px; border-radius: 50%; }
 .ak-terminal-title { margin-left: 10px; font: 500 12px var(--font-mono); color: oklch(var(--text-tertiary)); }
-.ak-terminal-body { padding: 18px 20px; font-family: var(--font-mono); font-size: var(--fs-mono-lg); line-height: 1.85; color: oklch(var(--terminal-text)); min-height: 13rem; }
+.ak-terminal-body { padding: 18px 20px; font-family: var(--font-mono); font-size: var(--fs-mono-lg); line-height: 1.85; color: oklch(var(--terminal-text)); min-height: 13rem; overflow-x: auto; }
 .ak-prompt { color: oklch(var(--terminal-prompt)); font-weight: 600; }
 .ak-str { color: oklch(var(--terminal-string)); }
 .ak-kw { color: oklch(var(--terminal-keyword)); }
@@ -398,6 +398,11 @@ main { display: block; }
 .ak-skeleton-row { display: flex; gap: 8px; margin-bottom: 24px; }
 .ak-skeleton-col { display: flex; flex-direction: column; gap: 16px; }
 
+/* ---- Case study code blocks ---- */
+.ak-code { background: oklch(var(--terminal-bg)); border: 1px solid oklch(var(--border)); border-radius: var(--radius-lg); overflow: hidden; margin: 16px 0; }
+.ak-code-bar { padding: 8px 16px; font: 500 12px var(--font-mono); color: oklch(var(--text-tertiary)); border-bottom: 1px solid oklch(var(--border) / 0.5); background: oklch(var(--bg-sunken)); }
+.ak-code pre { padding: 16px 20px; overflow-x: auto; font-family: var(--font-mono); font-size: var(--fs-mono-sm); line-height: 1.7; color: oklch(var(--terminal-text)); margin: 0; }
+
 /* ---- Buttons with icons ---- */
 .ak-btn { gap: 6px; }
 
@@ -467,6 +472,7 @@ main { display: block; }
 .ak-tcard-role { font: 500 12px var(--font-sans); color: oklch(var(--text-tertiary)); }
 .ak-tcar-nav { display: flex; gap: 8px; }
 .ak-tcar-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-full); border: 1px solid oklch(var(--border)); background: oklch(var(--bg-elevated)); color: oklch(var(--text-secondary)); cursor: pointer; transition: background-color var(--duration-fast), color var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast); }
+.ak-tcar-btn:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; box-shadow: var(--focus-ring); }
 .ak-tcar-btn:hover { border-color: oklch(var(--border-focus)); color: oklch(var(--text-link)); }
 .ak-tcar-dots { display: flex; gap: 6px; justify-content: center; margin-top: 22px; }
 .ak-tcar-dot { width: 7px; height: 7px; border-radius: var(--radius-full); background: oklch(var(--border)); border: none; padding: 0; cursor: pointer; transition: background-color var(--duration-fast), transform var(--duration-fast), box-shadow var(--duration-fast); }
