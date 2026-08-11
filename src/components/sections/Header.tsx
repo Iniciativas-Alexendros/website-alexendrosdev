@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
@@ -12,6 +12,7 @@ export function Header() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const burgerRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
   const [scrolled, setScrolled] = useState(
     () => typeof window !== "undefined" && window.scrollY > SCROLL_THRESHOLD,
@@ -23,8 +24,41 @@ export function Header() {
       wasOpen.current = false;
     } else {
       wasOpen.current = true;
+      requestAnimationFrame(() => {
+        const first = navRef.current?.querySelector<HTMLElement>("a");
+        first?.focus();
+      });
     }
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const nav = navRef.current;
+    if (!nav) return;
+    const focusable = nav.querySelectorAll<HTMLElement>(
+      'a[href], button, [tabindex]:not([tabindex="-1"])',
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const onTab = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    nav.addEventListener("keydown", onTab);
+    return () => nav.removeEventListener("keydown", onTab);
+  }, [open]);
+
+  const handleOverlayClick = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -44,6 +78,17 @@ export function Header() {
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [pathname]);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
@@ -105,19 +150,27 @@ export function Header() {
           </div>
         </div>
         {open && (
-          <nav id="mobile-nav" className="ak-mobile-nav" aria-label="Móvil">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={isActive(item.href) ? "on" : ""}
-                onClick={() => setOpen(false)}
-                aria-current={isActive(item.href) ? "page" : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <>
+            <div className="ak-mobile-overlay" aria-hidden="true" onClick={handleOverlayClick} />
+            <nav
+              ref={navRef}
+              id="mobile-nav"
+              className="ak-mobile-nav"
+              aria-label="Navegación móvil"
+            >
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={isActive(item.href) ? "on" : ""}
+                  onClick={() => setOpen(false)}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </>
         )}
       </header>
     </>
