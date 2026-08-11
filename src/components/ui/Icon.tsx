@@ -84,6 +84,7 @@ const ICON_MAP: Record<string, PhosphorIconComponent> = {
   "grid-four": GridFour,
   heart: Heart,
   info: Info,
+  linkedin: LinkedinLogo,
   "linkedin-logo": LinkedinLogo,
   list: List,
   lock: Lock,

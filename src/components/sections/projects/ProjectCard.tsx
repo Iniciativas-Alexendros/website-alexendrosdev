@@ -17,6 +17,7 @@ export function ProjectCard({ project, priority = false }: ProjectCardProps) {
           id={project.id}
           alt=""
           className="ak-project-card-image"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           priority={priority}
         />
         <span className="ak-project-card-category">{project.category}</span>
