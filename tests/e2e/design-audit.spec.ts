@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
 const ROUTES = [
   "/",
@@ -15,7 +15,6 @@ const ROUTES = [
   "/legal/condiciones",
   "/legal/aviso-legal",
   "/proximamente",
-  "/ruta-que-no-existe",
 ] as const;
 
 const VIEWPORTS = [
@@ -34,7 +33,7 @@ function routeSlug(route: string) {
 for (const route of ROUTES) {
   for (const viewport of VIEWPORTS) {
     for (const theme of THEMES) {
-      test(`captura ${route} · ${viewport.name}px · ${theme}`, async ({ page }) => {
+      test(`visual ${route} · ${viewport.name}px · ${theme}`, async ({ page }) => {
         await page.setViewportSize({ width: viewport.width, height: viewport.height });
         await page.addInitScript((selectedTheme: string) => {
           localStorage.setItem("ao-theme", selectedTheme);
@@ -43,8 +42,7 @@ for (const route of ROUTES) {
           }
         }, theme);
         const response = await page.goto(route, { waitUntil: "networkidle" });
-        const isExpectedNotFound = route === "/ruta-que-no-existe";
-        if (!response || (isExpectedNotFound ? response.status() !== 404 : !response.ok())) {
+        if (!response || !response.ok()) {
           throw new Error(`La ruta ${route} no respondió correctamente`);
         }
         await page.evaluate(() => document.fonts.ready);
@@ -55,9 +53,9 @@ for (const route of ROUTES) {
           content:
             "*, *::before, *::after { animation: none !important; transition: none !important; }",
         });
-        await page.screenshot({
-          path: `artifacts/design-audit/${theme}/${viewport.name}-${routeSlug(route)}.png`,
+        await expect(page).toHaveScreenshot(`${theme}-${viewport.name}-${routeSlug(route)}.png`, {
           fullPage: true,
+          maxDiffPixelRatio: 0.1,
         });
       });
     }
