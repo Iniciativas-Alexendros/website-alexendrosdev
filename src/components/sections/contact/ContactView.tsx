@@ -462,7 +462,19 @@ function Calendar() {
         })}
       </div>
       <div className="ak-byline-sub ak-cal-sub-top">
-        {sel ? `Seleccionado: ${sel} · elige hora →` : "Reserva disponible · martes y jueves"}
+        {sel ? (
+          <a
+            href={SITE.bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ak-cal-book-link"
+          >
+            {sel} de {MONTHS[displayedMonth.getMonth()]} — elegir hora{" "}
+            <Icon name="arrow-square-out" size={13} />
+          </a>
+        ) : (
+          "Reserva disponible · martes y jueves"
+        )}
       </div>
     </div>
   );
