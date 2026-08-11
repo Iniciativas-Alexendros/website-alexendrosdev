@@ -12,8 +12,8 @@ jobs:
     if: >-
       github.event.deployment_status.state == 'success' &&
       (
-        github.event.deployment_status.environment == 'Preview' ||
-        github.event.deployment_status.environment == 'Production'
+        github.event.deployment_status.environment == 'preview' ||
+        github.event.deployment_status.environment == 'production'
       )
     runs-on: ubuntu-latest
     timeout-minutes: 15
