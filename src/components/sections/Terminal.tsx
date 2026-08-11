@@ -50,9 +50,9 @@ export function Terminal() {
   return (
     <div className="ak-terminal" role="region" aria-label="Terminal animada">
       <div className="ak-terminal-bar">
-        <span className="ak-dot" style={{ background: "#ff5f57" }} />
-        <span className="ak-dot" style={{ background: "#ffbd2e" }} />
-        <span className="ak-dot" style={{ background: "#28ca42" }} />
+        <span className="ak-dot ak-dot-close" />
+        <span className="ak-dot ak-dot-min" />
+        <span className="ak-dot ak-dot-max" />
         <span className="ak-terminal-title">whoami.json</span>
         <span className="ak-terminal-meta">~/.config/alexendros</span>
       </div>

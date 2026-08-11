@@ -11,8 +11,8 @@ export default function AvisoLegalPage() {
   return (
     <div className="ak-container">
       <section className="ak-section">
-        <h1 style={{ marginBottom: 16 }}>Aviso legal</h1>
-        <p className="ak-byline-sub mono" style={{ marginBottom: 32 }}>
+        <h1>Aviso legal</h1>
+        <p className="ak-byline-sub mono">
           Última actualización:{" "}
           {new Date().toLocaleDateString("es-ES", {
             year: "numeric",
@@ -22,26 +22,26 @@ export default function AvisoLegalPage() {
         </p>
 
         <article className="ak-prose" style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>1. Datos del responsable</h2>
-            <dl style={{ marginLeft: 16 }}>
-              <dt style={{ fontWeight: 600 }}>Nombre comercial:</dt>
+          <section>
+            <h2>1. Datos del responsable</h2>
+            <dl>
+              <dt>Nombre comercial:</dt>
               <dd>Alejandro Domingo Agustí (Alexendros)</dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>Domicilio profesional:</dt>
+              <dt>Domicilio profesional:</dt>
               <dd>Valencia, España</dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>Email de contacto:</dt>
+              <dt>Email de contacto:</dt>
               <dd>
                 <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
               </dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>Sitio web:</dt>
+              <dt>Sitio web:</dt>
               <dd>
                 <a href={SITE.url}>{SITE.url}</a>
               </dd>
             </dl>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>2. Objeto</h2>
+          <section>
+            <h2>2. Objeto</h2>
             <p>
               El presente aviso legal regula el acceso y uso del sitio web <code>{SITE.url}</code>{" "}
               (en adelante, &ldquo;el Sitio&rdquo;), del que es titular el Responsable. El acceso al
@@ -49,8 +49,8 @@ export default function AvisoLegalPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>3. Propiedad intelectual e industrial</h2>
+          <section>
+            <h2>3. Propiedad intelectual e industrial</h2>
             <p>
               Todos los contenidos del Sitio (textos, imágenes, código, diseño, estructura, marcas,
               logotipos) son propiedad del Responsable o de terceros que han autorizado su uso, y
@@ -62,8 +62,8 @@ export default function AvisoLegalPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>4. Responsabilidad</h2>
+          <section>
+            <h2>4. Responsabilidad</h2>
             <p>
               El Responsable no garantiza la disponibilidad y continuidad del funcionamiento del
               Sitio, ni que este sea útil para la realización de una actividad en particular. El
@@ -76,8 +76,8 @@ export default function AvisoLegalPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>5. Protección de datos personales</h2>
+          <section>
+            <h2>5. Protección de datos personales</h2>
             <p>
               El tratamiento de datos personales se rige por la{" "}
               <Link href="/legal/privacidad">Política de privacidad</Link>, que forma parte
@@ -85,8 +85,8 @@ export default function AvisoLegalPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>6. Legislación aplicable y jurisdicción</h2>
+          <section>
+            <h2>6. Legislación aplicable y jurisdicción</h2>
             <p>
               Las presentes condiciones se rigen por la legislación española. Para la resolución de
               cualquier controversia que pudiera surgir, ambas partes se someten a los Juzgados y
@@ -95,8 +95,8 @@ export default function AvisoLegalPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>7. Contacto</h2>
+          <section>
+            <h2>7. Contacto</h2>
             <p>
               Para cualquier consulta sobre este aviso legal, puedes contactar en{" "}
               <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
@@ -104,7 +104,7 @@ export default function AvisoLegalPage() {
           </section>
         </article>
 
-        <nav style={{ marginTop: 32 }}>
+        <nav style={{ marginTop: "var(--space-8)" }}>
           <Link href="/" className="ak-btn ak-btn-secondary">
             Volver al inicio
           </Link>

@@ -11,8 +11,8 @@ export default function PrivacidadPage() {
   return (
     <div className="ak-container">
       <section className="ak-section">
-        <h1 style={{ marginBottom: 16 }}>Política de privacidad</h1>
-        <p className="ak-byline-sub mono" style={{ marginBottom: 32 }}>
+        <h1>Política de privacidad</h1>
+        <p className="ak-byline-sub mono">
           Última actualización:{" "}
           {new Date().toLocaleDateString("es-ES", {
             year: "numeric",
@@ -22,8 +22,8 @@ export default function PrivacidadPage() {
         </p>
 
         <article className="ak-prose" style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>1. Responsable del tratamiento</h2>
+          <section>
+            <h2>1. Responsable del tratamiento</h2>
             <p>
               <strong>Alejandro Domingo Agustí</strong> (en adelante, &ldquo;el Responsable&rdquo;),
               con domicilio profesional en Valencia, España, y email de contacto:{" "}
@@ -31,29 +31,23 @@ export default function PrivacidadPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>2. Finalidades y base legal</h2>
-            <dl style={{ marginLeft: 16 }}>
-              <dt style={{ fontWeight: 600, marginTop: 16 }}>
-                Gestión de contactos (formulario de contacto)
-              </dt>
+          <section>
+            <h2>2. Finalidades y base legal</h2>
+            <dl>
+              <dt>Gestión de contactos (formulario de contacto)</dt>
               <dd>
                 Tratamos tu nombre, email, tipo de consulta y mensaje para responder a tu solicitud.
                 Base legal: consentimiento (Art. 6.1.a RGPD) al enviar el formulario.
               </dd>
 
-              <dt style={{ fontWeight: 600, marginTop: 16 }}>
-                Suscripción a newsletter (double opt-in)
-              </dt>
+              <dt>Suscripción a newsletter (double opt-in)</dt>
               <dd>
                 Tratamos tu email para enviarte artículos sobre desarrollo web y productos
                 digitales. Base legal: consentimiento explícito mediante doble confirmación (Art.
                 6.1.a RGPD). El token de confirmación caduca a las 48 horas y es de un solo uso.
               </dd>
 
-              <dt style={{ fontWeight: 600, marginTop: 16 }}>
-                Procesamiento de pedidos (checkout)
-              </dt>
+              <dt>Procesamiento de pedidos (checkout)</dt>
               <dd>
                 Tratamos tu email y datos de facturación necesarios para completar la compra y
                 emitir el recibo correspondiente. Base legal: ejecución de contrato (Art. 6.1.b
@@ -62,13 +56,13 @@ export default function PrivacidadPage() {
             </dl>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>3. Encargados de tratamiento (subprocesadores)</h2>
+          <section>
+            <h2>3. Encargados de tratamiento (subprocesadores)</h2>
             <p>
               Los siguientes proveedores acceden a tus datos por cuenta del Responsable, bajo
               contrato de encargado de tratamiento (Art. 28 RGPD):
             </p>
-            <ul style={{ marginLeft: 16, marginTop: 8 }}>
+            <ul>
               <li>
                 <strong>Supabase (PostgreSQL)</strong> — almacenamiento de leads, suscriptores y
                 pedidos. Datos alojados en la UE (Frankfurt).
@@ -86,8 +80,8 @@ export default function PrivacidadPage() {
             </ul>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>4. Transferencias internacionales</h2>
+          <section>
+            <h2>4. Transferencias internacionales</h2>
             <p>
               Resend y Stripe procesan datos en Estados Unidos. Estas transferencias se amparan en
               cláusulas contractuales tipo aprobadas por la Comisión Europea, garantizando un nivel
@@ -95,9 +89,9 @@ export default function PrivacidadPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>5. Plazos de conservación</h2>
-            <ul style={{ marginLeft: 16 }}>
+          <section>
+            <h2>5. Plazos de conservación</h2>
+            <ul>
               <li>Leads de contacto sin conversión: 2 años desde la última interacción.</li>
               <li>
                 Suscriptores de newsletter: hasta que solicites la baja (enlace en cada email).
@@ -109,10 +103,10 @@ export default function PrivacidadPage() {
             </ul>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>6. Tus derechos (ARCO-POL)</h2>
+          <section>
+            <h2>6. Tus derechos (ARCO-POL)</h2>
             <p>Puedes ejercer en cualquier momento:</p>
-            <ul style={{ marginLeft: 16 }}>
+            <ul>
               <li>
                 <strong>Acceso</strong> — saber qué datos tuyos tratamos.
               </li>
@@ -133,15 +127,15 @@ export default function PrivacidadPage() {
                 <strong>Limitación</strong> — restringir el tratamiento temporalmente.
               </li>
             </ul>
-            <p style={{ marginTop: 12 }}>
+            <p>
               Para ejercerlos, envía un email a <a href={`mailto:${SITE.email}`}>{SITE.email}</a>{" "}
               indicando el derecho que ejercitas. Responderemos en el plazo legal de un mes
               (prorrogable dos meses en casos complejos).
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>7. Cookies y tecnologías similares</h2>
+          <section>
+            <h2>7. Cookies y tecnologías similares</h2>
             <p>
               Este sitio <strong>no utiliza cookies de rastreo ni publicidad</strong>. Vercel
               Analytics (si está activo) funciona sin cookies (cookie-less). El único almacenamiento
@@ -150,8 +144,8 @@ export default function PrivacidadPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>8. Reclamación ante autoridad de control</h2>
+          <section>
+            <h2>8. Reclamación ante autoridad de control</h2>
             <p>
               Si consideras que no hemos atendido correctamente tus derechos, puedes presentar
               reclamación ante la{" "}
@@ -162,8 +156,8 @@ export default function PrivacidadPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>9. Cambios en esta política</h2>
+          <section>
+            <h2>9. Cambios en esta política</h2>
             <p>
               Cualquier modificación se publicará en esta página con la fecha de actualización
               correspondiente. Te recomendamos revisarla periódicamente.
@@ -171,7 +165,7 @@ export default function PrivacidadPage() {
           </section>
         </article>
 
-        <nav style={{ marginTop: 32 }}>
+        <nav style={{ marginTop: "var(--space-8)" }}>
           <Link href="/" className="ak-btn ak-btn-secondary">
             Volver al inicio
           </Link>

@@ -98,38 +98,34 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
         <div className="ak-tier-name">{item.name}</div>
         <div className="ak-tier-price">
           {formatPrice(item.amount, item.currency)}
-          {isRecurring && <small style={{ marginLeft: 4 }}>/mes</small>}
+          {isRecurring && <small className="ak-pc-recurring">/mes</small>}
         </div>
-        <p className="ak-principle-body" style={{ margin: "0 0 16px", flex: 1 }}>
+        <p className="ak-principle-body" style={{ margin: "0 0 var(--space-4)", flex: 1 }}>
           Realiza la transferencia con los datos siguientes. Te aviso en cuanto la reciba.
         </p>
-        <dl
-          style={{
-            display: "grid",
-            gridTemplateColumns: "auto 1fr",
-            gap: "6px 12px",
-            fontSize: 13,
-            margin: "0 0 16px",
-          }}
-        >
-          <dt style={{ opacity: 0.7 }}>Importe</dt>
-          <dd style={{ margin: 0 }}>
+        <dl className="ak-pc-transfer-dl">
+          <dt>Importe</dt>
+          <dd>
             <strong>
               {transferInfo.amount} {transferInfo.currency.toUpperCase()}
             </strong>
           </dd>
-          <dt style={{ opacity: 0.7 }}>Beneficiario</dt>
-          <dd style={{ margin: 0 }}>{transferInfo.beneficiary}</dd>
+          <dt>Beneficiario</dt>
+          <dd>{transferInfo.beneficiary}</dd>
           {transferInfo.bank && (
             <>
-              <dt style={{ opacity: 0.7 }}>Banco</dt>
-              <dd style={{ margin: 0 }}>{transferInfo.bank}</dd>
+              <dt>Banco</dt>
+              <dd>{transferInfo.bank}</dd>
             </>
           )}
-          <dt style={{ opacity: 0.7 }}>IBAN</dt>
-          <dd style={{ margin: 0, fontFamily: "var(--font-code)" }}>{transferInfo.iban}</dd>
-          <dt style={{ opacity: 0.7 }}>Concepto</dt>
-          <dd style={{ margin: 0, fontFamily: "var(--font-code)" }}>{transferInfo.reference}</dd>
+          <dt>IBAN</dt>
+          <dd>
+            <code>{transferInfo.iban}</code>
+          </dd>
+          <dt>Concepto</dt>
+          <dd>
+            <code>{transferInfo.reference}</code>
+          </dd>
         </dl>
         <Button
           variant="secondary"
@@ -147,9 +143,9 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
       <div className="ak-tier-name">{item.name}</div>
       <div className="ak-tier-price">
         {formatPrice(item.amount, item.currency)}
-        {isRecurring && <small style={{ marginLeft: 4 }}>/mes</small>}
+        {isRecurring && <small className="ak-pc-recurring">/mes</small>}
       </div>
-      <p className="ak-principle-body" style={{ margin: "0 0 16px", flex: 1 }}>
+      <p className="ak-principle-body" style={{ margin: "0 0 var(--space-4)", flex: 1 }}>
         {item.desc}
       </p>
 
@@ -167,14 +163,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             setMethod(opts[(idx - 1 + opts.length) % opts.length]);
           }
         }}
-        style={{
-          display: "flex",
-          gap: 4,
-          marginBottom: 12,
-          padding: 4,
-          borderRadius: 8,
-          background: "oklch(var(--bg-inset))",
-        }}
+        className="ak-pc-radio-group"
       >
         <button
           type="button"
@@ -182,15 +171,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           aria-checked={method === "stripe"}
           tabIndex={method === "stripe" ? 0 : -1}
           onClick={() => setMethod("stripe")}
-          style={{
-            flex: 1,
-            padding: "6px 10px",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            background: method === "stripe" ? "oklch(var(--bg-elevated))" : "transparent",
-            fontWeight: method === "stripe" ? 600 : 400,
-          }}
+          className="ak-pc-radio-btn"
         >
           Tarjeta
         </button>
@@ -200,22 +181,14 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
           aria-checked={method === "transfer"}
           tabIndex={method === "transfer" ? 0 : -1}
           onClick={() => setMethod("transfer")}
-          style={{
-            flex: 1,
-            padding: "6px 10px",
-            border: "none",
-            borderRadius: 6,
-            cursor: "pointer",
-            background: method === "transfer" ? "oklch(var(--bg-elevated))" : "transparent",
-            fontWeight: method === "transfer" ? 600 : 400,
-          }}
+          className="ak-pc-radio-btn"
         >
           Transferencia
         </button>
       </div>
 
       {method === "transfer" && (
-        <div style={{ display: "grid", gap: 8, marginBottom: 12 }}>
+        <div className="ak-pc-transfer-fields">
           <input
             type="email"
             placeholder="tu@email.com"
@@ -223,13 +196,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             onChange={(e) => setEmail(e.target.value)}
             aria-label="Email"
             required
-            style={{
-              padding: "8px 10px",
-              borderRadius: 6,
-              border: "1px solid oklch(var(--border))",
-              background: "oklch(var(--bg-base))",
-              color: "inherit",
-            }}
+            className="ak-input"
           />
           <input
             type="text"
@@ -238,13 +205,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
             onChange={(e) => setName(e.target.value)}
             aria-label="Nombre"
             required
-            style={{
-              padding: "8px 10px",
-              borderRadius: 6,
-              border: "1px solid oklch(var(--border))",
-              background: "oklch(var(--bg-base))",
-              color: "inherit",
-            }}
+            className="ak-input"
           />
         </div>
       )}
@@ -255,7 +216,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
         disabled={loading || (method === "transfer" && (!email || !name))}
         style={{ width: "100%", justifyContent: "center" }}
       >
-        <Icon name="external-link" size={15} style={{ marginRight: 7 }} />
+        <Icon name="external-link" size={15} style={{ marginRight: "var(--space-2)" }} />
         {loading
           ? "Procesando…"
           : method === "transfer"
@@ -265,7 +226,7 @@ export function PurchaseCard({ item }: { item: PurchasableItem }) {
               : "Pagar ahora"}
       </Button>
       {error && (
-        <span className="ak-err-msg" style={{ marginTop: 10 }}>
+        <span className="ak-err-msg" style={{ marginTop: "var(--space-3)" }}>
           <Icon name="alert-circle" size={13} />
           {error}
         </span>

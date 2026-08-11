@@ -11,8 +11,8 @@ export default function CookiesPage() {
   return (
     <div className="ak-container">
       <section className="ak-section">
-        <h1 style={{ marginBottom: 16 }}>Política de cookies</h1>
-        <p className="ak-byline-sub mono" style={{ marginBottom: 32 }}>
+        <h1>Política de cookies</h1>
+        <p className="ak-byline-sub mono">
           Última actualización:{" "}
           {new Date().toLocaleDateString("es-ES", {
             year: "numeric",
@@ -22,16 +22,16 @@ export default function CookiesPage() {
         </p>
 
         <article className="ak-prose" style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>1. Qué son las cookies</h2>
+          <section>
+            <h2>1. Qué son las cookies</h2>
             <p>
               Las cookies son pequeños ficheros que un sitio web instala en el navegador para
               recordar información entre visitas: preferencias, sesiones o datos estadísticos.
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>2. Cookies utilizadas en este sitio</h2>
+          <section>
+            <h2>2. Cookies utilizadas en este sitio</h2>
             <p>
               <strong>
                 Este sitio no utiliza cookies propias ni de terceros con fines publicitarios, de
@@ -47,8 +47,8 @@ export default function CookiesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>3. Cookies de terceros en procesos de pago</h2>
+          <section>
+            <h2>3. Cookies de terceros en procesos de pago</h2>
             <p>
               Al completar un pago, el navegador accede a la pasarela de Stripe, que puede emplear
               cookies estrictamente necesarias para la seguridad de la transacción y la prevención
@@ -57,8 +57,8 @@ export default function CookiesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>4. Almacenamiento local del navegador</h2>
+          <section>
+            <h2>4. Almacenamiento local del navegador</h2>
             <p>
               Algunas preferencias de interfaz (por ejemplo, pasos de un formulario en curso) pueden
               guardarse temporalmente en el almacenamiento local del propio navegador. Esta
@@ -67,8 +67,8 @@ export default function CookiesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>5. Gestión y desactivación</h2>
+          <section>
+            <h2>5. Gestión y desactivación</h2>
             <p>
               Cualquier navegador permite consultar, bloquear o eliminar cookies desde sus ajustes
               de privacidad. Dado que este sitio no depende de cookies no esenciales, su
@@ -76,8 +76,8 @@ export default function CookiesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>6. Cambios en esta política</h2>
+          <section>
+            <h2>6. Cambios en esta política</h2>
             <p>
               Si en el futuro se incorporan cookies adicionales (por ejemplo, una herramienta de
               analítica que las utilice), esta página se actualizará y, cuando la normativa lo
@@ -91,7 +91,14 @@ export default function CookiesPage() {
           </section>
         </article>
 
-        <nav style={{ marginTop: 32, display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <nav
+          style={{
+            marginTop: "var(--space-8)",
+            display: "flex",
+            gap: "var(--space-3)",
+            flexWrap: "wrap",
+          }}
+        >
           <Link href="/legal/privacidad" className="ak-btn ak-btn-secondary">
             Privacidad
           </Link>
