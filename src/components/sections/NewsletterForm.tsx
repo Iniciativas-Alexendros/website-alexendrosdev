@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useId, useState, type FormEvent } from "react";
+import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 
@@ -41,6 +42,7 @@ export function NewsletterForm({ variant = "footer" }: { variant?: "footer" | "c
         setStatus("ok");
         setMsg("¡Gracias! Revisa tu correo.");
         setEmail("");
+        track("newsletter_submitted");
       } else {
         const data = (await res.json().catch(() => null)) as {
           error?: string;

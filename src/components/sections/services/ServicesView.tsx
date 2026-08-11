@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics/react";
 import { TIERS, COMPARISON, FAQ, ADDONS } from "@/lib/content/services";
 import { Button, Icon, Reveal } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -165,6 +167,14 @@ function AddonsSection() {
 }
 
 export default function ServicesView() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("checkout") === "cancel") {
+      track("checkout_cancelled");
+    }
+  }, [searchParams]);
+
   return (
     <>
       <header className="ak-page-head">
