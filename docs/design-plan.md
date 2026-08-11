@@ -95,19 +95,19 @@
 
 | Issue | Título                                                          | Prioridad | Esfuerzo       |
 | ----- | --------------------------------------------------------------- | --------- | -------------- |
-| —     | `[P0-DISEÑO] Auditoría visual base + docs/design-audit.md`      | P0        | S (✅ PR #154) |
-| —     | `[P0-DISEÑO] Contraste WCAG AA en ambos temas`                  | P0        | M              |
-| —     | `[P0-DISEÑO] Eliminar CLS (ProjectImage, Marquee, fuentes)`     | P0        | M              |
-| —     | `[P0-DISEÑO] Overflow horizontal móvil + focus-visible`         | P0        | S              |
-| —     | `[P1-DISEÑO] Tokenización estricta (cero valores hardcodeados)` | P1        | L              |
-| —     | `[P1-DISEÑO] Escala tipográfica y ritmo de espaciado únicos`    | P1        | M              |
-| —     | `[P1-DISEÑO] Sistema de CTAs/botones unificado`                 | P1        | S              |
-| —     | `[P2-DISEÑO] Estados completos de componentes interactivos`     | P2        | M              |
-| —     | `[P2-DISEÑO] Header móvil accesible + responsive 360–1920`      | P2        | M              |
-| —     | `[P2-DISEÑO] Motion scale + prefers-reduced-motion`             | P2        | S              |
-| —     | `[P2-DISEÑO] Dark mode sin flash, tokens semánticos por tema`   | P2        | M              |
-| —     | `[P2-DISEÑO] Regresión visual Playwright + axe en CI`           | P2        | M              |
-| —     | `[P3-DISEÑO] Pulido final: grid, iconos, microcopy, 404`        | P3        | M              |
+| #156  | `[P0-DISEÑO] Auditoría visual base + docs/design-audit.md`      | P0        | S (✅ PR #154) |
+| #157  | `[P0-DISEÑO] Contraste WCAG AA en ambos temas`                  | P0        | M              |
+| #158  | `[P0-DISEÑO] Eliminar CLS (ProjectImage, Marquee, fuentes)`     | P0        | M              |
+| #159  | `[P0-DISEÑO] Overflow horizontal móvil + focus-visible`         | P0        | S              |
+| #160  | `[P1-DISEÑO] Tokenización estricta (cero valores hardcodeados)` | P1        | L              |
+| #161  | `[P1-DISEÑO] Escala tipográfica y ritmo de espaciado únicos`    | P1        | M              |
+| #162  | `[P1-DISEÑO] Sistema de CTAs/botones unificado`                 | P1        | S              |
+| #163  | `[P2-DISEÑO] Estados completos de componentes interactivos`     | P2        | M              |
+| #164  | `[P2-DISEÑO] Header móvil accesible + responsive 360–1920`      | P2        | M              |
+| #165  | `[P2-DISEÑO] Motion scale + prefers-reduced-motion`             | P2        | S              |
+| #166  | `[P2-DISEÑO] Dark mode sin flash, tokens semánticos por tema`   | P2        | M              |
+| #167  | `[P2-DISEÑO] Regresión visual Playwright + axe en CI`           | P2        | M              |
+| #168  | `[P3-DISEÑO] Pulido final: grid, iconos, microcopy, 404`        | P3        | M              |
 
 **Orden sugerido:** Auditoría ✅ → #P0 contraste/CLS/overflow (en paralelo) → regresión visual CI → P1 → P2 → P3.
 
