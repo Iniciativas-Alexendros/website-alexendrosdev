@@ -12,8 +12,8 @@ export default function CondicionesPage() {
   return (
     <div className="ak-container">
       <section className="ak-section">
-        <h1 style={{ marginBottom: 16 }}>Condiciones de contratación</h1>
-        <p className="ak-byline-sub mono" style={{ marginBottom: 32 }}>
+        <h1>Condiciones de contratación</h1>
+        <p className="ak-byline-sub mono">
           Última actualización:{" "}
           {new Date().toLocaleDateString("es-ES", {
             year: "numeric",
@@ -23,24 +23,24 @@ export default function CondicionesPage() {
         </p>
 
         <article className="ak-prose" style={{ maxWidth: "72ch", lineHeight: 1.7 }}>
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>1. Identificación del prestador</h2>
-            <dl style={{ marginLeft: 16 }}>
-              <dt style={{ fontWeight: 600 }}>Titular:</dt>
+          <section>
+            <h2>1. Identificación del prestador</h2>
+            <dl>
+              <dt>Titular:</dt>
               <dd>Alejandro Domingo Agustí (Alexendros)</dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>NIF:</dt>
+              <dt>NIF:</dt>
               <dd>21002968N</dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>Domicilio profesional:</dt>
+              <dt>Domicilio profesional:</dt>
               <dd>Valencia, España</dd>
-              <dt style={{ fontWeight: 600, marginTop: 12 }}>Contacto:</dt>
+              <dt>Contacto:</dt>
               <dd>
                 <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
               </dd>
             </dl>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>2. Objeto y ámbito</h2>
+          <section>
+            <h2>2. Objeto y ámbito</h2>
             <p>
               Las presentes condiciones regulan la contratación de servicios de desarrollo de
               software, sitios web y aplicaciones, así como la compra de servicios puntuales y
@@ -48,10 +48,6 @@ export default function CondicionesPage() {
               &ldquo;el Sitio&rdquo;). Completar un proceso de compra o aceptar un presupuesto
               implica la aceptación íntegra de estas condiciones.
             </p>
-          </section>
-
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>3. Precios y presupuestos</h2>
             <p>
               Los precios publicados como &ldquo;desde&rdquo; son orientativos y no constituyen
               oferta vinculante: cada proyecto se presupuesta por escrito antes de su inicio. Los
@@ -65,8 +61,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>4. Proceso de contratación</h2>
+          <section>
+            <h2>3. Proceso de contratación</h2>
             <p>
               La contratación de proyectos a medida sigue, con carácter general, estas fases:
               solicitud y análisis de necesidades, presupuesto por escrito, aceptación expresa del
@@ -80,8 +76,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>5. Formas de pago y facturación</h2>
+          <section>
+            <h2>4. Formas de pago y facturación</h2>
             <p>
               El pago con tarjeta se procesa a través de Stripe, Inc.; los datos de la tarjeta no
               pasan por los servidores del Sitio. También se admite transferencia bancaria cuando se
@@ -95,8 +91,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>6. Derecho de desistimiento</h2>
+          <section>
+            <h2>5. Derecho de desistimiento</h2>
             <p>
               Si el cliente actúa como consumidor y usuario, dispone de un plazo de 14 días
               naturales desde la celebración del contrato para desistir sin necesidad de
@@ -118,8 +114,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>7. Conformidad, garantía y soporte</h2>
+          <section>
+            <h2>6. Conformidad, garantía y soporte</h2>
             <p>
               Los servicios se prestan con la diligencia debida y de acuerdo con el presupuesto
               aceptado. Cada entrega incluye un período de soporte y corrección de defectos de
@@ -134,8 +130,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>8. Propiedad intelectual</h2>
+          <section>
+            <h2>7. Propiedad intelectual</h2>
             <p>
               Salvo pacto expreso en contrario, una vez abonado íntegramente el proyecto, el cliente
               adquiere los derechos de explotación sobre el desarrollo específico realizado para él.
@@ -145,8 +141,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>9. Responsabilidad y disponibilidad</h2>
+          <section>
+            <h2>8. Responsabilidad y disponibilidad</h2>
             <p>
               El prestador no responde de interrupciones o incidencias imputables a terceros
               (proveedores de hosting, pasarelas de pago, redes de distribución) ni de las
@@ -156,8 +152,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>10. Resolución de litigios</h2>
+          <section>
+            <h2>9. Resolución de litigios</h2>
             <p>
               Las partes intentarán resolver cualquier discrepancia de manera amistosa. El
               consumidor puede dirigirse además al sistema arbitral de consumo de su comunidad
@@ -167,8 +163,8 @@ export default function CondicionesPage() {
             </p>
           </section>
 
-          <section style={{ marginBottom: 28 }}>
-            <h2 style={{ marginBottom: 12 }}>11. Legislación aplicable</h2>
+          <section>
+            <h2>10. Legislación aplicable</h2>
             <p>
               Estas condiciones se rigen por la legislación española, en particular la Ley 34/2002
               (LSSI), el Real Decreto Legislativo 1/2007 (TRLGDCU) y la normativa de protección de
@@ -178,7 +174,14 @@ export default function CondicionesPage() {
           </section>
         </article>
 
-        <nav style={{ marginTop: 32, display: "flex", gap: 12, flexWrap: "wrap" }}>
+        <nav
+          style={{
+            marginTop: "var(--space-8)",
+            display: "flex",
+            gap: "var(--space-3)",
+            flexWrap: "wrap",
+          }}
+        >
           <Link href="/legal/privacidad" className="ak-btn ak-btn-secondary">
             Privacidad
           </Link>

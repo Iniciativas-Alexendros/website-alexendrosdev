@@ -46,7 +46,7 @@ function TimelineCard({ it }: { it: TimelineEntry }) {
     <div className={`ak-tl2-card ${it.now ? "now" : ""}`.trim()}>
       <div className="ak-tl2-head">
         <span className="ak-tl2-year">{it.year}</span>
-        <span className="ak-tag" style={{ fontSize: 10 }}>
+        <span className="ak-tag" style={{ fontSize: "var(--fs-2xs)" }}>
           remoto
         </span>
       </div>

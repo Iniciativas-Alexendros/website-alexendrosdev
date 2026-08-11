@@ -14,7 +14,7 @@ export function ComingSoon() {
       data-screen-label="coming-soon"
       style={{ minHeight: "calc(100svh - 72px)", justifyContent: "center" }}
     >
-      <div className="ak-logo" style={{ fontSize: 24, marginBottom: 18 }}>
+      <div className="ak-logo" style={{ fontSize: "var(--fs-h2)", marginBottom: "var(--space-4)" }}>
         ~/<b>dev</b>
       </div>
 

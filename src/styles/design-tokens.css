@@ -77,6 +77,9 @@
   --terminal-comment: 0.4844 0.0354 248.6;
   --terminal-keyword: 0.4327 0.0837 255.7;
   --terminal-string: 0.4366 0.0566 161.0;
+  --terminal-dot-close: 0.6470 0.2310 27.0;
+  --terminal-dot-min: 0.7850 0.1580 85.0;
+  --terminal-dot-max: 0.7350 0.1960 155.0;
 
   /* ----- Composed shadow tokens (ready to drop in box-shadow) ----- */
   --elev-sm: 0 1px 2px oklch(var(--shadow-sm));
@@ -102,6 +105,8 @@
   --fs-body: 1rem;
   --fs-body-sm: 0.875rem;
   --fs-caption: 0.75rem;
+  --fs-xs: 0.6875rem;
+  --fs-2xs: 0.625rem;
   --fs-mono-sm: 0.8125rem;
   --fs-mono-lg: 0.9375rem;
 
@@ -456,6 +461,8 @@ a:focus-visible,
   --fs-body: var(--fs-body);
   --fs-body-sm: var(--fs-body-sm);
   --fs-caption: var(--fs-caption);
+  --fs-xs: var(--fs-xs);
+  --fs-2xs: var(--fs-2xs);
   --fs-mono-sm: var(--fs-mono-sm);
   --fs-mono-lg: var(--fs-mono-lg);
 
