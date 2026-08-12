@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ButtonLink } from "@/components/ui";
 import { SITE } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -105,9 +106,9 @@ export default function AvisoLegalPage() {
         </article>
 
         <nav style={{ marginTop: "var(--space-8)" }}>
-          <Link href="/" className="ak-btn ak-btn-secondary">
+          <ButtonLink variant="secondary" href="/">
             Volver al inicio
-          </Link>
+          </ButtonLink>
         </nav>
       </section>
     </div>

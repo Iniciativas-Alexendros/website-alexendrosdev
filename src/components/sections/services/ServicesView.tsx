@@ -18,7 +18,7 @@ function TierCard({ tier, index }: { tier: (typeof TIERS.proyecto)[0]; index: nu
         )}
       >
         {isPro && (
-          <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-cta px-3 py-1 text-xs font-semibold text-on-primary">
+          <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 whitespace-nowrap rounded-full bg-primary px-3 py-1 text-xs font-semibold text-on-primary">
             Recomendado
           </span>
         )}

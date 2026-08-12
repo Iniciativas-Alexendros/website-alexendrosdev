@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { PROJECTS } from "@/lib/content/projects";
 import { ProjectImage } from "@/components/ProjectImage";
-import { Icon, Button, Reveal } from "@/components/ui";
+import { Icon, Button, ButtonLink, Reveal } from "@/components/ui";
 
 const FEATURED_PROJECTS = PROJECTS.filter((p) => p.featured).map((p) => ({
   slug: p.id,
@@ -70,24 +69,26 @@ export function HomeFeaturedProjects() {
                 </div>
                 <div className="ak-zz-actions">
                   {project.liveUrl && (
-                    <Link
-                      className="ak-btn ak-btn-primary ak-btn-sm"
+                    <ButtonLink
+                      variant="primary"
+                      size="sm"
                       href={project.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Ver en vivo <Icon name="arrow-up-right" size={14} />
-                    </Link>
+                    </ButtonLink>
                   )}
                   {project.repoUrl && (
-                    <Link
-                      className="ak-btn ak-btn-secondary ak-btn-sm"
+                    <ButtonLink
+                      variant="secondary"
+                      size="sm"
                       href={project.repoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
                       Código <Icon name="github-logo" size={14} />
-                    </Link>
+                    </ButtonLink>
                   )}
                   <Button variant="ghost" size="sm" href={`/proyectos/${project.slug}`}>
                     Ver caso →
