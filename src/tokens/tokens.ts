@@ -161,7 +161,7 @@ export const layout = {
 
 // ─── Shared component types ───────────────────────────────────────────────
 
-export type Variant = "primary" | "secondary" | "ghost" | "outline";
+export type Variant = "primary" | "secondary" | "ghost";
 export type Size = "sm" | "md" | "lg";
 export type State =
   "idle" | "hover" | "active" | "focus" | "disabled" | "loading" | "error" | "empty";
