@@ -32,11 +32,14 @@ export function ComingSoon() {
         tu email y te aviso en cuanto esté listo.
       </p>
 
-      <div style={{ width: "min(420px, 100%)", marginTop: 28 }}>
+      <div style={{ width: "min(420px, 100%)", marginTop: "var(--space-7)" }}>
         <NewsletterForm variant="coming" />
       </div>
 
-      <div className="ak-footer-social" style={{ marginTop: 28, justifyContent: "center" }}>
+      <div
+        className="ak-footer-social"
+        style={{ marginTop: "var(--space-7)", justifyContent: "center" }}
+      >
         <a aria-label="GitHub" href={SITE.socials.github}>
           <Icon name="github" size={18} />
         </a>
