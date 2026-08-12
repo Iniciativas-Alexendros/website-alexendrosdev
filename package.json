@@ -32,6 +32,7 @@
     "audit:lh": "node scripts/audit-lighthouse.mjs",
     "audit:html": "node scripts/audit-html.mjs",
     "audit:a11y": "node scripts/audit-axe.mjs",
+    "audit:tokens": "node scripts/audit-design-tokens.mjs",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:coverage && pnpm build",
     "release": "semantic-release"
   },

@@ -96,32 +96,40 @@
   --font-code:
     var(--font-jetbrains), 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  /* ----- Type scale (size / weight / line-height / tracking) ----- */
+  /* ----- Type scale (7 steps) ----- */
   --fs-display: clamp(2.5rem, 5vw, 4rem);
   --fs-h1: clamp(2rem, 4vw, 3rem);
   --fs-h2: clamp(1.5rem, 3vw, 2.25rem);
   --fs-h3: 1.25rem;
-  --fs-h4: 1.125rem;
-  --fs-body-lg: 1.125rem;
   --fs-body: 1rem;
-  --fs-body-sm: 0.875rem;
-  --fs-caption: 0.75rem;
-  --fs-xs: 0.6875rem;
-  --fs-2xs: 0.625rem;
-  --fs-mono-sm: 0.8125rem;
-  --fs-mono-lg: 0.9375rem;
+  --fs-small: 0.875rem;  /* was --fs-body-sm */
+  --fs-caption: 0.75rem;  /* was --fs-caption, --fs-xs, --fs-2xs */
 
-  /* ----- Spacing scale ----- */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-  --space-20: 5rem;
-  --space-24: 6rem;
+  /* ----- Spacing scale (4/8pt grid, multiples of 4px) ----- */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-7: 1.75rem;   /* 28px */
+  --space-8: 2rem;      /* 32px */
+  --space-9: 2.25rem;   /* 36px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-11: 2.75rem;  /* 44px */
+  --space-12: 3rem;     /* 48px */
+  --space-13: 3.25rem;  /* 52px */
+  --space-14: 3.5rem;   /* 56px */
+  --space-15: 3.75rem;  /* 60px */
+  --space-16: 4rem;     /* 64px */
+  --space-17: 4.25rem;  /* 68px */
+  --space-18: 4.5rem;   /* 72px */
+  --space-19: 4.75rem;  /* 76px */
+  --space-20: 5rem;     /* 80px */
+  --space-21: 5.25rem;  /* 84px */
+  --space-22: 5.5rem;   /* 88px */
+  --space-23: 5.75rem;  /* 92px */
+  --space-24: 6rem;     /* 96px */
 
   /* ----- Radius scale ----- */
   --radius-sm: 6px;
@@ -247,7 +255,7 @@ h3,
 }
 h4,
 .h4 {
-  font: 600 var(--fs-h4)/1.35 var(--font-sans);
+  font: 600 var(--fs-body)/1.35 var(--font-sans);
   color: oklch(var(--text-primary));
   text-wrap: balance;
 }
@@ -258,11 +266,11 @@ h4,
   text-wrap: balance;
 }
 .body-lg {
-  font-size: var(--fs-body-lg);
+  font-size: var(--fs-body);
   line-height: 1.65;
 }
 .body-sm {
-  font-size: var(--fs-body-sm);
+  font-size: var(--fs-small);
   line-height: 1.55;
 }
 .caption {
@@ -276,11 +284,11 @@ code,
 kbd,
 samp {
   font-family: var(--font-mono);
-  font-size: var(--fs-mono-sm);
+  font-size: var(--fs-caption);
 }
 .mono-lg {
   font-family: var(--font-mono);
-  font-size: var(--fs-mono-lg);
+  font-size: var(--fs-body);
   line-height: 1.5;
 }
 
@@ -436,14 +444,22 @@ a:focus-visible,
   --animate-pulse-ring: pulse-ring 2s ease-in-out infinite;
   --color-focus-ring: oklch(var(--border-focus));
 
-  /* ---- Spacing scale ---- */
+   /* ---- Spacing scale ---- */
   --space-1: var(--space-1);
   --space-2: var(--space-2);
   --space-3: var(--space-3);
   --space-4: var(--space-4);
+  --space-5: var(--space-5);
   --space-6: var(--space-6);
+  --space-7: var(--space-7);
   --space-8: var(--space-8);
+  --space-9: var(--space-9);
+  --space-10: var(--space-10);
+  --space-11: var(--space-11);
   --space-12: var(--space-12);
+  --space-13: var(--space-13);
+  --space-14: var(--space-14);
+  --space-15: var(--space-15);
   --space-16: var(--space-16);
   --space-20: var(--space-20);
   --space-24: var(--space-24);
@@ -457,20 +473,14 @@ a:focus-visible,
   --z-modal: var(--z-modal);
   --z-tooltip: var(--z-tooltip);
 
-  /* ---- Font sizes ---- */
+   /* ---- Font sizes ---- */
   --fs-display: var(--fs-display);
   --fs-h1: var(--fs-h1);
   --fs-h2: var(--fs-h2);
   --fs-h3: var(--fs-h3);
-  --fs-h4: var(--fs-h4);
-  --fs-body-lg: var(--fs-body-lg);
   --fs-body: var(--fs-body);
-  --fs-body-sm: var(--fs-body-sm);
+  --fs-small: var(--fs-small);
   --fs-caption: var(--fs-caption);
-  --fs-xs: var(--fs-xs);
-  --fs-2xs: var(--fs-2xs);
-  --fs-mono-sm: var(--fs-mono-sm);
-  --fs-mono-lg: var(--fs-mono-lg);
 
   /* ---- Layout ---- */
   --container-max: var(--container-max);

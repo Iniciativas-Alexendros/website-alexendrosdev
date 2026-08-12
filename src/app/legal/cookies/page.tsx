@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ButtonLink } from "@/components/ui";
 import { SITE } from "@/lib/content";
 
 export const metadata: Metadata = {
@@ -99,15 +100,15 @@ export default function CookiesPage() {
             flexWrap: "wrap",
           }}
         >
-          <Link href="/legal/privacidad" className="ak-btn ak-btn-secondary">
+          <ButtonLink variant="secondary" href="/legal/privacidad">
             Privacidad
-          </Link>
-          <Link href="/legal/condiciones" className="ak-btn ak-btn-secondary">
+          </ButtonLink>
+          <ButtonLink variant="secondary" href="/legal/condiciones">
             Condiciones
-          </Link>
-          <Link href="/" className="ak-btn ak-btn-secondary">
+          </ButtonLink>
+          <ButtonLink variant="secondary" href="/">
             Volver al inicio
-          </Link>
+          </ButtonLink>
         </nav>
       </section>
     </div>

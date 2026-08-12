@@ -100,6 +100,8 @@ jobs:
         run: bash scripts/validate-tokens.sh
       - name: Audit hardcoded colors
         run: node scripts/audit-hardcoded-colors.mjs
+      - name: Audit design tokens (font-size / spacing scale)
+        run: pnpm audit:tokens
       - run: pnpm build
 
   e2e:

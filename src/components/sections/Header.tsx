@@ -113,7 +113,7 @@ export function Header() {
               style={{
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
-                fontSize: "1rem",
+                fontSize: "var(--fs-body)",
               }}
             >
               alex<b>endros</b>
