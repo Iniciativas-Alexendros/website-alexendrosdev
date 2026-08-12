@@ -105,5 +105,18 @@ describe("ButtonLink", () => {
     const link = screen.getByRole("link", { name: "Hablemos" });
     expect(link).toHaveAttribute("aria-disabled", "true");
     expect(link).toHaveAttribute("tabindex", "-1");
+    expect(link).toHaveClass("opacity-50", "pointer-events-none");
+  });
+
+  it("disabled no ejecuta el onClick del consumidor", async () => {
+    const onClick = vi.fn();
+    const { user } = renderWithUser(
+      <ButtonLink href="/contacto" disabled onClick={onClick}>
+        Hablemos
+      </ButtonLink>,
+    );
+
+    await user.click(screen.getByRole("link", { name: "Hablemos" }));
+    expect(onClick).not.toHaveBeenCalled();
   });
 });

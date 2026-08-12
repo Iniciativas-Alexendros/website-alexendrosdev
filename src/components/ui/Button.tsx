@@ -141,12 +141,19 @@ const ButtonLink = forwardRef<HTMLAnchorElement, ButtonLinkProps>(
       <Link
         ref={ref}
         {...props}
-        className={buttonVariants({ variant, size, className })}
+        className={buttonVariants({
+          variant,
+          size,
+          className: cn(className, disabled && "pointer-events-none opacity-50"),
+        })}
         aria-disabled={disabled || undefined}
         tabIndex={disabled ? -1 : props.tabIndex}
         onClick={(event) => {
+          if (disabled) {
+            event.preventDefault();
+            return;
+          }
           props.onClick?.(event);
-          if (disabled) event.preventDefault();
         }}
       >
         {children}
