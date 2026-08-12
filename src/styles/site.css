@@ -33,19 +33,6 @@ body { margin: 0; }
 main { display: block; }
 .ak-container { max-width: var(--container-max); margin: 0 auto; padding: 0 var(--space-8); }
 
-/* ---- Buttons ---- */
-.ak-btn { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; font: 600 var(--fs-small) var(--font-sans); border-radius: var(--radius-md); padding: var(--space-3) var(--space-5); border: 1px solid transparent; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-default), color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default), box-shadow var(--duration-fast) var(--ease-default), transform var(--duration-fast) var(--ease-default), filter var(--duration-fast) var(--ease-default); }
-.ak-btn-primary { background: oklch(var(--cta)); color: oklch(var(--text-on-primary)); }
-.ak-btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--elev-md); }
-.ak-btn-primary:active { filter: brightness(0.95); transform: translateY(0); box-shadow: none; }
-.ak-btn-secondary { background: transparent; color: oklch(var(--text-primary)); border-color: oklch(var(--border)); }
-.ak-btn-secondary:hover { background: oklch(var(--bg-highlight)); }
-.ak-btn-secondary:active { background: oklch(var(--bg-sunken)); }
-.ak-btn-ghost { background: transparent; color: oklch(var(--text-secondary)); }
-.ak-btn-ghost:hover { color: oklch(var(--text-primary)); }
-.ak-btn-ghost:active { color: oklch(var(--text-primary)); background: oklch(var(--bg-highlight)); }
-.ak-btn:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; box-shadow: var(--focus-ring); }
-
 /* ---- Theme toggle ---- */
 .ak-theme-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: var(--radius-md); border: 1px solid oklch(var(--border)); background: oklch(var(--bg-elevated)); color: oklch(var(--text-secondary)); cursor: pointer; transition: color var(--duration-fast) var(--ease-default), border-color var(--duration-fast) var(--ease-default), background-color var(--duration-fast) var(--ease-default); }
 .ak-theme-toggle:hover { color: oklch(var(--text-primary)); border-color: oklch(var(--border-focus)); }
@@ -168,7 +155,6 @@ main { display: block; }
 /* En movil el input+boton no caben en fila: apilar */
 @media (max-width: 480px) {
   .ak-cta-form { flex-direction: column; }
-  .ak-cta-form .ak-btn-primary { width: 100%; }
 }
 .ak-cta-form input { flex: 1; background: oklch(var(--bg-inset)); border: 1px solid oklch(var(--border-subtle)); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); font-size: var(--fs-body); color: oklch(var(--text-primary)); }
 .ak-cta-form input:focus-visible { outline: 2px solid oklch(var(--border-focus)); outline-offset: 2px; border-color: oklch(var(--border-focus)); box-shadow: 0 0 0 3px oklch(var(--border-focus) / 0.2); }
@@ -417,7 +403,6 @@ main { display: block; }
 .ak-code pre { padding: var(--space-4) var(--space-5); overflow-x: auto; font-family: var(--font-mono); font-size: var(--fs-caption); line-height: 1.7; color: oklch(var(--terminal-text)); margin: 0; }
 
 /* ---- Buttons with icons ---- */
-.ak-btn { gap: var(--space-2); }
 
 /* =====================================================================
    HOME — Variant B (editorial centered)
